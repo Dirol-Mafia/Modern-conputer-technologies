@@ -6,6 +6,7 @@
 # may offer an updated version of it.
 
 QT += qml quick widgets sql core
+QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += $$PWD/qtquick2controlsapplicationviewer.cpp
 HEADERS += $$PWD/qtquick2controlsapplicationviewer.h

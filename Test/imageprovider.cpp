@@ -1,7 +1,9 @@
 #include "imageprovider.h"
 #include <stdexcept>
 #include "QSql"
-#include "QSqlDatabase"
+//#include "QSqlDatabase"
+#include <QTreeView>
+#include <QSqlDatabase>
 
 using namespace std;
 
