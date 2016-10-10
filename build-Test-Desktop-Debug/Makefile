@@ -47,9 +47,11 @@ OBJECTS_DIR   = ./
 
 SOURCES       = ../Test/main.cpp \
 		../Test/imageprovider.cpp \
+		../Test/dbactions.cpp \
 		../Test/qtquick2controlsapplicationviewer/qtquick2controlsapplicationviewer.cpp 
 OBJECTS       = main.o \
 		imageprovider.o \
+		dbactions.o \
 		qtquick2controlsapplicationviewer.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/shell-unix.conf \
@@ -296,7 +298,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/Test1.0.0 || mkdir -p .tmp/Test1.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/Test1.0.0/ && $(COPY_FILE) --parents ../Test/qtquick2controlsapplicationviewer/qtquick2controlsapplicationviewer.h ../Test/imageprovider.h .tmp/Test1.0.0/ && $(COPY_FILE) --parents ../Test/main.cpp ../Test/imageprovider.cpp ../Test/qtquick2controlsapplicationviewer/qtquick2controlsapplicationviewer.cpp .tmp/Test1.0.0/ && (cd `dirname .tmp/Test1.0.0` && $(TAR) Test1.0.0.tar Test1.0.0 && $(COMPRESS) Test1.0.0.tar) && $(MOVE) `dirname .tmp/Test1.0.0`/Test1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Test1.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/Test1.0.0/ && $(COPY_FILE) --parents ../Test/qtquick2controlsapplicationviewer/qtquick2controlsapplicationviewer.h ../Test/imageprovider.h .tmp/Test1.0.0/ && $(COPY_FILE) --parents ../Test/main.cpp ../Test/imageprovider.cpp ../Test/dbactions.cpp ../Test/qtquick2controlsapplicationviewer/qtquick2controlsapplicationviewer.cpp .tmp/Test1.0.0/ && (cd `dirname .tmp/Test1.0.0` && $(TAR) Test1.0.0.tar Test1.0.0 && $(COMPRESS) Test1.0.0.tar) && $(MOVE) `dirname .tmp/Test1.0.0`/Test1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Test1.0.0
 
 
 clean:compiler_clean 
@@ -455,7 +457,10 @@ main.o: ../Test/main.cpp ../Test/qtquick2controlsapplicationviewer/qtquick2contr
 		/usr/include/qt5/QtGui/qtouchdevice.h \
 		/usr/include/qt5/QtGui/qguiapplication.h \
 		/usr/include/qt5/QtGui/qinputmethod.h \
-		/usr/include/qt5/QtGui/QGuiApplication
+		/usr/include/qt5/QtGui/QGuiApplication \
+		/usr/include/qt5/QtSql/QSqlDatabase \
+		/usr/include/qt5/QtSql/qsqldatabase.h \
+		/usr/include/qt5/QtSql/qsql.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Test/main.cpp
 
 imageprovider.o: ../Test/imageprovider.cpp ../Test/imageprovider.h \
@@ -591,6 +596,54 @@ imageprovider.o: ../Test/imageprovider.cpp ../Test/imageprovider.h \
 		/usr/include/qt5/QtSql/qsql.h \
 		/usr/include/qt5/QtSql/QSql
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o imageprovider.o ../Test/imageprovider.cpp
+
+dbactions.o: ../Test/dbactions.cpp /usr/include/qt5/QtSql/QSqlDatabase \
+		/usr/include/qt5/QtSql/qsqldatabase.h \
+		/usr/include/qt5/QtCore/qstring.h \
+		/usr/include/qt5/QtCore/qchar.h \
+		/usr/include/qt5/QtCore/qglobal.h \
+		/usr/include/qt5/QtCore/qconfig.h \
+		/usr/include/qt5/QtCore/qfeatures.h \
+		/usr/include/qt5/QtCore/qsystemdetection.h \
+		/usr/include/qt5/QtCore/qprocessordetection.h \
+		/usr/include/qt5/QtCore/qcompilerdetection.h \
+		/usr/include/qt5/QtCore/qglobalstatic.h \
+		/usr/include/qt5/QtCore/qatomic.h \
+		/usr/include/qt5/QtCore/qbasicatomic.h \
+		/usr/include/qt5/QtCore/qatomic_bootstrap.h \
+		/usr/include/qt5/QtCore/qgenericatomic.h \
+		/usr/include/qt5/QtCore/qatomic_msvc.h \
+		/usr/include/qt5/QtCore/qatomic_integrity.h \
+		/usr/include/qt5/QtCore/qoldbasicatomic.h \
+		/usr/include/qt5/QtCore/qatomic_vxworks.h \
+		/usr/include/qt5/QtCore/qatomic_power.h \
+		/usr/include/qt5/QtCore/qatomic_alpha.h \
+		/usr/include/qt5/QtCore/qatomic_armv7.h \
+		/usr/include/qt5/QtCore/qatomic_armv6.h \
+		/usr/include/qt5/QtCore/qatomic_armv5.h \
+		/usr/include/qt5/QtCore/qatomic_bfin.h \
+		/usr/include/qt5/QtCore/qatomic_ia64.h \
+		/usr/include/qt5/QtCore/qatomic_mips.h \
+		/usr/include/qt5/QtCore/qatomic_s390.h \
+		/usr/include/qt5/QtCore/qatomic_sh4a.h \
+		/usr/include/qt5/QtCore/qatomic_sparc.h \
+		/usr/include/qt5/QtCore/qatomic_gcc.h \
+		/usr/include/qt5/QtCore/qatomic_x86.h \
+		/usr/include/qt5/QtCore/qatomic_cxx11.h \
+		/usr/include/qt5/QtCore/qatomic_unix.h \
+		/usr/include/qt5/QtCore/qmutex.h \
+		/usr/include/qt5/QtCore/qlogging.h \
+		/usr/include/qt5/QtCore/qflags.h \
+		/usr/include/qt5/QtCore/qtypeinfo.h \
+		/usr/include/qt5/QtCore/qtypetraits.h \
+		/usr/include/qt5/QtCore/qsysinfo.h \
+		/usr/include/qt5/QtCore/qbytearray.h \
+		/usr/include/qt5/QtCore/qrefcount.h \
+		/usr/include/qt5/QtCore/qnamespace.h \
+		/usr/include/qt5/QtCore/qarraydata.h \
+		/usr/include/qt5/QtCore/qstringbuilder.h \
+		/usr/include/qt5/QtSql/qsql.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dbactions.o ../Test/dbactions.cpp
 
 qtquick2controlsapplicationviewer.o: ../Test/qtquick2controlsapplicationviewer/qtquick2controlsapplicationviewer.cpp ../Test/qtquick2controlsapplicationviewer/qtquick2controlsapplicationviewer.h \
 		/usr/include/qt5/QtWidgets/QApplication \

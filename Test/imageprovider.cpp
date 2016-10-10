@@ -70,8 +70,9 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
             const DataWrapper *elem = dataForIndex(index);
             switch (elem->type) {
             case TERM:
-            case COURSE:
+            case SUBJECT:
             case THEME:
+            case PARAGRAPH:
                 return static_cast<HData*>(elem->data)->name;
             case IMAGE:
                 return static_cast<IData*>(elem->data)->path;

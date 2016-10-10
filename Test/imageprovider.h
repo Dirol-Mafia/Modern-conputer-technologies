@@ -6,37 +6,48 @@
 #include <QTreeView>
 #include <QSqlDatabase>
 
-enum h_type {ROOT, TERM, COURSE, THEME, IMAGE};
+enum h_type {ROOT, TERM, SUBJECT, THEME, PARAGRAPH, IMAGE};
 
+/**
+ * @brief The DataWrapper struct
+ */
 struct DataWrapper
 {
     int id;
-    int type;
-    void* data;
-    int number;
+    h_type type;
+    void* data; /// Can be either HData or IData
+    int number; /// Consecutive number
     DataWrapper* parent;
     QList <DataWrapper*> children;
     int count; /// explicit number of children
 };
 
+/**
+ * @brief The IData (Image Data) struct
+ * Defined accoring to "Lections" table in the DBLections
+ */
 struct IData
 {
-    int id;
-    int p_id;
-    int number;
-    QString path;
-    QString comment;
-    QVector <QString> tags;
+    int id; /// Primary key
+    int p_id; /// Parent id
+    int number; /// Consecutive number
+    QString path; /// Path to the image
+    QString comment; /// Comments (contains extra information)
+    QVector <QString> tags; /// Tags
 };
 
+/**
+ * @brief The HData (Hierarchy Data) struct
+ * Defined according to "Categories" table in the DBLections
+ */
 struct HData
 {
-    int id;
-    int p_id;
-    QString type;
-    QString name;
-    QString comment;
-    int number;
+    int id; /// Primary key
+    int p_id; /// Parent id
+    QString type; /// Type: term, subject, theme, paragraph
+    QString name; /// Name
+    QString comment; /// Comments (contains extra information)
+    int number; /// Consecutive number
 };
 
 class ImageProvider: public QAbstractItemModel
@@ -59,5 +70,4 @@ private:
     const DataWrapper* dataForIndex(const QModelIndex& index) const;
     DataWrapper* dataForIndex(const QModelIndex& index);
     QSqlDatabase db;
-   // QObject* parent;
 };
