@@ -14,7 +14,7 @@ ImageProvider::ImageProvider(QString dbname, QObject *parent)
     if (!db.open()){
         throw invalid_argument("Cannot open db");
     }
-    fetchAll(QModelIndex());
+   // fetchAll(QModelIndex());
 }
 
 ImageProvider::~ImageProvider()
@@ -82,3 +82,22 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
     }
 }
 
+QModelIndex ImageProvider::parent(const QModelIndex& child) const
+{
+
+}
+
+void ImageProvider::fecthMore(const QModelIndex& parent)
+{
+
+}
+
+bool ImageProvider::canFetchMore(const QModelIndex& parent) const
+{
+
+}
+
+void ImageProvider::fetchAll(const QModelIndex& parent)
+{
+
+}
