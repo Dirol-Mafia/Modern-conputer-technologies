@@ -6,7 +6,7 @@
 #include <QTreeView>
 #include <QSqlDatabase>
 
-enum h_type {ROOT, TERM, SUBJECT, THEME, PARAGRAPH, IMAGE};
+enum h_type {ROOT = 0, TERM = 1, SUBJECT = 2, THEME = 3, PARAGRAPH = 4, IMAGE = 5};
 
 /**
  * @brief The DataWrapper struct
@@ -28,12 +28,12 @@ struct DataWrapper
  */
 struct IData
 {
-    int id; /// Primary key
+    /*int id; /// Primary key
     int p_id; /// Parent id
-    int number; /// Consecutive number
+    int number; /// Consecutive number*/
     QString path; /// Path to the image
     QString comment; /// Comments (contains extra information)
-    QVector <QString> tags; /// Tags
+    QStringList tags; /// Tags
 };
 
 /**
@@ -42,16 +42,18 @@ struct IData
  */
 struct HData
 {
-    int id; /// Primary key
-    int p_id; /// Parent id
-    QString type; /// Type: term, subject, theme, paragraph
+    /*int id; /// Primary key
+    int p_id; /// Parent id*/
+    int type; /// Type: term, subject, theme, paragraph
     QString name; /// Name
     QString comment; /// Comments (contains extra information)
-    int number; /// Consecutive number
+    //int number; /// Consecutive number
 };
 
 class ImageProvider: public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     ImageProvider(QString dbname, QObject* parent = nullptr);
     ~ImageProvider();
@@ -66,7 +68,7 @@ public:
 private:
     DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1};
     //void DataWrapper(const QModelIndex &parent);
-    int getChildCount(h_type type, int pid) const;
+    int getChildrenCount(h_type type, int pid) const;
     const DataWrapper* dataForIndex(const QModelIndex& index) const;
     DataWrapper* dataForIndex(const QModelIndex& index);
     QSqlDatabase db;
