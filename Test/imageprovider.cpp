@@ -100,5 +100,8 @@ bool ImageProvider::canFetchMore(const QModelIndex& parent) const
 
 void ImageProvider::fetchAll(const QModelIndex& parent)
 {
+  if (!parent.isValid())
+    {
 
+    }
 }
