@@ -2,14 +2,26 @@
 #include <QSqlDatabase>
 #include <iostream>
 #include <QTreeView>
+#include <QSqlQuery>
+#include <QDebug>
 #include "imageprovider.h"
 
 int main(int argc, char *argv[])
 {
+    /*QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("DB_Lectures");
+    db.open();
+    QSqlQuery query;
+    bool ok = query.exec("SELECT * FROM huiznaetchto");
+    query.next();
+    qDebug() << query.executedQuery();
+    std::cout << ok << std::endl;*/
+
     Application app(argc, argv);
     ImageProvider model("DB_Lectures", nullptr);
     QTreeView view;
-    view.setModel(&model);
+    view.setModel(&model);    
+    view.setWindowTitle(QObject::tr("Lectures"));
     view.show();
 
     /*QtQuick2ControlsApplicationViewer viewer;

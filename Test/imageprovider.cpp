@@ -55,7 +55,6 @@ QModelIndex ImageProvider::index(int row, int column, const QModelIndex &parent)
     return createIndex(row, column, parent_pointer->children[row]);
 }
 
-//TODO linking error
 const DataWrapper* ImageProvider::dataForIndex(const QModelIndex &index) const
 {
     if (!index.isValid()){
@@ -110,12 +109,15 @@ int ImageProvider::getChildrenCount(h_type type, int pid) const
         default:
             break;
     }
+    qDebug() << "PID: " << pid;
     query.bindValue(":id", pid);
+    qDebug()<<query.boundValues();
     query.exec();
     query.next();
     qDebug() << query.executedQuery();
     //qDebug() << query.lastError();
     int count = query.value(0).toInt();
+    qDebug()<<count;
     return count;
 }
 
@@ -143,15 +145,27 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
     DataWrapper* data = dataForIndex(parent);
     data->children.clear();
     QSqlQuery query;
+
+    if (!parent.isValid())
+      data->type = ROOT;
+
     if (data->type != THEME){
         query.prepare("SELECT * from categories where p_id = :id");
     } else {
          query.prepare("SELECT * from lectures where p_id = :id");
     }
-    query.bindValue(":id", data->id);
+
+    if (parent.isValid())
+      query.bindValue(":id", data->id);
+    else{
+        qDebug() << "Root\n";
+      query.bindValue(":id", 0);
+      }
+
     query.exec();
     while (query.next()){
         int id = query.value("id").toUInt();
+        qDebug() << "ID: " << id;
         QString comment = query.value("Comment").toString();
         QStringList tags;
         int number;
@@ -166,6 +180,7 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
             case TERM:
             case SUBJECT: {
                 auto type = query.value("Type").toInt();
+                qDebug() << "Got type: " << type << "\n";
                 QString name = query.value("Name").toString();
                 data->children.append(
                             new DataWrapper{id, (h_type)type,
