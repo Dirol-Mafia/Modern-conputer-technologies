@@ -2,3 +2,5 @@
 *.exe
 moc*
 Makefile
+*.user.*
+ui*
