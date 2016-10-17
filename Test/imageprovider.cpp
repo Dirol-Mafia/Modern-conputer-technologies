@@ -153,8 +153,14 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
     while (query.next()){
         int id = query.value("id").toUInt();
         QString comment = query.value("Comment").toString();
-        QStringList tags = query.value("Tags").toStringList();
-        int number = query.value("Number").toInt();
+        QStringList tags;
+        int number;
+        if (data->type == THEME)
+            tags = query.value("Tags").toStringList();
+        if (data->type != THEME)
+            number = query.value("Number").toInt();
+        else
+            number = query.value("No").toInt();
         switch (data->type){
             case ROOT:
             case TERM:
