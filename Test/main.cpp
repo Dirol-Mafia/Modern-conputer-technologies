@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     std::cout << ok << std::endl;*/
 
     Application app(argc, argv);
-    ImageProvider model("../Test/DB_Lectures", nullptr);
+    ImageProvider model("../Test/DB_Lectures");
     QTreeView view;
     view.setModel(&model);    
     view.setWindowTitle(QObject::tr("Lectures"));

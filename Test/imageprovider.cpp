@@ -73,30 +73,39 @@ DataWrapper* ImageProvider::dataForIndex(const QModelIndex &index)
 
 QVariant ImageProvider::data(const QModelIndex &index, int role) const
 {
-    qDebug() << "I'm here!";
     if (!index.isValid()) {
-        qDebug() << "Invalid index";
+        qDebug() << "Invalid index (data)";
         return {};
       }
+    const DataWrapper *elem = dataForIndex(index);
     if (role == Qt::DisplayRole) {
-        if (index.isValid()){
-            const DataWrapper *elem = dataForIndex(index);
-            qDebug() << "Type (data): " << elem->type;
-            switch (elem->type) {
-                case ROOT:
-                case TERM:
-                case SUBJECT:
-                case THEME:
-                case PARAGRAPH:{
-                    qDebug() << "Name:" << static_cast<HData*>(elem->data)->name;
-                    return static_cast<HData*>(elem->data)->name;
-                }
-                case IMAGE:{
-                    qDebug() << "Name:" << static_cast<IData*>(elem->data)->path;
-                    return static_cast<IData*>(elem->data)->path;
-                }
-                default:
-                    break;
+        qDebug() << "Type (data): " << elem->type;
+        switch (elem->type) {
+            case ROOT:
+            case TERM:
+            case SUBJECT:
+            case THEME:
+            case PARAGRAPH:{
+                qDebug() << "Name (data):" << static_cast<HData*>(elem->data)->name;
+                return static_cast<HData*>(elem->data)->name;
+            }
+            case IMAGE:{
+                qDebug() << "Name (data):" << static_cast<IData*>(elem->data)->path;
+                return static_cast<IData*>(elem->data)->path;
+            }
+            default:
+                break;
+        }
+    }
+    else if (role == Qt::DecorationRole || Qt::SizeHintRole) {
+        if (elem->type == IMAGE) {
+            QPixmap pix;
+            pix.load(static_cast<IData*> (elem->data)->path);
+            if (role == Qt::DecorationRole){
+                return pix;
+            }
+            else {
+                return pix.size();
             }
         }
     }
@@ -119,13 +128,12 @@ int ImageProvider::getChildrenCount(h_type type, int pid) const
         default:
             break;
     }
-    qDebug() << "PID: " << pid;
+    qDebug() << "PID: (getChildrenCount)" << pid;
     query.bindValue(":id", pid);
     qDebug()<<query.boundValues();
     query.exec();
     query.next();
     qDebug() << query.executedQuery();
-    //qDebug() << query.lastError();
     int count = query.value(0).toInt();
     qDebug()<<count;
     return count;
@@ -160,7 +168,7 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
       data->type = ROOT;
 
     if (data->type != THEME){
-        qDebug() << "data type (fetch_all)" << data->type;
+        qDebug() << "data type (fetchAll)" << data->type;
         query.prepare("SELECT * from categories where p_id = :id");
     } else {
          query.prepare("SELECT * from lectures where p_id = :id");
@@ -169,14 +177,14 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
     if (parent.isValid())
       query.bindValue(":id", data->id);
     else{
-        qDebug() << "Root\n";
+        qDebug() << "Root\n (fetchAll)";
       query.bindValue(":id", 0);
       }
 
     query.exec();
     while (query.next()){
         int id = query.value("id").toUInt();
-        qDebug() << "ID: " << id;
+        qDebug() << "ID: (fetchAll)" << id;
         QString comment = query.value("Comment").toString();
         QStringList tags;
         int number;
@@ -191,13 +199,14 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
             case TERM:
             case SUBJECT: {
                 auto type = query.value("Type").toInt();
-                qDebug() << "Got type: " << type << "\n";
+                qDebug() << "Got type: (fetchAll)" << type << "\n";
                 QString name = query.value("Name").toString();
-                qDebug() << "name (fetch all):" << name;
+                qDebug() << "name (fetchAll):" << name;
                 data->children.append(
                             new DataWrapper{id, (h_type)type,
                                             new HData{type, name, comment},
                             number, data, {}, getChildrenCount((h_type)type, id)});
+                qDebug() << data->children;
                 data->count = data->children.size();
                 break;
             }
