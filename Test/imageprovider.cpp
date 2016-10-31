@@ -73,7 +73,7 @@ DataWrapper* ImageProvider::dataForIndex(const QModelIndex &index)
 
 QVariant ImageProvider::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid()) {
+  if (!index.isValid()) {
         qDebug() << "Invalid index (data)";
         return {};
       }
@@ -93,8 +93,8 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
                 qDebug() << "Name (data):" << static_cast<IData*>(elem->data)->path;
                 return static_cast<IData*>(elem->data)->path;
             }
-            default:
-                break;
+          default:
+                return QVariant();
         }
     }
     else if (role == Qt::DecorationRole || Qt::SizeHintRole) {
@@ -109,6 +109,7 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
             }
         }
     }
+    return QVariant();
 }
 
 int ImageProvider::getChildrenCount(h_type type, int pid) const
