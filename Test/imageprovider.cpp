@@ -41,11 +41,19 @@ QModelIndex ImageProvider::index(int row, int column, const QModelIndex &parent)
         return QModelIndex();
     }
 
+    const DataWrapper *parent_pointer = dataForIndex(parent);
+
+    if (row == -1){
+   //     return {};
+        qDebug() << rowCount(parent);
+        qDebug() << columnCount(parent);
+      }
+
     if (!parent.isValid()){
         return createIndex(row, column, d.children[row]);
     }
 
-    const DataWrapper *parent_pointer = dataForIndex(parent);
+//    const DataWrapper *parent_pointer = dataForIndex(parent);
     if (parent_pointer->type == IMAGE){
         return QModelIndex();
     }
@@ -60,7 +68,7 @@ const DataWrapper* ImageProvider::dataForIndex(const QModelIndex &index) const
     if (!index.isValid()){
         return &d;
     }
-    return static_cast<DataWrapper *>(index.internalPointer());
+    return static_cast<const DataWrapper *>(index.internalPointer());
 }
 
 DataWrapper* ImageProvider::dataForIndex(const QModelIndex &index)
@@ -127,7 +135,7 @@ int ImageProvider::getChildrenCount(h_type type, int pid) const
         case IMAGE:
             return 0;
         default:
-            break;
+            return 0;
     }
     qDebug() << "PID: (getChildrenCount)" << pid;
     query.bindValue(":id", pid);
@@ -136,7 +144,7 @@ int ImageProvider::getChildrenCount(h_type type, int pid) const
     query.next();
     qDebug() << query.executedQuery();
     int count = query.value(0).toInt();
-    qDebug()<<count;
+    qDebug()<< "GetChildrenCount:" << count;
     return count;
 }
 
@@ -148,7 +156,7 @@ QModelIndex ImageProvider::parent(const QModelIndex& child) const
     return createIndex(child_pointer->parent->number, 0, static_cast<void *>(child_pointer->parent));
 }
 
-void ImageProvider::fecthMore(const QModelIndex& parent)
+void ImageProvider::fetchMore(const QModelIndex& parent)
 {
     fetchAll(parent);
 }
@@ -156,6 +164,7 @@ void ImageProvider::fecthMore(const QModelIndex& parent)
 bool ImageProvider::canFetchMore(const QModelIndex& parent) const
 {
     const DataWrapper* data = dataForIndex(parent);
+    volatile int size = data->children.size();
     return (data->children.size() < data->count);
 }
 
@@ -207,7 +216,9 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
                             new DataWrapper{id, (h_type)type,
                                             new HData{type, name, comment},
                             number, data, {}, getChildrenCount((h_type)type, id)});
-                qDebug() << data->children;
+                qDebug() << "Children" << data->children.size();
+                qDebug() << "Count" << data->count;
+
                 data->count = data->children.size();
                 break;
             }
@@ -219,7 +230,9 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
                 data->count = data->children.size();
                 break;
             }
-            default: break;
+            default:
+              data->count = 0;
+              break;
         }
     }
 }
