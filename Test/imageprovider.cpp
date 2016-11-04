@@ -87,26 +87,28 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
       }
     const DataWrapper *elem = dataForIndex(index);
     if (role == Qt::DisplayRole) {
-        qDebug() << "Type (data): " << elem->type;
+        //qDebug() << "Type (data): " << elem->type;
         switch (elem->type) {
             case ROOT:
             case TERM:
             case SUBJECT:
             case THEME:
             case PARAGRAPH:{
-                qDebug() << "Name (data):" << static_cast<HData*>(elem->data)->name;
+                //qDebug() << "Name (data):" << static_cast<HData*>(elem->data)->name;
                 return static_cast<HData*>(elem->data)->name;
             }
             case IMAGE:{
-                qDebug() << "Name (data):" << static_cast<IData*>(elem->data)->path;
-                return static_cast<IData*>(elem->data)->path;
+                //qDebug() << "Yes, this is image";
+                //qDebug() << "Name (data):" << static_cast<IData*>(elem->data)->path;
+                return static_cast<IData*>(elem->data)->comment;
             }
-          default:
+            default:
                 return QVariant();
         }
     }
     else if (role == Qt::DecorationRole || Qt::SizeHintRole) {
         if (elem->type == IMAGE) {
+            //qDebug() << "Displaying picture...";
             QPixmap pix;
             pix.load(static_cast<IData*> (elem->data)->path);
             if (role == Qt::DecorationRole){
@@ -127,9 +129,10 @@ int ImageProvider::getChildrenCount(h_type type, int pid) const
         case ROOT:
         case TERM:
         case SUBJECT:
+        case THEME:
             query.prepare("SELECT COUNT (*) from categories where p_id = :id");
             break;
-        case THEME:
+      case PARAGRAPH:
             query.prepare("SELECT COUNT (*) from lectures where p_id = :id");
             break;
         case IMAGE:
@@ -164,7 +167,6 @@ void ImageProvider::fetchMore(const QModelIndex& parent)
 bool ImageProvider::canFetchMore(const QModelIndex& parent) const
 {
     const DataWrapper* data = dataForIndex(parent);
-    volatile int size = data->children.size();
     return (data->children.size() < data->count);
 }
 
@@ -177,7 +179,7 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
     if (!parent.isValid())
       data->type = ROOT;
 
-    if (data->type != THEME){
+    if (data->type != PARAGRAPH){
         qDebug() << "data type (fetchAll)" << data->type;
         query.prepare("SELECT * from categories where p_id = :id");
     } else {
@@ -198,16 +200,17 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
         QString comment = query.value("Comment").toString();
         QStringList tags;
         int number;
-        if (data->type == THEME)
+        if (data->type == PARAGRAPH)
             tags = query.value("Tags").toStringList();
-        if (data->type != THEME)
+        if (data->type != PARAGRAPH)
             number = query.value("Number").toInt();
         else
             number = query.value("No").toInt();
         switch (data->type){
             case ROOT:
             case TERM:
-            case SUBJECT: {
+            case SUBJECT:
+            case THEME: {
                 auto type = query.value("Type").toInt();
                 qDebug() << "Got type: (fetchAll)" << type << "\n";
                 QString name = query.value("Name").toString();
@@ -222,11 +225,12 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
                 data->count = data->children.size();
                 break;
             }
-            case THEME: {
+            case PARAGRAPH: {
                 auto path = query.value("File_name").toString();
                 data->children.append(
                             new DataWrapper{id, IMAGE, new IData{path, comment, tags},
                                       number, data, {}, getChildrenCount(IMAGE, id)});
+                qDebug() << "Chidren theme: " << data->children.size();
                 data->count = data->children.size();
                 break;
             }

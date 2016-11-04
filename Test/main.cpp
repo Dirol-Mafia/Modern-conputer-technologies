@@ -5,7 +5,7 @@
 #include <QSqlQuery>
 #include <QDebug>
 #include "imageprovider.h"
-
+#include <QStandardItemModel>
 int main(int argc, char *argv[])
 {
     /*QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     Application app(argc, argv);
     ImageProvider model("../Test/DB_Lectures");
     QTreeView view;
-    view.setModel(&model);    
+    view.setModel(&model);
     view.setWindowTitle(QObject::tr("Lectures"));
     view.show();
 

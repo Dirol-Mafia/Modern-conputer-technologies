@@ -63,7 +63,7 @@ public:
     virtual QVariant data(const QModelIndex& index, int role) const;
     virtual QModelIndex parent(const QModelIndex& child) const;
     void fetchAll(const QModelIndex& parent);
-    void fecthMore(const QModelIndex& parent);
+    void fetchMore(const QModelIndex& parent);
     bool canFetchMore(const QModelIndex& parent) const;
 private:
     DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1};
