@@ -9,7 +9,8 @@ QML_IMPORT_PATH =
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
     imageprovider.cpp \
-    dbactions.cpp
+    dbactions.cpp \
+    MainWindow.cpp
 
 # Installation path
 # target.path =
@@ -19,4 +20,5 @@ include(qtquick2controlsapplicationviewer/qtquick2controlsapplicationviewer.pri)
 qtcAddDeployment()
 
 HEADERS += \
-    imageprovider.h
+    imageprovider.h \
+    MainWindow.h
