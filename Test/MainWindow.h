@@ -16,6 +16,12 @@
 #include <QMenuBar>
 #include <QDialog>
 #include <QLabel>
+#include <QAction>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QFormLayout>
+#include <QRadioButton>
+#include <QGroupBox>
 
 class MainWindow : public QDialog
 {
@@ -33,4 +39,10 @@ private:
     QVBoxLayout *dataLayout;
     QVBoxLayout *menuLayout;
     QVBoxLayout *mainLayout;
+    QAction *addCategory;
+    QAction *addLecture;
+    void createActions();
+    void createMenus();
+    void addCategoryToDb();
+    void addLectureToDb();
 };
