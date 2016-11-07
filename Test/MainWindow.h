@@ -15,6 +15,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QDialog>
+#include<QMainWindow>
 #include <QLabel>
 #include <QAction>
 #include <QLineEdit>
@@ -22,8 +23,9 @@
 #include <QFormLayout>
 #include <QRadioButton>
 #include <QGroupBox>
+#include <QListView>
 
-class MainWindow : public QDialog
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
@@ -34,7 +36,7 @@ private:
     QMenu *menuEdit;
     QMenu *menuAdd;
     ImageProvider *model;
-    QTreeView *view;
+    QTreeView *treeView;
     QLabel *lb;
     QVBoxLayout *dataLayout;
     QVBoxLayout *menuLayout;

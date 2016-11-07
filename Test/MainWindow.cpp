@@ -1,24 +1,22 @@
 #include <MainWindow.h>
 
-MainWindow::MainWindow(QWidget *parent) : QDialog(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     createActions();
     createMenus();
 
     model = new ImageProvider("../Test/DB_Lectures");
-    view = new QTreeView;
-    view->setModel(model);
-    view->setFixedSize(320, 320);
+    treeView = new QTreeView;
+
+    treeView->setModel(model);
+    //view->setFixedSize(320, 320);
 
     dataLayout = new QVBoxLayout;
-    dataLayout->addWidget(view);
+    dataLayout->addWidget(treeView);
 
-    mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(menuLayout);
-    mainLayout->addLayout(dataLayout);
-
-    setFixedSize(512, 512);
-    setLayout(mainLayout);
+    setFixedSize(1024, 1024);
+    this->setCentralWidget(new QWidget(this));
+    centralWidget()->setLayout(dataLayout);
 }
 
 void MainWindow::createActions()
@@ -37,17 +35,19 @@ void MainWindow::createMenus()
     menuBar = new QMenuBar(this);
     menuEdit = new QMenu("Редактировать");
     menuAdd = new QMenu("Добавить");
+
     menuEdit->addAction("test1");
     menuEdit->addSeparator();
     menuEdit->addAction("test2");
+
     menuAdd->addAction(addCategory);
     menuAdd->addAction("Фотографии лекций");
+
     menuBar->addMenu(menuEdit);
     menuBar->addMenu(menuAdd);
     menuBar->setNativeMenuBar(false);
-    menuLayout = new QVBoxLayout;
 
-    menuLayout->setMenuBar(menuBar);
+    this->setMenuBar(menuBar);
 }
 
 void MainWindow::addLectureToDb()
