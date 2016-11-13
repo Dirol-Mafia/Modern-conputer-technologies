@@ -24,6 +24,7 @@
 #include <QRadioButton>
 #include <QGroupBox>
 #include <QListView>
+#include <QSortFilterProxyModel>
 
 class MainWindow : public QMainWindow
 {
@@ -36,15 +37,21 @@ private:
     QMenu *menuEdit;
     QMenu *menuAdd;
     ImageProvider *model;
+    MySortFilterProxyModel *filteredModel;
     QTreeView *treeView;
+    QListView *listView;
     QLabel *lb;
     QVBoxLayout *dataLayout;
-    QVBoxLayout *menuLayout;
-    QVBoxLayout *mainLayout;
+    QVBoxLayout *imagesLayout;
+    QHBoxLayout *mainLayout;
+    QPushButton *editButton;
+    QPushButton *printButton;
     QAction *addCategory;
     QAction *addLecture;
     void createActions();
     void createMenus();
     void addCategoryToDb();
     void addLectureToDb();
+private slots:
+    void showImages(const QModelIndex &index);
 };

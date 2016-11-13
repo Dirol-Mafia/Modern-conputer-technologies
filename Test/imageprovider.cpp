@@ -43,17 +43,10 @@ QModelIndex ImageProvider::index(int row, int column, const QModelIndex &parent)
 
     const DataWrapper *parent_pointer = dataForIndex(parent);
 
-    if (row == -1){
-   //     return {};
-        qDebug() << rowCount(parent);
-        qDebug() << columnCount(parent);
-      }
-
     if (!parent.isValid()){
         return createIndex(row, column, d.children[row]);
     }
 
-//    const DataWrapper *parent_pointer = dataForIndex(parent);
     if (parent_pointer->type == IMAGE){
         return QModelIndex();
     }
@@ -82,24 +75,19 @@ DataWrapper* ImageProvider::dataForIndex(const QModelIndex &index)
 QVariant ImageProvider::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid()) {
-        qDebug() << "Invalid index (data)";
         return {};
       }
     const DataWrapper *elem = dataForIndex(index);
     if (role == Qt::DisplayRole) {
-        //qDebug() << "Type (data): " << elem->type;
         switch (elem->type) {
             case ROOT:
             case TERM:
             case SUBJECT:
             case THEME:
             case PARAGRAPH:{
-                //qDebug() << "Name (data):" << static_cast<HData*>(elem->data)->name;
                 return static_cast<HData*>(elem->data)->name;
             }
             case IMAGE:{
-                //qDebug() << "Yes, this is image";
-                //qDebug() << "Name (data):" << static_cast<IData*>(elem->data)->path;
                 return static_cast<IData*>(elem->data)->comment;
             }
             default:
@@ -108,7 +96,6 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
     }
     else if (role == Qt::DecorationRole || Qt::SizeHintRole) {
         if (elem->type == IMAGE) {
-            //qDebug() << "Displaying picture...";
             QPixmap pix;
             pix.load(static_cast<IData*> (elem->data)->path);
             if (role == Qt::DecorationRole){
@@ -140,14 +127,10 @@ int ImageProvider::getChildrenCount(h_type type, int pid) const
         default:
             return 0;
     }
-    qDebug() << "PID: (getChildrenCount)" << pid;
     query.bindValue(":id", pid);
-    qDebug()<<query.boundValues();
     query.exec();
     query.next();
-    qDebug() << query.executedQuery();
     int count = query.value(0).toInt();
-    qDebug()<< "GetChildrenCount:" << count;
     return count;
 }
 
@@ -180,7 +163,6 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
       data->type = ROOT;
 
     if (data->type != PARAGRAPH){
-        qDebug() << "data type (fetchAll)" << data->type;
         query.prepare("SELECT * from categories where p_id = :id");
     } else {
          query.prepare("SELECT * from lectures where p_id = :id");
@@ -189,14 +171,12 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
     if (parent.isValid())
       query.bindValue(":id", data->id);
     else{
-        qDebug() << "Root\n (fetchAll)";
       query.bindValue(":id", 0);
       }
 
     query.exec();
     while (query.next()){
         int id = query.value("id").toUInt();
-        qDebug() << "ID: (fetchAll)" << id;
         QString comment = query.value("Comment").toString();
         QStringList tags;
         int number;
@@ -212,16 +192,11 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
             case SUBJECT:
             case THEME: {
                 auto type = query.value("Type").toInt();
-                qDebug() << "Got type: (fetchAll)" << type << "\n";
                 QString name = query.value("Name").toString();
-                qDebug() << "name (fetchAll):" << name;
                 data->children.append(
                             new DataWrapper{id, (h_type)type,
                                             new HData{type, name, comment},
                             number, data, {}, getChildrenCount((h_type)type, id)});
-                qDebug() << "Children" << data->children.size();
-                qDebug() << "Count" << data->count;
-
                 data->count = data->children.size();
                 break;
             }
@@ -230,7 +205,6 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
                 data->children.append(
                             new DataWrapper{id, IMAGE, new IData{path, comment, tags},
                                       number, data, {}, getChildrenCount(IMAGE, id)});
-                qDebug() << "Chidren theme: " << data->children.size();
                 data->count = data->children.size();
                 break;
             }
@@ -239,4 +213,29 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
               break;
         }
     }
+}
+
+bool MySortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+
+    qDebug() << "#filterAcceptsRow index: " << index;
+    qDebug() << "#filterAcceptsRow source_row: " << source_row;
+    qDebug() << "#filterAcceptsRow source_parent: " << source_parent;
+
+    if (index.isValid())
+    {
+        DataWrapper* dw = static_cast<DataWrapper *>(index.internalPointer());
+        qDebug() << "#filterAcceptsRow type:" << dw->type;
+        qDebug() << "#filterAcceptsRow source_row:" << source_row;
+        qDebug() << (dw->type == PARAGRAPH);
+        return dw->type == PARAGRAPH;
+    }
+    qDebug() << "index is not valid!";
+    return true;
+}
+
+MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent): QSortFilterProxyModel(parent)
+{
+
 }

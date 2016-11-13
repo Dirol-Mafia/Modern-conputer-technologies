@@ -6,18 +6,45 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createMenus();
 
     model = new ImageProvider("../Test/DB_Lectures");
+    filteredModel = new MySortFilterProxyModel(this);
+    filteredModel->setSourceModel(model);
+
     treeView = new QTreeView;
-
     treeView->setModel(model);
-    //view->setFixedSize(320, 320);
-
     dataLayout = new QVBoxLayout;
     dataLayout->addWidget(treeView);
 
-    setFixedSize(1024, 1024);
+    listView = new QListView;
+    listView->setModel(filteredModel);
+    listView->setEnabled(true);
+
+    imagesLayout = new QVBoxLayout;
+    editButton = new QPushButton("Редактировать");
+    printButton = new QPushButton("Печатать");
+    editButton->setEnabled(false);
+    printButton->setEnabled(false);
+    imagesLayout->addWidget(listView);
+    imagesLayout->addWidget(editButton);
+    imagesLayout->addWidget(printButton);
+
+    mainLayout = new QHBoxLayout;
+    mainLayout->addLayout(dataLayout);
+    mainLayout->addLayout(imagesLayout);
+
+    QObject::connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showImages(const QModelIndex &)));
+
     this->setCentralWidget(new QWidget(this));
-    centralWidget()->setLayout(dataLayout);
+    centralWidget()->setLayout(mainLayout);
 }
+
+void MainWindow::showImages(const QModelIndex &index)
+{
+    qDebug() << "#showImages index: " << index;
+    QModelIndex i = filteredModel->mapFromSource(index);
+    qDebug() << "#showImages proxyIndex: " << i;
+    listView->setRootIndex(i);
+}
+
 
 void MainWindow::createActions()
 {
@@ -86,5 +113,5 @@ void MainWindow::addCategoryToDb()
     window->setWindowTitle("Добавить категорию");
     window->setFixedSize(460, 320);
     window->show();
-    //QObject::connect(button, SIGNAL(clicked());
 }
+
