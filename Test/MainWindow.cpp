@@ -120,11 +120,17 @@ void MainWindow::addCategoryToDb()
 void MainWindow::on_treeView_customContextMenuRequested()
 {
     treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
-    QAction* actionEdit = new QAction(tr("Редактировать"), treeView);
+
+    QAction* actionEdit = new QAction(tr("Редактировать"), this);
+    connect(actionEdit, &QAction::triggered, this, &MainWindow::emptyAction);
     treeView->addAction(actionEdit);
+
     QAction* actionAdd = new QAction(tr("Добавить подкатегорию"), treeView);
+    connect(actionAdd, &QAction::triggered, this, &MainWindow::emptyAction);
     treeView->addAction(actionAdd);
+
     QAction* actionDelete = new QAction(tr("Удалить категорию"), treeView);
+    connect(actionDelete, &QAction::triggered, this, &MainWindow::emptyAction);
     treeView->addAction(actionDelete);
 
     /*QAction* actionEdit = new QAction(tr("Редактировать"), this);
@@ -136,12 +142,17 @@ void MainWindow::on_treeView_customContextMenuRequested()
 
 /* Actions for the Context Menu */
 
+void MainWindow::emptyAction()
+{
+  QMessageBox::information(treeView, "Ups...", "This action is kinda in developing!");
+}
+
 void MainWindow::editCategory()
 {
 
 }
 
-void MainWindow::editLecture()
+void MainWindow::editLecture(const QModelIndex& index)
 {
 
 }

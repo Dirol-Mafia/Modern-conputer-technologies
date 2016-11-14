@@ -29,13 +29,14 @@
 #include <QActionEvent>
 #include <QListView>
 #include <QSortFilterProxyModel>
+#include <QMessageBox>
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
 public:
     MainWindow(QWidget *parent = 0);
 private:
+    Q_OBJECT
     QWidget *window;
     QMenuBar *menuBar;
     QMenu *menuEdit;
@@ -53,14 +54,16 @@ private:
     QAction *addCategory;
     QAction *addLecture;
     void createActions();
-    void createMenus();
-
-    void on_treeView_customContextMenuRequested();
+    void createMenus();    
 
     void addCategoryToDb();
     void addLectureToDb();
     void editCategory();
-    void editLecture();
+    void editLecture(const QModelIndex& index);
+    void emptyAction();
+
+    void on_treeView_customContextMenuRequested();
+
 
 private slots:
     void showImages(const QModelIndex &index);
