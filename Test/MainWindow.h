@@ -15,6 +15,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QDialog>
+#include<QMainWindow>
 #include <QLabel>
 #include <QAction>
 #include <QLineEdit>
@@ -26,8 +27,10 @@
 #include <QMenu>
 #include <QAction>
 #include <QActionEvent>
+#include <QListView>
+#include <QSortFilterProxyModel>
 
-class MainWindow : public QDialog
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
@@ -38,11 +41,15 @@ private:
     QMenu *menuEdit;
     QMenu *menuAdd;
     ImageProvider *model;
-    QTreeView *view;
+    MySortFilterProxyModel *filteredModel;
+    QTreeView *treeView;
+    QListView *listView;
     QLabel *lb;
     QVBoxLayout *dataLayout;
-    QVBoxLayout *menuLayout;
-    QVBoxLayout *mainLayout;
+    QVBoxLayout *imagesLayout;
+    QHBoxLayout *mainLayout;
+    QPushButton *editButton;
+    QPushButton *printButton;
     QAction *addCategory;
     QAction *addLecture;
     void createActions();
@@ -54,4 +61,7 @@ private:
     void addLectureToDb();
     void editCategory();
     void editLecture();
+
+private slots:
+    void showImages(const QModelIndex &index);
 };

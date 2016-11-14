@@ -5,6 +5,7 @@
 #include <QAbstractItemModel>
 #include <QTreeView>
 #include <QSqlDatabase>
+#include <QSortFilterProxyModel>
 
 enum h_type {ROOT = 0, TERM = 1, SUBJECT = 2, THEME = 3, PARAGRAPH = 4, IMAGE = 5};
 
@@ -72,4 +73,13 @@ private:
     const DataWrapper* dataForIndex(const QModelIndex& index) const;
     DataWrapper* dataForIndex(const QModelIndex& index);
     QSqlDatabase db;
+};
+
+class MySortFilterProxyModel: public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    MySortFilterProxyModel(QObject *parent = 0);
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 };

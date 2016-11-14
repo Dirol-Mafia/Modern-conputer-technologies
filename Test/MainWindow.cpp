@@ -1,27 +1,52 @@
 #include <MainWindow.h>
 
-MainWindow::MainWindow(QWidget *parent) : QDialog(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     createActions();
     createMenus();
 
     model = new ImageProvider("../Test/DB_Lectures");
-    view = new QTreeView;
-    view->setModel(model);
-    view->setFixedSize(320, 320);
+    filteredModel = new MySortFilterProxyModel(this);
+    filteredModel->setSourceModel(model);
+
+    treeView = new QTreeView;
+    treeView->setModel(model);
+    dataLayout = new QVBoxLayout;
+    dataLayout->addWidget(treeView);
+
+    listView = new QListView;
+    listView->setModel(filteredModel);
+    listView->setEnabled(true);
+
+    imagesLayout = new QVBoxLayout;
+    editButton = new QPushButton("Редактировать");
+    printButton = new QPushButton("Печатать");
+    editButton->setEnabled(false);
+    printButton->setEnabled(false);
+    imagesLayout->addWidget(listView);
+    imagesLayout->addWidget(editButton);
+    imagesLayout->addWidget(printButton);
+
+    mainLayout = new QHBoxLayout;
+    mainLayout->addLayout(dataLayout);
+    mainLayout->addLayout(imagesLayout);
+
+    QObject::connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showImages(const QModelIndex &)));
+
+    this->setCentralWidget(new QWidget(this));
+    centralWidget()->setLayout(mainLayout);
 
     on_treeView_customContextMenuRequested();
-
-    dataLayout = new QVBoxLayout;
-    dataLayout->addWidget(view);
-
-    mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(menuLayout);
-    mainLayout->addLayout(dataLayout);
-
-    setFixedSize(512, 512);
-    setLayout(mainLayout);
 }
+
+void MainWindow::showImages(const QModelIndex &index)
+{
+    qDebug() << "#showImages index: " << index;
+    QModelIndex i = filteredModel->mapFromSource(index);
+    qDebug() << "#showImages proxyIndex: " << i;
+    listView->setRootIndex(i);
+}
+
 
 void MainWindow::createActions()
 {
@@ -39,17 +64,19 @@ void MainWindow::createMenus()
     menuBar = new QMenuBar(this);
     menuEdit = new QMenu("Редактировать");
     menuAdd = new QMenu("Добавить");
+
     menuEdit->addAction("test1");
     menuEdit->addSeparator();
     menuEdit->addAction("test2");
+
     menuAdd->addAction(addCategory);
     menuAdd->addAction("Фотографии лекций");
+
     menuBar->addMenu(menuEdit);
     menuBar->addMenu(menuAdd);
     menuBar->setNativeMenuBar(false);
-    menuLayout = new QVBoxLayout;
 
-    menuLayout->setMenuBar(menuBar);
+    this->setMenuBar(menuBar);
 }
 
 void MainWindow::addLectureToDb()
@@ -88,18 +115,17 @@ void MainWindow::addCategoryToDb()
     window->setWindowTitle("Добавить категорию");
     window->setFixedSize(460, 320);
     window->show();
-    //QObject::connect(button, SIGNAL(clicked());
 }
 
 void MainWindow::on_treeView_customContextMenuRequested()
 {
-    view->setContextMenuPolicy(Qt::ActionsContextMenu);
-    QAction* actionEdit = new QAction(tr("Редактировать"), view);
-    view->addAction(actionEdit);
-    QAction* actionAdd = new QAction(tr("Добавить подкатегорию"), view);
-    view->addAction(actionAdd);
-    QAction* actionDelete = new QAction(tr("Удалить категорию"), view);
-    view->addAction(actionDelete);
+    treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    QAction* actionEdit = new QAction(tr("Редактировать"), treeView);
+    treeView->addAction(actionEdit);
+    QAction* actionAdd = new QAction(tr("Добавить подкатегорию"), treeView);
+    treeView->addAction(actionAdd);
+    QAction* actionDelete = new QAction(tr("Удалить категорию"), treeView);
+    treeView->addAction(actionDelete);
 
     /*QAction* actionEdit = new QAction(tr("Редактировать"), this);
     QMenu *contextMenu = new QMenu(view);
