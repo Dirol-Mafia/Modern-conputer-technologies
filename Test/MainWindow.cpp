@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) : QDialog(parent)
     view->setModel(model);
     view->setFixedSize(320, 320);
 
+    on_treeView_customContextMenuRequested();
+
     dataLayout = new QVBoxLayout;
     dataLayout->addWidget(view);
 
@@ -87,4 +89,33 @@ void MainWindow::addCategoryToDb()
     window->setFixedSize(460, 320);
     window->show();
     //QObject::connect(button, SIGNAL(clicked());
+}
+
+void MainWindow::on_treeView_customContextMenuRequested()
+{
+    view->setContextMenuPolicy(Qt::ActionsContextMenu);
+    QAction* actionEdit = new QAction(tr("Редактировать"), view);
+    view->addAction(actionEdit);
+    QAction* actionAdd = new QAction(tr("Добавить подкатегорию"), view);
+    view->addAction(actionAdd);
+    QAction* actionDelete = new QAction(tr("Удалить категорию"), view);
+    view->addAction(actionDelete);
+
+    /*QAction* actionEdit = new QAction(tr("Редактировать"), this);
+    QMenu *contextMenu = new QMenu(view);
+    contextMenu->setTitle(tr("Открыть"));
+    contextMenu->addAction(actionEdit);
+    contextMenu->exec(QCursor::pos());*/
+}
+
+/* Actions for the Context Menu */
+
+void MainWindow::editCategory()
+{
+
+}
+
+void MainWindow::editLecture()
+{
+
 }

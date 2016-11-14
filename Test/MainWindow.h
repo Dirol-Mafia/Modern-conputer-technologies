@@ -22,6 +22,10 @@
 #include <QFormLayout>
 #include <QRadioButton>
 #include <QGroupBox>
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QAction>
+#include <QActionEvent>
 
 class MainWindow : public QDialog
 {
@@ -43,6 +47,11 @@ private:
     QAction *addLecture;
     void createActions();
     void createMenus();
+
+    void on_treeView_customContextMenuRequested();
+
     void addCategoryToDb();
     void addLectureToDb();
+    void editCategory();
+    void editLecture();
 };
