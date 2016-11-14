@@ -14,15 +14,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     dataLayout = new QVBoxLayout;
     dataLayout->addWidget(treeView);
 
-    listView = new QTreeView;
-    listView->setModel(model);
+    imagesView = new QTableView;
+    imagesView->setModel(model);
 
     imagesLayout = new QVBoxLayout;
     editButton = new QPushButton("Редактировать");
     printButton = new QPushButton("Печатать");
     editButton->setEnabled(false);
     printButton->setEnabled(false);
-    imagesLayout->addWidget(listView);
+    imagesLayout->addWidget(imagesView);
     imagesLayout->addWidget(editButton);
     imagesLayout->addWidget(printButton);
 
@@ -41,8 +41,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 void MainWindow::showImages(const QModelIndex &proxyIndex)
 {
     QModelIndex realIndex = filteredModel->mapToSource(proxyIndex);
-    qDebug() << "Real index: " << realIndex;
-    listView->setRootIndex(realIndex);
+    DataWrapper* data = static_cast<DataWrapper *>(realIndex.internalPointer());
+    if (data->type == PARAGRAPH)
+    {
+        imagesView->setRootIndex(realIndex);
+        imagesView->setVisible(false);
+        imagesView->resizeColumnsToContents();
+        imagesView->resizeRowsToContents();
+        imagesView->setVisible(true);
+    }
 }
 
 

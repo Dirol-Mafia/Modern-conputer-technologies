@@ -28,6 +28,7 @@
 #include <QAction>
 #include <QActionEvent>
 #include <QListView>
+#include <QTableView>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 
@@ -44,7 +45,7 @@ private:
     ImageProvider *model;
     MySortFilterProxyModel *filteredModel;
     QTreeView *treeView;
-    QTreeView *listView;
+    QTableView *imagesView;
     QLabel *lb;
     QVBoxLayout *dataLayout;
     QVBoxLayout *imagesLayout;
