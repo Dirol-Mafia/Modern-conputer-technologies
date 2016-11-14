@@ -7,3 +7,4 @@ Makefile
 ui*
 *err*
 err*
+build-Test-desktop-Debug/*
