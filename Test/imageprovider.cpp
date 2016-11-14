@@ -218,21 +218,12 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
 bool MySortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
-
-    qDebug() << "#filterAcceptsRow index: " << index;
-    qDebug() << "#filterAcceptsRow source_row: " << source_row;
-    qDebug() << "#filterAcceptsRow source_parent: " << source_parent;
-
     if (index.isValid())
     {
         DataWrapper* dw = static_cast<DataWrapper *>(index.internalPointer());
-        qDebug() << "#filterAcceptsRow type:" << dw->type;
-        qDebug() << "#filterAcceptsRow source_row:" << source_row;
-        qDebug() << (dw->type == PARAGRAPH);
-        return dw->type == PARAGRAPH;
+        return dw->type != IMAGE;
     }
-    qDebug() << "index is not valid!";
-    return true;
+    return false;
 }
 
 MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent): QSortFilterProxyModel(parent)

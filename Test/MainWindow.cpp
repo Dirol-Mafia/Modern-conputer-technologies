@@ -10,13 +10,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     filteredModel->setSourceModel(model);
 
     treeView = new QTreeView;
-    treeView->setModel(model);
+    treeView->setModel(filteredModel);
     dataLayout = new QVBoxLayout;
     dataLayout->addWidget(treeView);
 
-    listView = new QListView;
-    listView->setModel(filteredModel);
-    listView->setEnabled(true);
+    listView = new QTreeView;
+    listView->setModel(model);
 
     imagesLayout = new QVBoxLayout;
     editButton = new QPushButton("Редактировать");
@@ -39,12 +38,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     on_treeView_customContextMenuRequested();
 }
 
-void MainWindow::showImages(const QModelIndex &index)
+void MainWindow::showImages(const QModelIndex &proxyIndex)
 {
-    qDebug() << "#showImages index: " << index;
-    QModelIndex i = filteredModel->mapFromSource(index);
-    qDebug() << "#showImages proxyIndex: " << i;
-    listView->setRootIndex(i);
+    QModelIndex realIndex = filteredModel->mapToSource(proxyIndex);
+    qDebug() << "Real index: " << realIndex;
+    listView->setRootIndex(realIndex);
 }
 
 

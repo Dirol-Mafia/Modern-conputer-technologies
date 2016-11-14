@@ -44,7 +44,7 @@ private:
     ImageProvider *model;
     MySortFilterProxyModel *filteredModel;
     QTreeView *treeView;
-    QListView *listView;
+    QTreeView *listView;
     QLabel *lb;
     QVBoxLayout *dataLayout;
     QVBoxLayout *imagesLayout;
