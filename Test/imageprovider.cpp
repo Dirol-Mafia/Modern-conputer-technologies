@@ -239,3 +239,37 @@ MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent): QSortFilterProx
 {
 
 }
+
+//Non-class functions implementation
+QString getCatName(h_type type)
+{
+  switch (type) 
+    {
+      case ROOT:
+        return " ничего";
+      case TERM:
+        return " семестр";
+      case SUBJECT:
+        return " предмет";
+      case THEME:
+        return " тему";
+      case PARAGRAPH:
+        return " параграф";
+      case IMAGE:
+        return " скан лекции";
+      default:
+        return "";
+  }
+  
+}
+
+QString getCatChildName(h_type type)
+{
+  switch (type) {
+    case ROOT:
+      return " семестр";
+    case TERM:
+    default:
+      break;
+    }
+}

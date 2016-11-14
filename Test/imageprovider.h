@@ -83,3 +83,7 @@ public:
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 };
+ 
+// Other Functions
+QString getCatName(h_type type);
+QString getCatChildName(h_type type);

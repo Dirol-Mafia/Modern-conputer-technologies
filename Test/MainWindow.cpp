@@ -122,7 +122,7 @@ void MainWindow::on_treeView_customContextMenuRequested()
     treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     QAction* actionEdit = new QAction(tr("Редактировать"), this);
-    connect(actionEdit, &QAction::triggered, this, &MainWindow::emptyAction);
+    connect(actionEdit, &QAction::triggered, this, &MainWindow::editCategory);
     treeView->addAction(actionEdit);
 
     QAction* actionAdd = new QAction(tr("Добавить подкатегорию"), treeView);
@@ -130,14 +130,8 @@ void MainWindow::on_treeView_customContextMenuRequested()
     treeView->addAction(actionAdd);
 
     QAction* actionDelete = new QAction(tr("Удалить категорию"), treeView);
-    connect(actionDelete, &QAction::triggered, this, &MainWindow::emptyAction);
+    connect(actionDelete, &QAction::triggered, this, &MainWindow::deleteAction);
     treeView->addAction(actionDelete);
-
-    /*QAction* actionEdit = new QAction(tr("Редактировать"), this);
-    QMenu *contextMenu = new QMenu(view);
-    contextMenu->setTitle(tr("Открыть"));
-    contextMenu->addAction(actionEdit);
-    contextMenu->exec(QCursor::pos());*/
 }
 
 /* Actions for the Context Menu */
@@ -145,14 +139,141 @@ void MainWindow::on_treeView_customContextMenuRequested()
 void MainWindow::emptyAction()
 {
   QMessageBox::information(treeView, "Ups...", "This action is kinda in developing!");
+  qDebug() << treeView->selectionModel()->currentIndex().isValid();
+  const DataWrapper* child = static_cast<const DataWrapper*>(treeView->selectionModel()->currentIndex().internalPointer());
+  qDebug() << "Selection type: " << child->type;
+  switch (child->type) {
+      case ROOT:
+      case TERM:
+      case SUBJECT:
+      case THEME:
+      case PARAGRAPH:
+          qDebug() << static_cast<HData*>(child->data)->name;
+          break;
+      case IMAGE:
+          qDebug() << static_cast<IData*>(child->data)->comment;
+          break;
+      default:
+        break;
+    }
 }
 
 void MainWindow::editCategory()
 {
+  const DataWrapper* child = static_cast<const DataWrapper*>(treeView->selectionModel()->currentIndex().internalPointer());
+  QString child_data;
+  QString child_comment;
+  QString child_tags;
+  QString editWhat = getCatName(child->type);
+
+  switch (child->type) {
+    case ROOT:
+    case TERM:
+    case SUBJECT:
+    case THEME:
+    case PARAGRAPH:
+      child_data = static_cast<HData*>(child->data)->name;
+      child_comment = static_cast<HData*>(child->data)->comment;
+      break;
+    case IMAGE:
+      child_data = static_cast<IData*>(child->data)->path;
+      child_comment = static_cast<IData*>(child->data)->comment;
+      child_tags = (QString)static_cast<IData*>(child->data)->tags.join(',');
+      break;
+    default:
+      break;
+    }
+
+  QWidget *window = new QWidget;
+  QFormLayout *formLayout = new QFormLayout;
+
+  QLineEdit *nameEdit = new QLineEdit;
+  nameEdit->setText(child_data);
+  QLineEdit *commentEdit = new QLineEdit;
+  commentEdit->setText(child_comment);
+  commentEdit->setFixedHeight(50);
+  QPushButton *buttonEdit = new QPushButton("Редактировать");
+  QPushButton *buttonCancel = new QPushButton("Отмена");
+  connect(buttonEdit, &QPushButton::clicked, this, &MainWindow::emptyAction);
+  connect(buttonCancel, &QPushButton::clicked, window, &QWidget::close);
+
+  formLayout->addRow(tr("&Наименование"), nameEdit);
+  formLayout->addRow(tr("&Комментарий"), commentEdit);
+
+  if (child->type != IMAGE)
+      window->setFixedSize(460, 180);
+  else {
+      QLineEdit *tagEdit = new QLineEdit;
+      tagEdit->setText(child_tags);
+      tagEdit->setFixedHeight(50);
+      formLayout->addRow(tr("&Тэги (через запятую)"), tagEdit);
+      window->setFixedSize(460, 230);
+    }
+
+  formLayout->addRow(buttonEdit);
+  formLayout->addRow(buttonCancel);
+
+  window->setLayout(formLayout);
+  window->setWindowTitle("Редактировать" + editWhat);
+  window->show();
 
 }
 
-void MainWindow::editLecture(const QModelIndex& index)
+void MainWindow::editLecture()
 {
+  const DataWrapper* child = static_cast<const DataWrapper*>(treeView->selectionModel()->currentIndex().internalPointer());
+}
 
+void MainWindow::deleteAction()
+{
+  const DataWrapper* child = static_cast<const DataWrapper*>(treeView->selectionModel()->currentIndex().internalPointer());
+  QString child_data;
+  QString child_comment;
+  QString child_tags;
+  QString deleteWhat = getCatName(child->type);
+
+  switch (child->type) {
+    case ROOT:
+    case TERM:
+    case SUBJECT:
+    case THEME:
+    case PARAGRAPH:
+      child_data = static_cast<HData*>(child->data)->name;
+      child_comment = static_cast<HData*>(child->data)->comment;
+      break;
+    case IMAGE:
+      child_data = static_cast<IData*>(child->data)->path;
+      child_comment = static_cast<IData*>(child->data)->comment;
+      child_tags = (QString)static_cast<IData*>(child->data)->tags.join(',');
+      break;
+    default:
+      break;
+    }
+
+  QWidget *window = new QWidget;
+  QFormLayout *formLayout = new QFormLayout;
+  QMessageBox* warn_mess = new QMessageBox;
+
+  QPushButton* buttonYes = new QPushButton("Да");
+  QPushButton* buttonNo = new QPushButton("Нет");
+ // warn_mess->warning(window, "Предупреждение",
+ //      "Вы действительно хотите удалить " + child_data + " со всем его содержимым без возможности восстановления?",
+ //      buttonYes, buttonNo);
+
+  QLabel* name = new QLabel;
+  name->setText(child_data);
+  formLayout->addRow(tr("&Название:"), name);
+
+  QPushButton* buttonDelete = new QPushButton("Удалить");
+  QPushButton *buttonCancel = new QPushButton("Отмена");
+  //connect(buttonDelete, &QPushButton::clicked, this, &(warn_mess->exec()));
+  connect(buttonCancel, &QPushButton::clicked, window, &QWidget::close);
+
+  formLayout->addRow(buttonDelete);
+  formLayout->addRow(buttonCancel);
+
+  window->setLayout(formLayout);
+  window->setFixedSize(460, 180);
+  window->setWindowTitle("Удалить" + deleteWhat);
+  window->show();
 }

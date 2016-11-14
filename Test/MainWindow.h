@@ -15,7 +15,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QDialog>
-#include<QMainWindow>
+#include <QMainWindow>
 #include <QLabel>
 #include <QAction>
 #include <QLineEdit>
@@ -59,8 +59,9 @@ private:
     void addCategoryToDb();
     void addLectureToDb();
     void editCategory();
-    void editLecture(const QModelIndex& index);
+    void editLecture();
     void emptyAction();
+    void deleteAction();
 
     void on_treeView_customContextMenuRequested();
 
