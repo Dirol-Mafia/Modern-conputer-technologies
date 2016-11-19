@@ -145,7 +145,8 @@ void MainWindow::emptyAction()
 {
   QMessageBox::information(treeView, "Ups...", "This action is kinda in developing!");
   qDebug() << treeView->selectionModel()->currentIndex().isValid();
-  const DataWrapper* child = static_cast<const DataWrapper*>(treeView->selectionModel()->currentIndex().internalPointer());
+  QModelIndex cur_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+  const DataWrapper* child = static_cast<const DataWrapper*>(cur_ind.internalPointer());
   qDebug() << "Selection type: " << child->type;
   switch (child->type) {
       case ROOT:
@@ -165,7 +166,8 @@ void MainWindow::emptyAction()
 
 void MainWindow::editCategory()
 {
-  const DataWrapper* child = static_cast<const DataWrapper*>(treeView->selectionModel()->currentIndex().internalPointer());
+  QModelIndex cur_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+  const DataWrapper* child = static_cast<const DataWrapper*>(cur_ind.internalPointer());
   QString child_data;
   QString child_comment;
   QString child_tags;
@@ -231,7 +233,8 @@ void MainWindow::editLecture()
 
 void MainWindow::deleteAction()
 {
-  const DataWrapper* child = static_cast<const DataWrapper*>(treeView->selectionModel()->currentIndex().internalPointer());
+  QModelIndex cur_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+  const DataWrapper* child = static_cast<const DataWrapper*>(cur_ind.internalPointer());
   QString child_data;
   QString child_comment;
   QString child_tags;
