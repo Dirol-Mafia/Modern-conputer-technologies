@@ -84,6 +84,13 @@ void MainWindow::createMenus()
     this->setMenuBar(menuBar);
 }
 
+const DataWrapper* MainWindow::itemData()
+{
+  QModelIndex cur_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+  const DataWrapper* child = static_cast<const DataWrapper*>(cur_ind.internalPointer());
+  return child;
+}
+
 void MainWindow::addLectureToDb()
 {
 
@@ -131,7 +138,7 @@ void MainWindow::on_treeView_customContextMenuRequested()
     treeView->addAction(actionEdit);
 
     QAction* actionAdd = new QAction(tr("Добавить подкатегорию"), treeView);
-    connect(actionAdd, &QAction::triggered, this, &MainWindow::emptyAction);
+    connect(actionAdd, &QAction::triggered, this, &MainWindow::addingAction);
     treeView->addAction(actionAdd);
 
     QAction* actionDelete = new QAction(tr("Удалить категорию"), treeView);
@@ -145,8 +152,7 @@ void MainWindow::emptyAction()
 {
   QMessageBox::information(treeView, "Ups...", "This action is kinda in developing!");
   qDebug() << treeView->selectionModel()->currentIndex().isValid();
-  QModelIndex cur_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
-  const DataWrapper* child = static_cast<const DataWrapper*>(cur_ind.internalPointer());
+  const DataWrapper* child = this->itemData();
   qDebug() << "Selection type: " << child->type;
   switch (child->type) {
       case ROOT:
@@ -166,8 +172,7 @@ void MainWindow::emptyAction()
 
 void MainWindow::editCategory()
 {
-  QModelIndex cur_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
-  const DataWrapper* child = static_cast<const DataWrapper*>(cur_ind.internalPointer());
+  const DataWrapper* child = this->itemData();
   QString child_data;
   QString child_comment;
   QString child_tags;
@@ -233,8 +238,7 @@ void MainWindow::editLecture()
 
 void MainWindow::deleteAction()
 {
-  QModelIndex cur_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
-  const DataWrapper* child = static_cast<const DataWrapper*>(cur_ind.internalPointer());
+  const DataWrapper* child = this->itemData();
   QString child_data;
   QString child_comment;
   QString child_tags;
@@ -283,5 +287,47 @@ void MainWindow::deleteAction()
   window->setLayout(formLayout);
   window->setFixedSize(460, 180);
   window->setWindowTitle("Удалить" + deleteWhat);
+  window->show();
+}
+
+void MainWindow::addingAction()
+{
+  const DataWrapper* child = this->itemData();
+  QString child_data;
+  QString child_comment;
+  QString child_tags;
+  QString addWhat = getSubcatName(child->type);
+
+  QWidget *window = new QWidget;
+  QFormLayout *formLayout = new QFormLayout;
+
+  QLineEdit *nameAdd= new QLineEdit;
+  nameAdd->setText(child_data);
+  QLineEdit *commentAdd= new QLineEdit;
+  commentAdd->setText(child_comment);
+  commentAdd->setFixedHeight(50);
+  QPushButton *buttonAdd = new QPushButton("Добавить");
+  QPushButton *buttonCancel = new QPushButton("Отмена");
+  connect(buttonAdd, &QPushButton::clicked, this, &MainWindow::emptyAction);
+  connect(buttonCancel, &QPushButton::clicked, window, &QWidget::close);
+
+  formLayout->addRow(tr("&Наименование"), nameAdd);
+  formLayout->addRow(tr("&Комментарий"), commentAdd);
+
+  if (child->type != PARAGRAPH)
+      window->setFixedSize(460, 180);
+  else {
+      QLineEdit *tagAdd = new QLineEdit;
+      tagAdd->setText(child_tags);
+      tagAdd->setFixedHeight(50);
+      formLayout->addRow(tr("&Тэги (через запятую)"), tagAdd);
+      window->setFixedSize(460, 230);
+    }
+
+  formLayout->addRow(buttonAdd);
+  formLayout->addRow(buttonCancel);
+
+  window->setLayout(formLayout);
+  window->setWindowTitle("Добавить" + addWhat);
   window->show();
 }
