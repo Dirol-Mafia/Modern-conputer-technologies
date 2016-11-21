@@ -290,6 +290,21 @@ void MainWindow::deleteAction()
   window->show();
 }
 
+void MainWindow::areYouSure()
+{
+  QMessageBox* yes_no;
+  QPushButton* buttonYes = new QPushButton("Да");
+  QPushButton* buttonNo = new QPushButton("Нет");
+  yes_no->setWindowTitle("Вы уверены?");
+  yes_no->setText("Вы действительно хотите удалить выбранную категорию со всем её содержимым без возможности восстановления?");
+  yes_no->setIcon(Warning);
+  yes_no->addButton(buttonYes);
+  yes_no->addButton(buttonNo);
+
+  qDebug() << yes_no->exec();
+
+}
+
 void MainWindow::addingAction()
 {
   const DataWrapper* child = this->itemData();
