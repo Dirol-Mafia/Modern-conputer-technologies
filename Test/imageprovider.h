@@ -66,9 +66,9 @@ public:
     void fetchAll(const QModelIndex& parent);
     void fetchMore(const QModelIndex& parent);
     bool canFetchMore(const QModelIndex& parent) const;
+    Qt::ItemFlags flags(const QModelIndex& index) const;
 private:
     DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1};
-    //void DataWrapper(const QModelIndex &parent);
     int getChildrenCount(h_type type, int pid) const;
     const DataWrapper* dataForIndex(const QModelIndex& index) const;
     DataWrapper* dataForIndex(const QModelIndex& index);
@@ -80,6 +80,7 @@ class MySortFilterProxyModel: public QSortFilterProxyModel
     Q_OBJECT
 public:
     MySortFilterProxyModel(QObject *parent = 0);
+   // Qt::ItemFlags flags(const QModelIndex& index) const;
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 };
