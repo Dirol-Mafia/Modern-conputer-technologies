@@ -98,6 +98,7 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
         if (elem->type == IMAGE) {
             QPixmap pix;
             pix.load(static_cast<IData*> (elem->data)->path);
+            pix = pix.scaled(250, 250, Qt::KeepAspectRatio);
             if (role == Qt::DecorationRole){
                 return pix;
             }
@@ -213,6 +214,12 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
               break;
         }
     }
+}
+
+Qt::ItemFlags ImageProvider::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+    return flags |= Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 bool MySortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const

@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     imagesView = new QTableView;
     imagesView->setModel(model);
+    imagesView->setEditTriggers(QAbstractItemView::SelectedClicked);
+
 
     imagesLayout = new QVBoxLayout;
     editButton = new QPushButton("Редактировать");
@@ -49,6 +51,7 @@ void MainWindow::showImages(const QModelIndex &proxyIndex)
         imagesView->resizeColumnsToContents();
         imagesView->resizeRowsToContents();
         imagesView->setVisible(true);
+        imagesView->setEnabled(true);
     }
 }
 
