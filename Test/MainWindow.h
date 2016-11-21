@@ -31,6 +31,7 @@
 #include <QTableView>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
+#include <QDialogButtonBox>
 
 class MainWindow : public QMainWindow
 {
@@ -65,6 +66,7 @@ private:
     void editLecture();
     void emptyAction();
     void deleteAction();
+    void areYouSure();
     void addingAction();
 
     void on_treeView_customContextMenuRequested();

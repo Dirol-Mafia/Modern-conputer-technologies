@@ -208,12 +208,15 @@ void MainWindow::editCategory()
   commentEdit->setText(child_comment);
   commentEdit->setFixedHeight(50);
   QPushButton *buttonEdit = new QPushButton("Редактировать");
+  buttonEdit->setMaximumWidth(120);
   QPushButton *buttonCancel = new QPushButton("Отмена");
+  buttonCancel->setMaximumWidth(120);
   connect(buttonEdit, &QPushButton::clicked, this, &MainWindow::emptyAction);
   connect(buttonCancel, &QPushButton::clicked, window, &QWidget::close);
 
   formLayout->addRow(tr("&Наименование"), nameEdit);
   formLayout->addRow(tr("&Комментарий"), commentEdit);
+  formLayout->setAlignment(buttonCancel, Qt::AlignCenter);
 
   if (child->type != IMAGE)
       window->setFixedSize(460, 180);
@@ -280,8 +283,10 @@ void MainWindow::deleteAction()
   formLayout->addRow(tr("&Название:"), name);
 
   QPushButton* buttonDelete = new QPushButton("Удалить");
+  buttonDelete->setMaximumWidth(90);
   QPushButton *buttonCancel = new QPushButton("Отмена");
-  //connect(buttonDelete, &QPushButton::clicked, this, &(warn_mess->exec()));
+  buttonCancel->setMaximumWidth(90);
+  connect(buttonDelete, &QPushButton::clicked, this, &MainWindow::areYouSure);
   connect(buttonCancel, &QPushButton::clicked, window, &QWidget::close);
 
   formLayout->addRow(buttonDelete);
@@ -295,16 +300,20 @@ void MainWindow::deleteAction()
 
 void MainWindow::areYouSure()
 {
-  QMessageBox* yes_no;
-  QPushButton* buttonYes = new QPushButton("Да");
-  QPushButton* buttonNo = new QPushButton("Нет");
-  yes_no->setWindowTitle("Вы уверены?");
-  yes_no->setText("Вы действительно хотите удалить выбранную категорию со всем её содержимым без возможности восстановления?");
-  yes_no->setIcon(Warning);
-  yes_no->addButton(buttonYes);
-  yes_no->addButton(buttonNo);
+  QMessageBox* yes_no = new QMessageBox;
+  const QString yes = "Да";
+  const QString no = "Ненененене";
+  const QString title = "Предупреждение";
+  const QString mess = "Вы уверены, что хотите удалить выбранную категорию со всем её содержимым без возможности восстановления?";
+  yes_no->setWindowTitle(title);
+  yes_no->setText(mess);
+  yes_no->setIcon(QMessageBox::Warning);
+  yes_no->addButton(yes, QMessageBox::AcceptRole);
+  yes_no->addButton(no, QMessageBox::RejectRole);
 
-  qDebug() << yes_no->exec();
+  //yes_no->exec();
+  if (yes_no->exec() == 0)
+    emptyAction();
 
 }
 
