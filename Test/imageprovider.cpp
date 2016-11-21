@@ -257,8 +257,28 @@ QString getCatName(h_type type)
         return " скан лекции";
       default:
         return "";
+  }  
+}
+
+QString getSubcatName(h_type type)
+{
+  switch (type)
+    {
+      case ROOT:
+        return " семестр";
+      case TERM:
+        return " предмет";
+      case SUBJECT:
+        return " тему";
+      case THEME:
+        return " параграф";
+      case PARAGRAPH:
+        return " скан лекции";
+      case IMAGE:
+        return "";
+      default:
+        return "";
   }
-  
 }
 
 QString getCatChildName(h_type type)

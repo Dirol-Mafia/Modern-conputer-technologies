@@ -54,8 +54,10 @@ private:
     QPushButton *printButton;
     QAction *addCategory;
     QAction *addLecture;
+
     void createActions();
-    void createMenus();    
+    void createMenus();
+    const DataWrapper* itemData();
 
     void addCategoryToDb();
     void addLectureToDb();
@@ -63,6 +65,7 @@ private:
     void editLecture();
     void emptyAction();
     void deleteAction();
+    void addingAction();
 
     void on_treeView_customContextMenuRequested();
 

@@ -87,4 +87,5 @@ protected:
  
 // Other Functions
 QString getCatName(h_type type);
+QString getSubcatName(h_type type);
 QString getCatChildName(h_type type);
