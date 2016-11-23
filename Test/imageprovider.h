@@ -21,6 +21,7 @@ struct DataWrapper
     DataWrapper* parent;
     QList <DataWrapper*> children;
     int count; /// explicit number of children
+    bool isChecked;
 };
 
 /**
@@ -67,6 +68,7 @@ public:
     void fetchMore(const QModelIndex& parent);
     bool canFetchMore(const QModelIndex& parent) const;
     Qt::ItemFlags flags(const QModelIndex& index) const;
+    bool setData(const QModelIndex& index, const QVariant& value, int role);
 private:
     DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1};
     int getChildrenCount(h_type type, int pid) const;

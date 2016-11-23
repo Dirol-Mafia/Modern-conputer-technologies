@@ -32,6 +32,8 @@
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 #include <QDialogButtonBox>
+#include <QtPrintSupport/QPrintDialog>
+#include <QtPrintSupport/QPrinter>
 
 class MainWindow : public QMainWindow
 {
@@ -46,7 +48,7 @@ private:
     ImageProvider *model;
     MySortFilterProxyModel *filteredModel;
     QTreeView *treeView;
-    QTableView *imagesView;
+    QListView *imagesView;
     QLabel *lb;
     QVBoxLayout *dataLayout;
     QVBoxLayout *imagesLayout;

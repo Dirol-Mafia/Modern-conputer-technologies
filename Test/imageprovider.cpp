@@ -94,7 +94,7 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
                 return QVariant();
         }
     }
-    else if (role == Qt::DecorationRole || Qt::SizeHintRole) {
+    else if (role == Qt::DecorationRole) {
         if (elem->type == IMAGE) {
             QPixmap pix;
             pix.load(static_cast<IData*> (elem->data)->path);
@@ -107,7 +107,24 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
             }
         }
     }
+    if (role == Qt::CheckStateRole && elem->type == IMAGE)
+    {
+        return elem->isChecked;
+    }
     return QVariant();
+}
+
+bool ImageProvider::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid()) return false;
+    DataWrapper* data = dataForIndex(index);
+    if (role == Qt::CheckStateRole)
+    {
+        data->isChecked = data->isChecked ? false : true;
+        return true;
+        emit dataChanged(index, index);
+    }
+    return false;
 }
 
 int ImageProvider::getChildrenCount(h_type type, int pid) const
@@ -216,10 +233,11 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
     }
 }
 
+
 Qt::ItemFlags ImageProvider::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags flags = QAbstractItemModel::flags(index);
-    return flags |= Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+    return flags | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 bool MySortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
