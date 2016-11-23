@@ -76,4 +76,5 @@ private:
 
 private slots:
     void showImages(const QModelIndex &index);
+    void setEnableButtons(const QModelIndex &proxyIndex);
 };
