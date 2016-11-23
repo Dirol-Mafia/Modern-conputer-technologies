@@ -32,8 +32,10 @@
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 #include <QDialogButtonBox>
-#include <QtPrintSupport/QPrintDialog>
-#include <QtPrintSupport/QPrinter>
+#include <QPrintDialog>
+#include <QPrinter>
+#include <QPainter>
+#include <QImage>
 
 class MainWindow : public QMainWindow
 {
@@ -50,13 +52,22 @@ private:
     QTreeView *treeView;
     QListView *imagesView;
     QLabel *lb;
+    QModelIndex currentParagraphIndex;
+
     QVBoxLayout *dataLayout;
     QVBoxLayout *imagesLayout;
     QHBoxLayout *mainLayout;
+
     QPushButton *editButton;
     QPushButton *printButton;
+
     QAction *addCategory;
     QAction *addLecture;
+
+    QPrinter printer;
+    QPrintDialog *dialog;
+
+    QPainter painter;
 
     void createActions();
     void createMenus();
@@ -76,5 +87,6 @@ private:
 
 private slots:
     void showImages(const QModelIndex &index);
-    void setEnableButtons(const QModelIndex &proxyIndex);
+    void setEnableButtons();
+    void callPrinter();
 };

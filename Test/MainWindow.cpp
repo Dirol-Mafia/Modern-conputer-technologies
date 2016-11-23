@@ -16,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     imagesView = new QListView;
     imagesView->setModel(model);
-    //imagesView->setEditTriggers(QAbstractItemView::SelectedClicked);
 
     imagesLayout = new QVBoxLayout;
     editButton = new QPushButton("Редактировать");
@@ -32,16 +31,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     mainLayout->addLayout(imagesLayout);
 
     QObject::connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showImages(const QModelIndex &)));
-    QObject::connect(imagesView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(setEnableButtons(const QModelIndex &)));
+    QObject::connect(imagesView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(setEnableButtons()));
+    QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
     this->setCentralWidget(new QWidget(this));
     centralWidget()->setLayout(mainLayout);
 
     on_treeView_customContextMenuRequested();
 }
 
-void MainWindow::setEnableButtons(const QModelIndex &proxyIndex)
+void MainWindow::setEnableButtons()
 {
-    DataWrapper* paragraphData = static_cast<DataWrapper *>(proxyIndex.internalPointer())->parent;
+    DataWrapper* paragraphData = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     int imagesCount = paragraphData->children.count();
     int selectedItemsCount = 0;
     for (int i = 0; i < imagesCount; ++i)
@@ -58,7 +58,24 @@ void MainWindow::showImages(const QModelIndex &proxyIndex)
     DataWrapper* data = static_cast<DataWrapper *>(realIndex.internalPointer());
     if (data->type == PARAGRAPH)
     {
+        currentParagraphIndex = realIndex;
         imagesView->setRootIndex(realIndex);
+    }
+}
+
+void MainWindow::callPrinter()
+{
+    DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
+    QString imagePath = static_cast<IData*>(data->children[0]->data)->path;
+
+    dialog = new QPrintDialog(&printer);
+    dialog->setWindowTitle("Print images");
+    if (dialog->exec() == QDialog::Accepted)
+    {
+        painter.begin(&printer);
+        QImage currentImage(imagePath);
+        painter.drawImage(100, 100, currentImage);
+        painter.end();
     }
 }
 
