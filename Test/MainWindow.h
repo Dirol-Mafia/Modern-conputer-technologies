@@ -36,6 +36,8 @@
 #include <QPrinter>
 #include <QPainter>
 #include <QImage>
+#include <QRect>
+#include <QStringList>
 
 class MainWindow : public QMainWindow
 {
@@ -69,8 +71,12 @@ private:
 
     QPainter painter;
 
+    int selectedItemsCount;
+
     void createActions();
     void createMenus();
+    void renderImagesLayout();
+    void renderCategoriesLayout();
     const DataWrapper* itemData();
 
     void addCategoryToDb();
