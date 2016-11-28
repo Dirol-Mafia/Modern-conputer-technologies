@@ -5,26 +5,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createActions();
     createMenus();
 
+    selectedItemsCount = 0; //number of selected images in imagesViewer
+
     model = new ImageProvider("../Test/DB_Lectures");
     filteredModel = new MySortFilterProxyModel(this);
     filteredModel->setSourceModel(model);
 
-    treeView = new QTreeView;
-    treeView->setModel(filteredModel);
-    dataLayout = new QVBoxLayout;
-    dataLayout->addWidget(treeView);
+    renderCategoriesLayout();
+    renderImagesLayout();
 
-    imagesView = new QListView;
-    imagesView->setModel(model);
-
-    imagesLayout = new QVBoxLayout;
-    editButton = new QPushButton("Редактировать");
-    printButton = new QPushButton("Печатать");
-    editButton->setEnabled(false);
-    printButton->setEnabled(false);
-    imagesLayout->addWidget(imagesView);
-    imagesLayout->addWidget(editButton);
-    imagesLayout->addWidget(printButton);
 
     mainLayout = new QHBoxLayout;
     mainLayout->addLayout(dataLayout);
@@ -39,11 +28,35 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     on_treeView_customContextMenuRequested();
 }
 
+void MainWindow::renderCategoriesLayout()
+{
+    treeView = new QTreeView;
+    treeView->setModel(filteredModel);
+    dataLayout = new QVBoxLayout;
+    dataLayout->addWidget(treeView);
+}
+
+void MainWindow::renderImagesLayout()
+{
+    imagesView = new QListView;
+    imagesView->setModel(model);
+
+    imagesLayout = new QVBoxLayout;
+    editButton = new QPushButton("Редактировать");
+    printButton = new QPushButton("Печатать");
+    editButton->setEnabled(false);
+    printButton->setEnabled(false);
+    imagesLayout->addWidget(imagesView);
+    imagesLayout->addWidget(editButton);
+    imagesLayout->addWidget(printButton);
+}
+
 void MainWindow::setEnableButtons()
 {
     DataWrapper* paragraphData = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     int imagesCount = paragraphData->children.count();
-    int selectedItemsCount = 0;
+    selectedItemsCount = 0;
+
     for (int i = 0; i < imagesCount; ++i)
     {
         if (paragraphData->children[i]->isChecked) ++selectedItemsCount;
@@ -66,15 +79,24 @@ void MainWindow::showImages(const QModelIndex &proxyIndex)
 void MainWindow::callPrinter()
 {
     DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
-    QString imagePath = static_cast<IData*>(data->children[0]->data)->path;
 
     dialog = new QPrintDialog(&printer);
     dialog->setWindowTitle("Print images");
+
     if (dialog->exec() == QDialog::Accepted)
     {
         painter.begin(&printer);
-        QImage currentImage(imagePath);
-        painter.drawImage(100, 100, currentImage);
+
+        for (int i = 0; i < selectedItemsCount; ++i)
+        {
+            QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
+            QImage currentImage(imagePath);
+            QRect rect(currentImage.rect());
+            QRect devRect(0, 0, painter.device()->width(), painter.device()->height());
+            rect.moveCenter(devRect.center());
+            painter.drawImage(rect.topLeft(), currentImage);
+            printer.newPage();
+        }
         painter.end();
     }
 }

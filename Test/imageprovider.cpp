@@ -353,7 +353,7 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       query.bindValue(":n", position);
       query.exec();
       //query.next();
-      qlonglong new_id = static_cast<qlonglong>(query.lastInsertId());
+      //qlonglong new_id = static_cast<qlonglong>(query.lastInsertId());
       child->id = new_id;
 
       QSqlQuery update;
