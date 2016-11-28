@@ -114,19 +114,6 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool ImageProvider::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if (!index.isValid()) return false;
-    DataWrapper* data = dataForIndex(index);
-    if (role == Qt::CheckStateRole)
-    {
-        data->isChecked = data->isChecked ? false : true;
-        return true;
-        emit dataChanged(index, index);
-    }
-    return false;
-}
-
 int ImageProvider::getChildrenCount(h_type type, int pid) const
 {
     QSqlQuery query;
@@ -240,6 +227,43 @@ Qt::ItemFlags ImageProvider::flags(const QModelIndex &index) const
     return flags | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
+bool ImageProvider::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid()) return false;
+    DataWrapper* data = dataForIndex(index);
+    if (role == Qt::CheckStateRole)
+    {
+        data->isChecked = data->isChecked ? false : true;
+        return true;
+        emit dataChanged(index, index);
+    }
+    return false;
+}
+
+bool ImageProvider::insertRows(int position, int rows, const QModelIndex &parent)
+{
+  DataWrapper* parent_data = dataForIndex(parent);
+  bool success;
+
+  beginInsertRows(parent, position, position + rows - 1);
+  success = parent_data->insertChildren(position, rows, 1);
+  endInsertRows();
+
+  return success;
+
+}
+
+bool ImageProvider::removeRows(int position, int rows, const QModelIndex &parent)
+{
+  DataWrapper* parent_data = dataForIndex(parent);
+  bool success = true;
+
+  beginRemoveRows(parent, position, position + rows - 1);
+  success = parent_data->removeChildren(position, rows);
+
+  return success;
+}
+
 bool MySortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
@@ -308,4 +332,66 @@ QString getCatChildName(h_type type)
     default:
       break;
     }
+}
+
+/* DataWrapper methods implementation */
+bool DataWrapper::insertChildren(int position, int num, int columns)
+{
+  if (position < 0 || position > children.size())
+    return false;
+
+  for (int row = 0; row < num; ++row){
+      DataWrapper* child = new DataWrapper();
+      QSqlQuery query;
+      if (type != PARAGRAPH){
+        query.prepare("INSERT INTO categories (p_id, Type, Name, Comment, Number) VALUES (:id, :t, \"defname\", \"defcomm\", :n)");
+        query.bindValue(":t", (int)(type) + 1);
+        }
+      else
+        query.prepare("INSERT INTO lectures (p_id, No, File_name, Comment, Tags) VALUES (:id, :n, \"defpath\", \"defcomm\", \"deftags\")");
+      query.bindValue(":id", id);
+      query.bindValue(":n", position);
+      query.exec();
+      //query.next();
+      qlonglong new_id = static_cast<qlonglong>(query.lastInsertId());
+      child->id = new_id;
+
+      QSqlQuery update;
+      update.prepare("UPDATE :table SET :field = :field + 1 WHERE :field > :pos");
+      update.bindValue(":pos", position);
+      if (type != PARAGRAPH){
+        update.bindValue(":table", "categories");
+        update.bindValue(":field", "Number");
+        }
+      else{
+          update.bindValue(":table", "lectures");
+          update.bindValue(":field", "No");
+        }
+
+      update.exec();
+      children.insert(position, child);
+      ++count;
+    }
+
+  return true;
+}
+
+bool DataWrapper::removeChildren(int position, int count)
+{
+  if (position < 0 || position + count > children.size())
+    return false;
+
+  for (int row = 0; row < count; ++row)
+    delete children.takeAt(position);
+
+  return true;
+}
+
+bool DataWrapper::setData(int col, const QVariant &value)
+{
+  if (col != 0)
+    return false;
+
+  //data = &value;
+  return true;
 }

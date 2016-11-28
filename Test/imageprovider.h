@@ -22,6 +22,10 @@ struct DataWrapper
     QList <DataWrapper*> children;
     int count; /// explicit number of children
     bool isChecked;
+
+    bool insertChildren(int position, int num, int columns = 1);
+    bool removeChildren(int position, int count);
+    bool setData (int col, const QVariant& value);
 };
 
 /**
@@ -69,6 +73,9 @@ public:
     bool canFetchMore(const QModelIndex& parent) const;
     Qt::ItemFlags flags(const QModelIndex& index) const;
     bool setData(const QModelIndex& index, const QVariant& value, int role);
+    bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
+    bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
+
 private:
     DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1};
     int getChildrenCount(h_type type, int pid) const;

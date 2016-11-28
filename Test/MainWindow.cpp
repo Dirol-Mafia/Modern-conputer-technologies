@@ -159,15 +159,15 @@ void MainWindow::on_treeView_customContextMenuRequested()
 {
     treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    QAction* actionEdit = new QAction(tr("Редактировать"), this);
+    QAction* actionEdit = new QAction(tr("Редактировать..."), this);
     connect(actionEdit, &QAction::triggered, this, &MainWindow::editCategory);
     treeView->addAction(actionEdit);
 
-    QAction* actionAdd = new QAction(tr("Добавить подкатегорию"), treeView);
+    QAction* actionAdd = new QAction(tr("Добавить..."), treeView);
     connect(actionAdd, &QAction::triggered, this, &MainWindow::addingAction);
     treeView->addAction(actionAdd);
 
-    QAction* actionDelete = new QAction(tr("Удалить категорию"), treeView);
+    QAction* actionDelete = new QAction(tr("Удалить..."), treeView);
     connect(actionDelete, &QAction::triggered, this, &MainWindow::deleteAction);
     treeView->addAction(actionDelete);
 }
