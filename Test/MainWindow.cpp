@@ -42,7 +42,7 @@ void MainWindow::renderImagesLayout()
     imagesView->setModel(model);
 
     imagesLayout = new QVBoxLayout;
-    editButton = new QPushButton("Редактировать");
+    editButton = new QPushButton("Подготовить к печати");
     printButton = new QPushButton("Печатать");
     editButton->setEnabled(false);
     printButton->setEnabled(false);
@@ -78,27 +78,30 @@ void MainWindow::showImages(const QModelIndex &proxyIndex)
 
 void MainWindow::callPrinter()
 {
+
+    printer.setOrientation(QPrinter::Portrait);
+    dialog = new QPrintPreviewDialog(&printer);
+    connect(dialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(drawImagesOnSheet(QPrinter*)));
+    dialog->exec();
+}
+
+void MainWindow::drawImagesOnSheet(QPrinter* printer)
+{
     DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
+    painter.begin(printer);
 
-    dialog = new QPrintDialog(&printer);
-    dialog->setWindowTitle("Print images");
-
-    if (dialog->exec() == QDialog::Accepted)
+    for (int i = 0; i < selectedItemsCount; ++i)
     {
-        painter.begin(&printer);
-
-        for (int i = 0; i < selectedItemsCount; ++i)
-        {
-            QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
-            QImage currentImage(imagePath);
-            QRect rect(currentImage.rect());
-            QRect devRect(0, 0, painter.device()->width(), painter.device()->height());
-            rect.moveCenter(devRect.center());
-            painter.drawImage(rect.topLeft(), currentImage);
-            printer.newPage();
-        }
-        painter.end();
+        QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
+        QImage currentImage(imagePath);
+        QImage scaledImage = currentImage.scaled(640, 640, Qt::KeepAspectRatio);
+        QRect rect(scaledImage.rect());
+        QRect devRect(0, 0, painter.device()->width(), painter.device()->height());
+        rect.moveCenter(devRect.center());
+        painter.drawImage(rect.topLeft(), scaledImage);
+        printer->newPage();
     }
+    painter.end();
 }
 
 void MainWindow::createActions()

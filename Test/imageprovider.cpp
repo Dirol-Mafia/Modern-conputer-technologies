@@ -354,7 +354,7 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       query.exec();
       //query.next();
       //qlonglong new_id = static_cast<qlonglong>(query.lastInsertId());
-      child->id = new_id;
+      //child->id = new_id;
 
       QSqlQuery update;
       update.prepare("UPDATE :table SET :field = :field + 1 WHERE :field > :pos");
