@@ -69,24 +69,29 @@ private:
     QPrinter printer;
     QPrintDialog *dialog;
 
-    QPainter painter;
+    QPainter painter;    
 
     int selectedItemsCount;
 
     void createActions();
     void createMenus();
+    void addCategoryToDb();
     void renderImagesLayout();
     void renderCategoriesLayout();
     const DataWrapper* itemData();
 
-    void addCategoryToDb();
+// Actions for context menu (dialog windows)void addCategoryToDb();
     void addLectureToDb();
     void editCategory();
-    void editLecture();
     void emptyAction();
     void deleteAction();
     void areYouSure();
     void addingAction();
+
+// Actions for context menu (editing model)
+    void add();
+    void edit();
+    void remove();
 
     void on_treeView_customContextMenuRequested();
 

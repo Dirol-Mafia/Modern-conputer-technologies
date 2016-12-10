@@ -84,12 +84,10 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
             case TERM:
             case SUBJECT:
             case THEME:
-            case PARAGRAPH:{
+            case PARAGRAPH:
                 return static_cast<HData*>(elem->data)->name;
-            }
-            case IMAGE:{
+            case IMAGE:
                 return static_cast<IData*>(elem->data)->comment;
-            }
             default:
                 return QVariant();
         }
@@ -229,7 +227,9 @@ Qt::ItemFlags ImageProvider::flags(const QModelIndex &index) const
 
 bool ImageProvider::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid()) return false;
+    if (!index.isValid())
+      return false;
+
     DataWrapper* data = dataForIndex(index);
     if (role == Qt::CheckStateRole)
     {
@@ -237,6 +237,14 @@ bool ImageProvider::setData(const QModelIndex &index, const QVariant &value, int
         return true;
         emit dataChanged(index, index);
     }
+    else if (role == Qt::EditRole)
+      {
+        DataWrapper* child = dataForIndex(index);
+        bool result = child->setData(0, value);
+        if (result)
+          emit dataChanged(index, index);
+        return result;
+      }
     return false;
 }
 
@@ -260,6 +268,7 @@ bool ImageProvider::removeRows(int position, int rows, const QModelIndex &parent
 
   beginRemoveRows(parent, position, position + rows - 1);
   success = parent_data->removeChildren(position, rows);
+  endRemoveRows();
 
   return success;
 }
@@ -353,45 +362,111 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       query.bindValue(":n", position);
       query.exec();
       //query.next();
-      //qlonglong new_id = static_cast<qlonglong>(query.lastInsertId());
+      qlonglong new_id = (query.lastInsertId()).toLongLong();
       child->id = new_id;
-
-      QSqlQuery update;
-      update.prepare("UPDATE :table SET :field = :field + 1 WHERE :field > :pos");
-      update.bindValue(":pos", position);
-      if (type != PARAGRAPH){
-        update.bindValue(":table", "categories");
-        update.bindValue(":field", "Number");
-        }
-      else{
-          update.bindValue(":table", "lectures");
-          update.bindValue(":field", "No");
-        }
-
-      update.exec();
+      child->number = position;
+      child->parent = this;
+      child->type = (h_type)((int)type + 1);
       children.insert(position, child);
       ++count;
     }
 
+  QSqlQuery update;
+  update.prepare("UPDATE :table SET :field = :field + :n_rows WHERE :field >= :pos");
+  update.bindValue(":pos", position);
+  update.bindValue(":n_rows", num);
+  if (type != PARAGRAPH){
+    update.bindValue(":table", "categories");
+    update.bindValue(":field", "Number");
+    }
+  else{
+      update.bindValue(":table", "lectures");
+      update.bindValue(":field", "No");
+    }
+
+  update.exec();
+
   return true;
 }
 
-bool DataWrapper::removeChildren(int position, int count)
+bool DataWrapper::removeChildren(int position, int num)
 {
-  if (position < 0 || position + count > children.size())
+  if (position < 0 || position + num > children.size())
     return false;
+  if (type == IMAGE)
+    return true;
 
-  for (int row = 0; row < count; ++row)
+  for (int row = 0; row < num; ++row){
+    DataWrapper* cur_child = children.value(position);
+    cur_child->removeChildren(0, cur_child->count);
     delete children.takeAt(position);
+    }
+  count -= num;
+
+  QSqlQuery delete_rows;
+  delete_rows.prepare("DELETE FROM :table WHERE :field >= :pos AND :field <= :pos + :count");
+  if (type != PARAGRAPH){
+      delete_rows.bindValue(":table", "categories");
+      delete_rows.bindValue(":field", "Number");
+    }
+  else{
+      delete_rows.bindValue(":table", "lectures");
+      delete_rows.bindValue(":field", "No");
+    }
+  delete_rows.bindValue(":pos", position);
+  delete_rows.bindValue(":count", num);
+  delete_rows.exec();
+
+  QSqlQuery update;
+  update.prepare("UPDATE :table SET :field = :field - :n_rows WHERE :field > :pos - 1");
+  update.bindValue(":pos", position);
+  update.bindValue(":n_rows", num);
+  if (type != PARAGRAPH){
+    update.bindValue(":table", "categories");
+    update.bindValue(":field", "Number");
+    }
+  else{
+      update.bindValue(":table", "lectures");
+      update.bindValue(":field", "No");
+    }
+
+  update.exec();
 
   return true;
 }
 
-bool DataWrapper::setData(int col, const QVariant &value)
+bool DataWrapper::setData(int col, const QVariant& value)
 {
   if (col != 0)
     return false;
 
-  //data = &value;
-  return true;
+  QSqlQuery update_name;
+  QString query_string = "UPDATE :table SET :name_field = :name, comment = :comment";
+  //update_name.prepare("UPDATE :table SET :name_field = :name, comment = :comment");
+
+  if (type != IMAGE){
+    query_string += " WHERE id = :cur_id";
+    HData new_data = value.value<HData>();
+    void* data_ptr = &new_data;
+    data = data_ptr;
+    update_name.prepare(query_string);
+    update_name.bindValue(":table", "categories");
+    update_name.bindValue("name_field", "Name");
+    update_name.bindValue(":comment", new_data.comment);
+    update_name.bindValue(":name", new_data.name);
+    }
+  else{
+      query_string += " tags = :tags WHERE id = :cur_id";
+      IData new_data = value.value<IData>();
+      void* data_ptr = &new_data;
+      data = data_ptr;
+      update_name.prepare(query_string);
+      update_name.bindValue(":table", "lectures");
+      update_name.bindValue(":name_field", "File_name");
+      update_name.bindValue(":tags", new_data.tags.join(','));
+      update_name.bindValue(":name", new_data.path);
+    }
+
+  return update_name.exec();
+  //return true;
 }

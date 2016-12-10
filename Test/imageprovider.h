@@ -24,9 +24,10 @@ struct DataWrapper
     bool isChecked;
 
     bool insertChildren(int position, int num, int columns = 1);
-    bool removeChildren(int position, int count);
+    bool removeChildren(int position, int num);
     bool setData (int col, const QVariant& value);
 };
+Q_DECLARE_METATYPE(DataWrapper)
 
 /**
  * @brief The IData (Image Data) struct
@@ -41,6 +42,7 @@ struct IData
     QString comment; /// Comments (contains extra information)
     QStringList tags; /// Tags
 };
+Q_DECLARE_METATYPE(IData)
 
 /**
  * @brief The HData (Hierarchy Data) struct
@@ -55,6 +57,7 @@ struct HData
     QString comment; /// Comments (contains extra information)
     //int number; /// Consecutive number
 };
+Q_DECLARE_METATYPE(HData)
 
 class ImageProvider: public QAbstractItemModel
 {

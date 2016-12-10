@@ -282,11 +282,6 @@ void MainWindow::editCategory()
 
 }
 
-void MainWindow::editLecture()
-{
-  const DataWrapper* child = static_cast<const DataWrapper*>(treeView->selectionModel()->currentIndex().internalPointer());
-}
-
 void MainWindow::deleteAction()
 {
   const DataWrapper* child = this->itemData();
@@ -402,4 +397,11 @@ void MainWindow::addingAction()
   window->setLayout(formLayout);
   window->setWindowTitle("Добавить" + addWhat);
   window->show();
+}
+
+// Actions for context menu (editing model)
+
+void MainWindow::add()
+{
+
 }
