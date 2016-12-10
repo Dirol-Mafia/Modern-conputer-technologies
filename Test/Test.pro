@@ -22,4 +22,5 @@ qtcAddDeployment()
 HEADERS += \
     imageprovider.h \
     MainWindow.h \
-    dbactions.h
+    dbactions.h \
+    ImageEditWindow.h

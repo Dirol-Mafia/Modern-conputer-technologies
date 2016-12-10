@@ -38,6 +38,7 @@
 #include <QImage>
 #include <QRect>
 #include <QStringList>
+#include <QPrintPreviewDialog>
 
 class MainWindow : public QMainWindow
 {
@@ -67,7 +68,7 @@ private:
     QAction *addLecture;
 
     QPrinter printer;
-    QPrintDialog *dialog;
+    QPrintPreviewDialog *dialog;
 
     QPainter painter;    
 
@@ -100,4 +101,5 @@ private slots:
     void showImages(const QModelIndex &index);
     void setEnableButtons();
     void callPrinter();
+    void drawImagesOnSheet(QPrinter* printer);
 };

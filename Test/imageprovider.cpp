@@ -367,6 +367,20 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       child->number = position;
       child->parent = this;
       child->type = (h_type)((int)type + 1);
+
+      QSqlQuery update;
+      update.prepare("UPDATE :table SET :field = :field + 1 WHERE :field > :pos");
+      update.bindValue(":pos", position);
+      if (type != PARAGRAPH){
+        update.bindValue(":table", "categories");
+        update.bindValue(":field", "Number");
+        }
+      else{
+          update.bindValue(":table", "lectures");
+          update.bindValue(":field", "No");
+        }
+
+      update.exec();
       children.insert(position, child);
       ++count;
     }
