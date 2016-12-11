@@ -10,7 +10,8 @@ QML_IMPORT_PATH =
 SOURCES += main.cpp \
     imageprovider.cpp \
     dbactions.cpp \
-    MainWindow.cpp
+    MainWindow.cpp \
+    imageeditform.cpp
 
 # Installation path
 # target.path =
@@ -23,4 +24,7 @@ HEADERS += \
     imageprovider.h \
     MainWindow.h \
     dbactions.h \
-    ImageEditWindow.h
+    imageeditform.h
+
+FORMS += \
+    imageeditform.ui

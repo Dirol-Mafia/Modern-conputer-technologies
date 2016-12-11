@@ -4,9 +4,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     createActions();
     createMenus();
-
-    selectedItemsCount = 0; //number of selected images in imagesViewer
-
+    selectedImagesCount = 0;
     model = new ImageProvider("../Test/DB_Lectures");
     filteredModel = new MySortFilterProxyModel(this);
     filteredModel->setSourceModel(model);
@@ -14,14 +12,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     renderCategoriesLayout();
     renderImagesLayout();
 
-
     mainLayout = new QHBoxLayout;
     mainLayout->addLayout(dataLayout);
     mainLayout->addLayout(imagesLayout);
 
     QObject::connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showImages(const QModelIndex &)));
-    QObject::connect(imagesView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(setEnableButtons()));
+    QObject::connect(imagesView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onImageClick()));
     QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
+    QObject::connect(editButton, SIGNAL(clicked()), this, SLOT(callEditForm()));
     this->setCentralWidget(new QWidget(this));
     centralWidget()->setLayout(mainLayout);
 
@@ -51,18 +49,27 @@ void MainWindow::renderImagesLayout()
     imagesLayout->addWidget(printButton);
 }
 
-void MainWindow::setEnableButtons()
+void MainWindow::onImageClick()
 {
     DataWrapper* paragraphData = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     int imagesCount = paragraphData->children.count();
-    selectedItemsCount = 0;
+    selectedImagesCount = 0;
 
     for (int i = 0; i < imagesCount; ++i)
     {
-        if (paragraphData->children[i]->isChecked) ++selectedItemsCount;
+        if (paragraphData->children[i]->isChecked)
+        {
+            ++selectedImagesCount;
+            selectedImages[i] = true;
+        }
     }
-    editButton->setEnabled(selectedItemsCount == 1 ? true: false);
-    printButton->setEnabled(selectedItemsCount > 0 ? true: false);
+    setEnableButtons();
+}
+
+void MainWindow::setEnableButtons()
+{
+    editButton->setEnabled(selectedImagesCount == 1 ? true: false);
+    printButton->setEnabled(selectedImagesCount > 0 ? true: false);
 }
 
 void MainWindow::showImages(const QModelIndex &proxyIndex)
@@ -74,11 +81,12 @@ void MainWindow::showImages(const QModelIndex &proxyIndex)
         currentParagraphIndex = realIndex;
         imagesView->setRootIndex(realIndex);
     }
+    selectedImages.fill(false, data->children.count());
+    selectedImagesCount = 0;
 }
 
 void MainWindow::callPrinter()
 {
-
     printer.setOrientation(QPrinter::Portrait);
     dialog = new QPrintPreviewDialog(&printer);
     connect(dialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(drawImagesOnSheet(QPrinter*)));
@@ -90,7 +98,7 @@ void MainWindow::drawImagesOnSheet(QPrinter* printer)
     DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     painter.begin(printer);
 
-    for (int i = 0; i < selectedItemsCount; ++i)
+    for (int i = 0; i < selectedImagesCount; ++i)
     {
         QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
         QImage currentImage(imagePath);
@@ -102,6 +110,23 @@ void MainWindow::drawImagesOnSheet(QPrinter* printer)
         printer->newPage();
     }
     painter.end();
+}
+
+void MainWindow::callEditForm()
+{
+    DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
+    int i = 0;
+
+    while (i < selectedImagesCount && !selectedImages[i])
+    {
+        i++;
+    }
+
+    QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
+    ImageEditForm *editForm = new ImageEditForm(imagePath);
+//    editForm.setModal(true);
+//    editForm.exec();
+    editForm->show();
 }
 
 void MainWindow::createActions()

@@ -3,12 +3,14 @@
 
 #endif // MAINWINDOW_H
 
+#include "imageprovider.h"
+#include "imageeditform.h"
+
 #include <QSqlDatabase>
 #include <iostream>
 #include <QTreeView>
 #include <QSqlQuery>
 #include <QDebug>
-#include "imageprovider.h"
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -39,6 +41,8 @@
 #include <QRect>
 #include <QStringList>
 #include <QPrintPreviewDialog>
+
+#include <QVector>
 
 class MainWindow : public QMainWindow
 {
@@ -72,7 +76,8 @@ private:
 
     QPainter painter;    
 
-    int selectedItemsCount;
+    int selectedImagesCount;
+    QVector<bool> selectedImages;
 
     void createActions();
     void createMenus();
@@ -80,6 +85,7 @@ private:
     void renderImagesLayout();
     void renderCategoriesLayout();
     const DataWrapper* itemData();
+    void setEnableButtons();
 
 // Actions for context menu (dialog windows)void addCategoryToDb();
     void addLectureToDb();
@@ -99,7 +105,8 @@ private:
 
 private slots:
     void showImages(const QModelIndex &index);
-    void setEnableButtons();
     void callPrinter();
     void drawImagesOnSheet(QPrinter* printer);
+    void callEditForm();
+    void onImageClick();
 };
