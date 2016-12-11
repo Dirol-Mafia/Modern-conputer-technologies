@@ -41,3 +41,35 @@ void ImageEditForm::on_greyscaleButton_clicked()
     image = new QImage(tmp);
     showImage(pathToImage);
 }
+
+void ImageEditForm::on_saveButton_clicked()
+{
+    QMessageBox* imageSaved = new QMessageBox;
+    imageSaved->setWindowTitle("Изображение сохранено");
+    imageSaved->setText("Изображение было успешно сохранено");
+    imageSaved->setIcon(QMessageBox::Information);
+
+    if (image->save(pathToImage)) imageSaved->exec();
+
+}
+
+void ImageEditForm::on_increaseSaturation_clicked()
+{
+    QImage tmp(pathToImage);
+    int width = tmp.width();
+    int heigth = tmp.height();
+    double saturationLevel = 1;
+    for (int i = 0; i < width; ++i)
+        for (int j = 0; j < heigth; ++j)
+        {
+            QColor color = tmp.pixel(i, j);
+            int hue = color.hue();
+            int saturation = color.saturation();
+            color.setHsv(hue, saturation * saturationLevel, color.value(), color.alpha());
+            tmp.setPixel(i, j, color.rgb());
+        }
+
+    delete image;
+    image = new QImage(tmp);
+    showImage(pathToImage);
+}

@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="increaseSaturation">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -39,7 +39,7 @@
     <string>Сделать черно-белым</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="saveButton">
    <property name="geometry">
     <rect>
      <x>440</x>

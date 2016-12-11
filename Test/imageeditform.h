@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QImage>
 #include <QDebug>
+#include <QMessageBox>
+
 namespace Ui {
 class ImageEditForm;
 }
@@ -18,6 +20,10 @@ public:
 
 private slots:
     void on_greyscaleButton_clicked();
+
+    void on_saveButton_clicked();
+
+    void on_increaseSaturation_clicked();
 
 private:
     Ui::ImageEditForm *ui;
