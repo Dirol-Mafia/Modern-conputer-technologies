@@ -54,13 +54,17 @@ void MainWindow::onImageClick()
     DataWrapper* paragraphData = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     int imagesCount = paragraphData->children.count();
     selectedImagesCount = 0;
-
     for (int i = 0; i < imagesCount; ++i)
     {
         if (paragraphData->children[i]->isChecked)
         {
             ++selectedImagesCount;
             selectedImages[i] = true;
+            qDebug() << i;
+        }
+        else
+        {
+            selectedImages[i] = false;
         }
     }
     setEnableButtons();
@@ -97,7 +101,7 @@ void MainWindow::drawImagesOnSheet(QPrinter* printer)
 {
     DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     painter.begin(printer);
-
+    int lastPage = selectedImagesCount - 1;
     for (int i = 0; i < selectedImagesCount; ++i)
     {
         QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
@@ -107,7 +111,7 @@ void MainWindow::drawImagesOnSheet(QPrinter* printer)
         QRect devRect(0, 0, painter.device()->width(), painter.device()->height());
         rect.moveCenter(devRect.center());
         painter.drawImage(rect.topLeft(), scaledImage);
-        printer->newPage();
+        if (i != lastPage) printer->newPage();
     }
     painter.end();
 }
@@ -116,16 +120,14 @@ void MainWindow::callEditForm()
 {
     DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     int i = 0;
-
-    while (i < selectedImagesCount && !selectedImages[i])
+    //TODO порефакторить этот момент, пока очень костыльно
+    while (i < selectedImages.count() && !selectedImages[i])
     {
-        i++;
+        ++i;
     }
 
     QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
     ImageEditForm *editForm = new ImageEditForm(imagePath);
-//    editForm.setModal(true);
-//    editForm.exec();
     editForm->show();
 }
 

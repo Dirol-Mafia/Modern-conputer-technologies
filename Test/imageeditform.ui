@@ -23,10 +23,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>Изменить насыщенность</string>
+    <string>Увеличить насыщенность</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="greyscaleButton">
    <property name="geometry">
     <rect>
      <x>230</x>
