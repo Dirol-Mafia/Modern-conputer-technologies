@@ -8,7 +8,7 @@ ImageEditForm::ImageEditForm(const QString &_pathToImage, QWidget *parent) :
     ui->setupUi(this);
     image = new QImage(_pathToImage);
     pathToImage = _pathToImage;
-    showImage(pathToImage);
+    showImage();
 }
 
 ImageEditForm::~ImageEditForm()
@@ -16,7 +16,7 @@ ImageEditForm::~ImageEditForm()
     delete ui;
 }
 
-void ImageEditForm::showImage(QString _pathToImage)
+void ImageEditForm::showImage()
 {
     ui->label->setPixmap(QPixmap::fromImage(*image));
     ui->label->setFixedHeight(image->height()*0.7);
@@ -26,20 +26,17 @@ void ImageEditForm::showImage(QString _pathToImage)
 
 void ImageEditForm::on_greyscaleButton_clicked()
 {
-    QImage tmp(pathToImage);
-    int width = tmp.width();
-    int heigth = tmp.height();
+    int width = image->width();
+    int heigth = image->height();
 
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < heigth; ++j)
         {
-            int gray = qGray(tmp.pixel(i, j));
-            tmp.setPixel(i, j, QColor(gray, gray, gray).rgb());
+            int gray = qGray(image->pixel(i, j));
+            image->setPixel(i, j, QColor(gray, gray, gray).rgb());
         }
 
-    delete image;
-    image = new QImage(tmp);
-    showImage(pathToImage);
+    showImage();
 }
 
 void ImageEditForm::on_saveButton_clicked()
@@ -50,19 +47,17 @@ void ImageEditForm::on_saveButton_clicked()
     imageSaved->setIcon(QMessageBox::Information);
 
     if (image->save(pathToImage)) imageSaved->exec();
-
 }
 
 void ImageEditForm::on_increaseSaturation_clicked()
 {
-    QImage tmp(pathToImage);
-    int width = tmp.width();
-    int heigth = tmp.height();
+    int width = image->width();
+    int heigth = image->height();
     double brightnessLevel = 200;
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < heigth; ++j)
         {
-            QColor color = tmp.pixel(i, j);
+            QColor color = image->pixel(i, j);
             int brightness = color.value();
             if (brightness > brightnessLevel) brightness = 255;
             if (brightness < 50)
@@ -70,10 +65,8 @@ void ImageEditForm::on_increaseSaturation_clicked()
                 brightness = 0;
             }
             color.setHsv(color.hue(), color.saturation(), brightness, color.alpha());
-            tmp.setPixel(i, j, color.rgb());
+            image->setPixel(i, j, color.rgb());
         }
 
-    delete image;
-    image = new QImage(tmp);
-    showImage(pathToImage);
+    showImage();
 }

@@ -30,7 +30,7 @@ private:
     QString pathToImage;
     QImage *image;
 
-    void showImage(QString _pathToImage);
+    void showImage();
 };
 
 #endif // IMAGEEDITFORM_H
