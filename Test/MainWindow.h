@@ -65,6 +65,15 @@ private:
     QVBoxLayout *imagesLayout;
     QHBoxLayout *mainLayout;
 
+    //Editing Tree layouts
+    QFormLayout* editLayout;
+    QFormLayout* addLayout;
+
+    //Line Editing Forms
+    QLineEdit* nameAdd;
+    QLineEdit* commentAdd;
+    QLineEdit* tagAdd;
+
     QPushButton *editButton;
     QPushButton *printButton;
 

@@ -78,12 +78,12 @@ public:
     bool setData(const QModelIndex& index, const QVariant& value, int role);
     bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
     bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
+    DataWrapper* dataForIndex(const QModelIndex& index);
+    const DataWrapper* dataForIndex(const QModelIndex& index) const;
 
 private:
     DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1};
     int getChildrenCount(h_type type, int pid) const;
-    const DataWrapper* dataForIndex(const QModelIndex& index) const;
-    DataWrapper* dataForIndex(const QModelIndex& index);
     QSqlDatabase db;
 };
 
