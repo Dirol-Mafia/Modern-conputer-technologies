@@ -58,14 +58,18 @@ void ImageEditForm::on_increaseSaturation_clicked()
     QImage tmp(pathToImage);
     int width = tmp.width();
     int heigth = tmp.height();
-    double saturationLevel = 1;
+    double brightnessLevel = 200;
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < heigth; ++j)
         {
             QColor color = tmp.pixel(i, j);
-            int hue = color.hue();
-            int saturation = color.saturation();
-            color.setHsv(hue, saturation * saturationLevel, color.value(), color.alpha());
+            int brightness = color.value();
+            if (brightness > brightnessLevel) brightness = 255;
+            if (brightness < 50)
+            {
+                brightness = 0;
+            }
+            color.setHsv(color.hue(), color.saturation(), brightness, color.alpha());
             tmp.setPixel(i, j, color.rgb());
         }
 
