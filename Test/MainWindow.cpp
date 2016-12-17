@@ -433,16 +433,17 @@ void MainWindow::addingAction()
 void MainWindow::add()
 {
   const DataWrapper* parent = this->itemData();
-  int p_id = parent->id;
-  int count = parent->count;
 
   QModelIndex parent_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
-  int ins_row = parent_ind.row() + count;
+  parent = model->dataForIndex(parent_ind);
+  int p_id = parent->id;
+  int row_count = parent->count;
+  //int ins_row = parent_ind.row() + count;
 
-  if (!model->insertRows(count, 1,parent_ind))
+  if (!model->insertRows(row_count, 1,parent_ind))
     return;
 
-  QModelIndex child = model->index(count, 0, parent_ind);
+  QModelIndex child = model->index(row_count + 1, 0, parent_ind);
   DataWrapper* child_data = model->dataForIndex(child);
   HData add_data = {(h_type)(1 + (int)parent->type), nameAdd->text(), commentAdd->text()};
   QVariant add_data_qvariant = QVariant::fromValue(add_data);

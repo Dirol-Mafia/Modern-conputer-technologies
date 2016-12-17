@@ -1,5 +1,6 @@
 #include "imageprovider.h"
 #include <stdexcept>
+#include <iterator>
 #include "QSql"
 #include "QSqlDatabase"
 #include <QSqlQuery>
@@ -359,32 +360,49 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
   for (int row = 0; row < num; ++row){
       DataWrapper* child = new DataWrapper();
       QSqlQuery query;
+      QSqlQuery update;
       if (type != PARAGRAPH){
         query.prepare("INSERT INTO categories (p_id, Type, Name, Comment, Number) VALUES (:id, :t, \"defname\", \"defcomm\", :n)");
         query.bindValue(":t", (int)(type) + 1);
         }
       else
         query.prepare("INSERT INTO lectures (p_id, No, File_name, Comment, Tags) VALUES (:id, :n, \"defpath\", \"defcomm\", \"deftags\")");
+
+      if (type != PARAGRAPH)
+          update.prepare("UPDATE categories SET Number = Number + 1 WHERE Number > :pos");
+      else
+          update.prepare("UPDATE lectures SET No = No + 1 WHERE No > :pos");
+
       query.bindValue(":id", id);
-      query.bindValue(":n", position + 2);
+
+      if (position == 0){
+          query.bindValue(":n", position);
+          child->number = position;
+          update.bindValue(":pos", position - 1);
+        }
+      else if (position == count){
+          query.bindValue(":n", position);
+          child->number = position;
+          update.bindValue(":pos", position);
+        }
+      else {
+          query.bindValue(":n", position);
+          child->number = position;
+          update.bindValue(":pos", position);
+        }
+
       query.exec();
       qlonglong new_id = (query.lastInsertId()).toLongLong();
+
       child->id = new_id;
-      child->number = position + 2;
       child->parent = this;
       child->type = (h_type)((int)type + 1);
+      if (children.size() > 0)
+        children.insert(position, child);
 
-      QSqlQuery update;
-      if (type != PARAGRAPH){
-          update.prepare("UPDATE categories SET Number = Number + 1 WHERE Number > :pos");
-        }
-      else{
-          update.prepare("UPDATE lectures SET No = No + 1 WHERE No > :pos");
-        }
-
-      update.bindValue(":pos", position + 2);
       update.exec();
-      children.insert(position, child);
+      for (auto it = children.begin(); it < children.end(); ++it)
+        ++(*it)->number;
       ++count;
     }
 
@@ -433,7 +451,7 @@ bool DataWrapper::removeChildren(int position, int num)
   if (type != PARAGRAPH)
       update.prepare("UPDATE categories SET Number = Number - :n_rows WHERE Number > :pos - 1");
   else
-      update.prepare("UPDATE :table SET No = No - :n_rows WHERE No > :pos - 1");
+      update.prepare("UPDATE lectures SET No = No - :n_rows WHERE No > :pos - 1");
 
   update.bindValue(":pos", position);
   update.bindValue(":n_rows", num);
