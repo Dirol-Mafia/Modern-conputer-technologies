@@ -4,14 +4,14 @@ EditingImageHandler::EditingImageHandler(const QString& _pathToImage, QWidget* p
     : QLabel(parent)
 {
     image = new QImage(_pathToImage);
-    int width = image->width() * 0.8;
-    int height = image->height() * 0.8;
-    QImage tmp = image->scaled(width, height, Qt::KeepAspectRatio);
-    delete image;
-    image = new QImage(tmp);
+    //int width = image->width() * 0.8;
+    //int height = image->height() * 0.8;
+    //QImage tmp = image->scaled(width, height, Qt::KeepAspectRatio);
+    //delete image;
+    //image = new QImage(tmp);
     pathToImage = _pathToImage;
     selectionStarted = false;
-    this->repaint();
+    this->showImage();
     QAction *cropAction = contextMenu.addAction("Crop");
     connect(cropAction,SIGNAL(triggered()),this,SLOT(crop()));
 }
@@ -55,8 +55,9 @@ void EditingImageHandler::increaseSaturation()
 
 void EditingImageHandler::showImage()
 {
-    this->setFixedHeight(image->height());
-    this->setFixedWidth(image->width());
+    double scaleParameter = 0.7;
+    this->setFixedHeight(image->height() * scaleParameter);
+    this->setFixedWidth(image->width() *scaleParameter);
     this->setScaledContents(true);
     this->setPixmap(QPixmap::fromImage(*image));
 }
