@@ -11,7 +11,8 @@ SOURCES += main.cpp \
     imageprovider.cpp \
     dbactions.cpp \
     MainWindow.cpp \
-    imageeditform.cpp
+    imageeditform.cpp \
+    EditingImageHandler.cpp
 
 # Installation path
 # target.path =
@@ -24,7 +25,8 @@ HEADERS += \
     imageprovider.h \
     MainWindow.h \
     dbactions.h \
-    imageeditform.h
+    imageeditform.h \
+    EditingImageHandler.h
 
 FORMS += \
     imageeditform.ui

@@ -60,7 +60,6 @@ void MainWindow::onImageClick()
         {
             ++selectedImagesCount;
             selectedImages[i] = true;
-            qDebug() << i;
         }
         else
         {

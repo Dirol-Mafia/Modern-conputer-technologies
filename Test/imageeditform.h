@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QDebug>
 #include <QMessageBox>
+#include "EditingImageHandler.h"
 
 namespace Ui {
 class ImageEditForm;
@@ -20,17 +21,12 @@ public:
 
 private slots:
     void on_greyscaleButton_clicked();
-
     void on_saveButton_clicked();
-
     void on_increaseSaturation_clicked();
 
 private:
     Ui::ImageEditForm *ui;
-    QString pathToImage;
-    QImage *image;
-
-    void showImage();
+    EditingImageHandler *imageHandler;
 };
 
 #endif // IMAGEEDITFORM_H
