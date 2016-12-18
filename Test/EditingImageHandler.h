@@ -19,6 +19,7 @@ public:
     void makeGreyscale();
     void increaseSaturation();
     bool saveImage();
+    void rotateImage();
 signals:
     void clicked();
 private slots:

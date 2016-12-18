@@ -108,7 +108,19 @@ void EditingImageHandler::crop()
     QPixmap tmp = this->pixmap()->copy(selectionRect);
     selectionStarted=false;
     delete image;
-    QImage tmpImg= this->pixmap()->copy(selectionRect).toImage();
+    QImage tmpImg = this->pixmap()->copy(selectionRect).toImage();
+    image = new QImage(tmpImg);
+    showImage();
+}
+
+void EditingImageHandler::rotateImage()
+{
+    QPixmap pixmap = *(this->pixmap());
+    QMatrix rm;
+    rm.rotate(90);
+    pixmap = pixmap.transformed(rm);
+    delete image;
+    QImage tmpImg = pixmap.toImage();
     image = new QImage(tmpImg);
     showImage();
 }

@@ -24,6 +24,8 @@ private slots:
     void on_saveButton_clicked();
     void on_increaseSaturation_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::ImageEditForm *ui;
     EditingImageHandler *imageHandler;

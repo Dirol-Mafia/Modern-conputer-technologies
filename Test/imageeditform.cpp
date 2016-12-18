@@ -37,3 +37,8 @@ void ImageEditForm::on_increaseSaturation_clicked()
     imageHandler->increaseSaturation();
     imageHandler->showImage();
 }
+
+void ImageEditForm::on_pushButton_clicked()
+{
+    imageHandler->rotateImage();
+}
