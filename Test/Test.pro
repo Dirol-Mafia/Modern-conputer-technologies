@@ -30,3 +30,6 @@ HEADERS += \
 
 FORMS += \
     imageeditform.ui
+
+RESOURCES += \
+    resources.qrc

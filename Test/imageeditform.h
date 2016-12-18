@@ -23,7 +23,6 @@ private slots:
     void on_greyscaleButton_clicked();
     void on_saveButton_clicked();
     void on_increaseSaturation_clicked();
-
     void on_pushButton_clicked();
 
 private:
