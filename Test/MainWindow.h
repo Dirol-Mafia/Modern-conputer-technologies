@@ -44,6 +44,7 @@
 #include <QFileDialog>
 #include <QScrollArea>
 #include <QSizePolicy>
+#include <QTextEdit>
 
 #include <QVector>
 
@@ -84,8 +85,8 @@ private:
     QLineEdit* nameEdit;
     QLineEdit* commentEdit;
     QLineEdit* tagEdit;
-    QList<QLineEdit*> pictureComments;
-    QList<QLineEdit*> pictureTags;
+    QList<QTextEdit*> pictureComments;
+    QList<QTextEdit*> pictureTags;
 
     //Pictures paths
     QStringList picturePaths;

@@ -505,36 +505,55 @@ void MainWindow::updateActions()
 void MainWindow::addLectures()
 {
   picturePaths = QFileDialog::getOpenFileNames(0, "Выбор сканов лекций", "", "*.jpg *.png *.bmp", 0, 0);
-  QFormLayout* picLayout = new QFormLayout;
-  QFormLayout* comLayout = new QFormLayout;
-  QFormLayout* tagLayout = new QFormLayout;
+  QGridLayout* pictureGrid = new QGridLayout;
 
   pictureComments.reserve(picturePaths.size());
   pictureTags.reserve(picturePaths.size());
 
+  size_t rowCount = 0;
+
   for (auto it = picturePaths.begin(); it != picturePaths.end(); ++it)
     {
+      QFormLayout* picLayout = new QFormLayout;
+      QFormLayout* comLayout = new QFormLayout;
+      QFormLayout* tagLayout = new QFormLayout;
+      QFormLayout* comLabelLayout = new QFormLayout;
+      QFormLayout* tagLabelLayout = new QFormLayout;
+
       QPixmap pic(*it);
-      QPixmap scaled = pic.scaledToHeight(100, Qt::FastTransformation);
+      //QPixmap scaled = pic.scaledToHeight(100, Qt::FastTransformation).scaledToWidth(200, Qt::KeepAspectRatio);
+      QPixmap scaled = pic.scaled(QSize(200, 400), Qt::KeepAspectRatio);
       QLabel *picLabel = new QLabel();
       picLabel->setPixmap(scaled);
       picLayout->addRow(picLabel);
+      pictureGrid->addLayout(picLayout, rowCount, 0);
 
-      QLineEdit* comLine = new QLineEdit;
+      QTextEdit* comLine = new QTextEdit;
       comLine->setFixedHeight(100);
+      comLine->setFixedWidth(300);
       comLayout->addRow(comLine);
+      QLabel* comLabel = new QLabel;
+      comLabelLayout->addRow(tr("&Комментарий:"), comLabel);
+      pictureGrid->addLayout(comLabelLayout, rowCount, 1);
+      pictureGrid->addLayout(comLayout, rowCount, 2);
       pictureComments.push_back(comLine);
 
-      QLineEdit* tagLine = new QLineEdit;
+      QTextEdit* tagLine = new QTextEdit;
       tagLine->setFixedHeight(100);
+      tagLine->setFixedWidth(300);
       tagLayout->addRow(tagLine);
+      QLabel* tagLabel = new QLabel;
+      tagLabelLayout->addRow(tr("&Тэги (через запятую):"), tagLabel);
+      pictureGrid->addLayout(tagLabelLayout, rowCount, 3);
+      pictureGrid->addLayout(tagLayout, rowCount, 4);
       pictureTags.push_back(tagLine);
+
+      ++rowCount;
     }
 
-  QGridLayout* pictureGrid = new QGridLayout;
-  pictureGrid->addLayout(picLayout, 0, 0);
-  pictureGrid->addLayout(comLayout, 0, 1);
-  pictureGrid->addLayout(tagLayout, 0, 2);
+  //pictureGrid->addLayout(picLayout, 0, 0);
+  //pictureGrid->addLayout(comLayout, 0, 1);
+  //pictureGrid->addLayout(tagLayout, 0, 2);
 
   QWidget* editPicturesWin = new QWidget;
   editPicturesWin->setLayout(pictureGrid);
