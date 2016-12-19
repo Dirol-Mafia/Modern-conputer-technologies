@@ -1,0 +1,9 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>icons/contrast.ico</file>
+    <file>icons/crop.ico</file>
+    <file>icons/rotate.ico</file>
+    <file>icons/save.ico</file>
+    <file>icons/greyscale.ico</file>
+</qresource>
+</RCC>
