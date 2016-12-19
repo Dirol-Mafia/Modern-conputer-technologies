@@ -65,20 +65,33 @@ private:
     QVBoxLayout *imagesLayout;
     QHBoxLayout *mainLayout;
 
-    //Editing Tree layouts
+    //Tree Editing layouts
     QFormLayout* editLayout;
     QFormLayout* addLayout;
+
+    //Tree Editing widgets
+    QWidget* addWindow;
+    QWidget* editWindow;
+    QWidget* deleteWindow;
 
     //Line Editing Forms
     QLineEdit* nameAdd;
     QLineEdit* commentAdd;
     QLineEdit* tagAdd;
+    QLineEdit* nameEdit;
+    QLineEdit* commentEdit;
+    QLineEdit* tagEdit;
 
     QPushButton *editButton;
     QPushButton *printButton;
 
     QAction *addCategory;
     QAction *addLecture;
+
+    //Editing actions
+    QAction* actionAdd;
+    QAction* actionEdit;
+    QAction* actionDelete;
 
     QPrinter printer;
     QPrintPreviewDialog *dialog;
@@ -108,6 +121,7 @@ private:
     void add();
     void edit();
     void remove();
+    void updateActions();
 
     void on_treeView_customContextMenuRequested();
 

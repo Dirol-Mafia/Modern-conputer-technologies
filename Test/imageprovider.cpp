@@ -44,6 +44,7 @@ QModelIndex ImageProvider::index(int row, int column, const QModelIndex &parent)
     }
 
     const DataWrapper *parent_pointer = dataForIndex(parent);
+    //fetchMore(parent);
 
     if (!parent.isValid()){
         return createIndex(row, column, d.children[row]);
@@ -80,6 +81,7 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
         return {};
       }
     const DataWrapper *elem = dataForIndex(index);
+    int cnt;
     if (role == Qt::DisplayRole) {        
         HData* elem_data;
         switch (elem->type) {
@@ -88,6 +90,7 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
             case SUBJECT:
             case THEME:
             case PARAGRAPH:
+                  cnt = elem->parent->children.size();
                   elem_data = static_cast<HData*>(elem->data);
                 return elem_data->name;
             case IMAGE:
@@ -369,11 +372,12 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
         query.prepare("INSERT INTO lectures (p_id, No, File_name, Comment, Tags) VALUES (:id, :n, \"defpath\", \"defcomm\", \"deftags\")");
 
       if (type != PARAGRAPH)
-          update.prepare("UPDATE categories SET Number = Number + 1 WHERE Number > :pos");
+          update.prepare("UPDATE categories SET Number = Number + 1 WHERE Number > :pos AND p_id = :pid");
       else
-          update.prepare("UPDATE lectures SET No = No + 1 WHERE No > :pos");
+          update.prepare("UPDATE lectures SET No = No + 1 WHERE No > :pos AND p_id = :pid");
 
       query.bindValue(":id", id);
+      update.bindValue(":pid", id);
 
       if (position == 0){
           query.bindValue(":n", position);
@@ -440,21 +444,27 @@ bool DataWrapper::removeChildren(int position, int num)
 
   QSqlQuery delete_rows;
   if (type != PARAGRAPH)
-      delete_rows.prepare("DELETE FROM categories WHERE Number >= :pos AND Number <= :pos + :count");
+      delete_rows.prepare("DELETE FROM categories WHERE Number >= :pos AND Number < :pos + :count AND p_id = :pid");
   else
-      delete_rows.prepare("DELETE FROM lectures WHERE No >= :pos AND :No <= :pos + :count");
+      delete_rows.prepare("DELETE FROM lectures WHERE No >= :pos AND :No < :pos + :count AND p_id = :pid");
 
   delete_rows.bindValue(":pos", position);
   delete_rows.bindValue(":count", num);
+  delete_rows.bindValue(":pid", id);
 
   QSqlQuery update;
   if (type != PARAGRAPH)
-      update.prepare("UPDATE categories SET Number = Number - :n_rows WHERE Number > :pos - 1");
+      update.prepare("UPDATE categories SET Number = Number - :n_rows WHERE Number > :pos - 1 AND p_id = :pid");
   else
-      update.prepare("UPDATE lectures SET No = No - :n_rows WHERE No > :pos - 1");
+      update.prepare("UPDATE lectures SET No = No - :n_rows WHERE No > :pos - 1 AND p_id = :pid");
 
   update.bindValue(":pos", position);
   update.bindValue(":n_rows", num);
+  update.bindValue(":pid", id);
+
+  for (auto it = children.begin(); it != children.end(); ++it)
+    if ((*it)->number > position)
+      (*it)->number -= num;
 
   return (delete_rows.exec() && update.exec());
 }
@@ -468,16 +478,21 @@ bool DataWrapper::setData(int col, const QVariant& value)
 
   if (type != IMAGE){
     HData new_data = value.value<HData>();
-    void* data_ptr = &new_data;
-    data = data_ptr;
+    //void* data_ptr = &new_data;
+    static_cast<HData*>(data)->name = new_data.name;
+    static_cast<HData*>(data)->comment = new_data.comment;
+    //data = data_ptr;
     update_name.prepare("UPDATE categories SET Name = :name, Comment = :comment WHERE id = :cur_id");
     update_name.bindValue(":comment", new_data.comment);
     update_name.bindValue(":name", new_data.name);
     }
   else{
       IData new_data = value.value<IData>();
-      void* data_ptr = &new_data;
-      data = data_ptr;
+      //void* data_ptr = &new_data;
+      static_cast<IData*>(data)->path = new_data.path;
+      static_cast<IData*>(data)->comment = new_data.comment;
+      static_cast<IData*>(data)->tags = new_data.tags;
+      //data = data_ptr;
       update_name.prepare("UPDATE lectures SET File_name = :name, Comment = :comment WHERE id = :cur_id Tags = :tags WHERE id = :cur_id");
       update_name.bindValue(":tags", new_data.tags.join(','));
       update_name.bindValue(":name", new_data.path);

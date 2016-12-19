@@ -210,15 +210,15 @@ void MainWindow::on_treeView_customContextMenuRequested()
 {
     treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    QAction* actionEdit = new QAction(tr("Редактировать..."), this);
+    actionEdit = new QAction(tr("Редактировать..."), this);
     connect(actionEdit, &QAction::triggered, this, &MainWindow::editCategory);
     treeView->addAction(actionEdit);
 
-    QAction* actionAdd = new QAction(tr("Добавить..."), treeView);
+    actionAdd = new QAction(tr("Добавить..."), treeView);
     connect(actionAdd, &QAction::triggered, this, &MainWindow::addingAction);
     treeView->addAction(actionAdd);
 
-    QAction* actionDelete = new QAction(tr("Удалить..."), treeView);
+    actionDelete = new QAction(tr("Удалить..."), treeView);
     connect(actionDelete, &QAction::triggered, this, &MainWindow::deleteAction);
     treeView->addAction(actionDelete);
 }
@@ -273,41 +273,39 @@ void MainWindow::editCategory()
       break;
     }
 
-  QWidget *window = new QWidget;
+  editWindow = new QWidget;
   editLayout = new QFormLayout;
 
-  QLineEdit *nameEdit = new QLineEdit;
+  nameEdit = new QLineEdit;
   nameEdit->setText(child_data);
-  QLineEdit *commentEdit = new QLineEdit;
+  commentEdit = new QLineEdit;
   commentEdit->setText(child_comment);
   commentEdit->setFixedHeight(50);
   QPushButton *buttonEdit = new QPushButton("Редактировать");
-  buttonEdit->setMaximumWidth(120);
   QPushButton *buttonCancel = new QPushButton("Отмена");
-  buttonCancel->setMaximumWidth(120);
-  connect(buttonEdit, &QPushButton::clicked, this, &MainWindow::emptyAction);
-  connect(buttonCancel, &QPushButton::clicked, window, &QWidget::close);
+  connect(buttonEdit, &QPushButton::clicked, this, &MainWindow::edit);
+  connect(buttonCancel, &QPushButton::clicked, editWindow, &QWidget::close);
 
   editLayout->addRow(tr("&Наименование"), nameEdit);
   editLayout->addRow(tr("&Комментарий"), commentEdit);
   editLayout->setAlignment(buttonCancel, Qt::AlignCenter);
 
   if (child->type != IMAGE)
-      window->setFixedSize(460, 180);
+      editWindow->setFixedSize(460, 180);
   else {
-      QLineEdit *tagEdit = new QLineEdit;
+      tagEdit = new QLineEdit;
       tagEdit->setText(child_tags);
       tagEdit->setFixedHeight(50);
       editLayout->addRow(tr("&Тэги (через запятую)"), tagEdit);
-      window->setFixedSize(460, 230);
+      editWindow->setFixedSize(460, 230);
     }
 
   editLayout->addRow(buttonEdit);
   editLayout->addRow(buttonCancel);
 
-  window->setLayout(editLayout);
-  window->setWindowTitle("Редактировать" + editWhat);
-  window->show();
+  editWindow->setLayout(editLayout);
+  editWindow->setWindowTitle("Редактировать" + editWhat);
+  editWindow->show();
 
 }
 
@@ -337,7 +335,7 @@ void MainWindow::deleteAction()
       break;
     }
 
-  QWidget *window = new QWidget;
+  deleteWindow = new QWidget;
   QFormLayout *formLayout = new QFormLayout;
   QMessageBox* warn_mess = new QMessageBox;
 
@@ -352,19 +350,17 @@ void MainWindow::deleteAction()
   formLayout->addRow(tr("&Название:"), name);
 
   QPushButton* buttonDelete = new QPushButton("Удалить");
-  buttonDelete->setMaximumWidth(90);
   QPushButton *buttonCancel = new QPushButton("Отмена");
-  buttonCancel->setMaximumWidth(90);
   connect(buttonDelete, &QPushButton::clicked, this, &MainWindow::areYouSure);
-  connect(buttonCancel, &QPushButton::clicked, window, &QWidget::close);
+  connect(buttonCancel, &QPushButton::clicked, deleteWindow, &QWidget::close);
 
   formLayout->addRow(buttonDelete);
   formLayout->addRow(buttonCancel);
 
-  window->setLayout(formLayout);
-  window->setFixedSize(460, 180);
-  window->setWindowTitle("Удалить" + deleteWhat);
-  window->show();
+  deleteWindow->setLayout(formLayout);
+  deleteWindow->setFixedSize(460, 180);
+  deleteWindow->setWindowTitle("Удалить" + deleteWhat);
+  deleteWindow->show();
 }
 
 void MainWindow::areYouSure()
@@ -382,8 +378,7 @@ void MainWindow::areYouSure()
 
   //yes_no->exec();
   if (yes_no->exec() == 0)
-    emptyAction();
-
+    remove();
 }
 
 void MainWindow::addingAction()
@@ -394,7 +389,7 @@ void MainWindow::addingAction()
   QString child_tags;
   QString addWhat = getSubcatName(child->type);
 
-  QWidget *window = new QWidget;
+  addWindow = new QWidget;
   addLayout = new QFormLayout;
 
   nameAdd= new QLineEdit;
@@ -405,27 +400,27 @@ void MainWindow::addingAction()
   QPushButton *buttonAdd = new QPushButton("Добавить");
   QPushButton *buttonCancel = new QPushButton("Отмена");
   connect(buttonAdd, &QPushButton::clicked, this, &MainWindow::add);
-  connect(buttonCancel, &QPushButton::clicked, window, &QWidget::close);
+  connect(buttonCancel, &QPushButton::clicked, addWindow, &QWidget::close);
 
   addLayout->addRow(tr("&Наименование"), nameAdd);
   addLayout->addRow(tr("&Комментарий"), commentAdd);
 
   if (child->type != PARAGRAPH)
-      window->setFixedSize(460, 180);
+      addWindow->setFixedSize(460, 180);
   else {
       tagAdd = new QLineEdit;
       tagAdd->setText(child_tags);
       tagAdd->setFixedHeight(50);
       addLayout->addRow(tr("&Тэги (через запятую)"), tagAdd);
-      window->setFixedSize(460, 230);
+      addWindow->setFixedSize(460, 230);
     }
 
   addLayout->addRow(buttonAdd);
   addLayout->addRow(buttonCancel);
 
-  window->setLayout(addLayout);
-  window->setWindowTitle("Добавить" + addWhat);
-  window->show();
+  addWindow->setLayout(addLayout);
+  addWindow->setWindowTitle("Добавить" + addWhat);
+  addWindow->show();
 }
 
 // Actions for context menu (editing model)
@@ -442,20 +437,66 @@ void MainWindow::add()
   if (!model->insertRows(row_count, 1,parent_ind))
     return;
 
-  QModelIndex child = model->index(row_count + 1, 0, parent_ind);
+  model->fetchAll(parent_ind);
+  QModelIndex child = model->index(row_count, 0, parent_ind);
   DataWrapper* child_data = model->dataForIndex(child);
   HData add_data = {(h_type)(1 + (int)parent->type), nameAdd->text(), commentAdd->text()};
   QVariant add_data_qvariant = QVariant::fromValue(add_data);
 
   if(!model->setData(child, add_data_qvariant, Qt::EditRole))
     return;
-  else
+  else{
     qDebug() << "Data was Set!!!!!";
+    QMessageBox::information(treeView, "OK", "Успешно!");
+    treeView->update(parent_ind);
+    }
 
+  updateActions();
   //treeView->update();
+}
+
+void MainWindow::edit()
+{
+  QModelIndex child = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+  DataWrapper* child_data_wrapper = model->dataForIndex(child);
+  HData* child_data = static_cast<HData*>(child_data_wrapper->data);
+  if (child_data->name == nameEdit->text() && child_data->comment == commentEdit->text())
+    return;
+  HData add_data = {(h_type)(1 + (int)child_data_wrapper->type), nameEdit->text(), commentEdit->text()};
+  QVariant add_data_qvariant = QVariant::fromValue(add_data);
+
+  if(!model->setData(child, add_data_qvariant, Qt::EditRole))
+    return;
+  else{
+    qDebug() << "Data was Set!!!!!";
+    treeView->update(child);
+    QMessageBox::information(treeView, "OK", "Успешно!");
+    editWindow->close();
+    }
 }
 
 void MainWindow::remove()
 {
+  QModelIndex child = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+  QModelIndex parent_ind = model->parent(child);
+  DataWrapper* child_data_wrapper = model->dataForIndex(child);
+  if(!model->removeRows(child_data_wrapper->number, 1, parent_ind))
+    return;
+  else{
+    QMessageBox::information(treeView, "OK", "Успешно!");
+    deleteWindow->close();
+    }
+}
 
+void MainWindow::updateActions()
+{
+  bool has_selection = !treeView->selectionModel()->selection().isEmpty();
+  actionDelete->setEnabled(has_selection);
+
+  bool has_current = treeView->selectionModel()->currentIndex().isValid();
+  actionAdd->setEnabled(has_current);
+  actionEdit->setEnabled(has_current);
+
+  if (has_current)
+    treeView->closePersistentEditor(treeView->selectionModel()->currentIndex());
 }
