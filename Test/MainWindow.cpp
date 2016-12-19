@@ -3,7 +3,6 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     createActions();
-    createMenus();
     selectedImagesCount = 0;
     model = new ImageProvider("../Test/DB_Lectures");
     filteredModel = new MySortFilterProxyModel(this);
@@ -24,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     centralWidget()->setLayout(mainLayout);
 
     on_treeView_customContextMenuRequested();
+    createMenus();
 }
 
 void MainWindow::renderCategoriesLayout()
@@ -144,14 +144,16 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
     menuBar = new QMenuBar(this);
-    menuEdit = new QMenu("Редактировать");
-    menuAdd = new QMenu("Добавить");
+    menuEdit = new QMenu("Редактирование категорий");
+    menuAdd = new QMenu("Редактирование лекций");
 
-    menuEdit->addAction("test1");
+    menuEdit->addAction(actionEdit);
     menuEdit->addSeparator();
-    menuEdit->addAction("test2");
+    menuEdit->addAction(actionAdd);
+    menuEdit->addSeparator();
+    menuEdit->addAction(actionDelete);
 
-    menuAdd->addAction(addCategory);
+    //menuAdd->addAction(addCategory);
     menuAdd->addAction("Фотографии лекций");
 
     menuBar->addMenu(menuEdit);
