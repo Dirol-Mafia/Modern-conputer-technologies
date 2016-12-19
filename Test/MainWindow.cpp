@@ -180,7 +180,6 @@ void MainWindow::addCategoryToDb()
     QWidget *window = new QWidget;
     QFormLayout *formLayout = new QFormLayout;
 
-    QLabel *text = new QLabel("Введите данные");
     QLineEdit *nameEdit = new QLineEdit;
     QLineEdit *commentEdit = new QLineEdit;
     commentEdit->setFixedHeight(50);
@@ -394,33 +393,33 @@ void MainWindow::addingAction()
   addWindow = new QWidget;
   addLayout = new QFormLayout;
 
-  nameAdd= new QLineEdit;
-  nameAdd->setText(child_data);
-  commentAdd= new QLineEdit;
-  commentAdd->setText(child_comment);
-  commentAdd->setFixedHeight(50);
-  QPushButton *buttonAdd = new QPushButton("Добавить");
-  QPushButton *buttonCancel = new QPushButton("Отмена");
-  connect(buttonAdd, &QPushButton::clicked, this, &MainWindow::add);
-  connect(buttonCancel, &QPushButton::clicked, addWindow, &QWidget::close);
+  if (child->type != PARAGRAPH){
+    nameAdd= new QLineEdit;
+    nameAdd->setText(child_data);
+    commentAdd = new QLineEdit;
+    commentAdd->setText(child_comment);
+    commentAdd->setFixedHeight(50);
+    QPushButton *buttonAdd = new QPushButton("Добавить");
+    QPushButton *buttonCancel = new QPushButton("Отмена");
+    connect(buttonAdd, &QPushButton::clicked, this, &MainWindow::add);
+    connect(buttonCancel, &QPushButton::clicked, addWindow, &QWidget::close);
 
-  addLayout->addRow(tr("&Наименование"), nameAdd);
-  addLayout->addRow(tr("&Комментарий"), commentAdd);
+    addLayout->addRow(tr("&Наименование"), nameAdd);
+    addLayout->addRow(tr("&Комментарий"), commentAdd);
 
-  if (child->type != PARAGRAPH)
-      addWindow->setFixedSize(460, 180);
-  else {
-      tagAdd = new QLineEdit;
-      tagAdd->setText(child_tags);
-      tagAdd->setFixedHeight(50);
-      addLayout->addRow(tr("&Тэги (через запятую)"), tagAdd);
-      addWindow->setFixedSize(460, 230);
+    addLayout->addRow(buttonAdd);
+    addLayout->addRow(buttonCancel);
+
+    addWindow->setLayout(addLayout);
+    addWindow->setFixedSize(460, 180);
     }
-
-  addLayout->addRow(buttonAdd);
-  addLayout->addRow(buttonCancel);
-
-  addWindow->setLayout(addLayout);
+  else {
+      QPushButton* buttonReview = new QPushButton("Выбрать сканы...");
+      connect(buttonReview, &QPushButton::clicked, this, &MainWindow::addLectures);
+      addLayout->addRow(buttonReview);
+      addWindow->setLayout(addLayout);
+      addWindow->setFixedSize(250, 50);
+    }
   addWindow->setWindowTitle("Добавить" + addWhat);
   addWindow->show();
 }
@@ -501,4 +500,51 @@ void MainWindow::updateActions()
 
   if (has_current)
     treeView->closePersistentEditor(treeView->selectionModel()->currentIndex());
+}
+
+void MainWindow::addLectures()
+{
+  picturePaths = QFileDialog::getOpenFileNames(0, "Выбор сканов лекций", "", "*.jpg *.png *.bmp", 0, 0);
+  QFormLayout* picLayout = new QFormLayout;
+  QFormLayout* comLayout = new QFormLayout;
+  QFormLayout* tagLayout = new QFormLayout;
+
+  pictureComments.reserve(picturePaths.size());
+  pictureTags.reserve(picturePaths.size());
+
+  for (auto it = picturePaths.begin(); it != picturePaths.end(); ++it)
+    {
+      QPixmap pic(*it);
+      QPixmap scaled = pic.scaledToHeight(100, Qt::FastTransformation);
+      QLabel *picLabel = new QLabel();
+      picLabel->setPixmap(scaled);
+      picLayout->addRow(picLabel);
+
+      QLineEdit* comLine = new QLineEdit;
+      comLine->setFixedHeight(100);
+      comLayout->addRow(comLine);
+      pictureComments.push_back(comLine);
+
+      QLineEdit* tagLine = new QLineEdit;
+      tagLine->setFixedHeight(100);
+      tagLayout->addRow(tagLine);
+      pictureTags.push_back(tagLine);
+    }
+
+  QGridLayout* pictureGrid = new QGridLayout;
+  pictureGrid->addLayout(picLayout, 0, 0);
+  pictureGrid->addLayout(comLayout, 0, 1);
+  pictureGrid->addLayout(tagLayout, 0, 2);
+
+  QWidget* editPicturesWin = new QWidget;
+  editPicturesWin->setLayout(pictureGrid);
+  editPicturesWin->setWindowTitle("Добавление сканов");
+  //editPicturesWin->resize(QSize(800, 500));
+  editPicturesWin->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+  QScrollArea* editPicScrollAlrea = new QScrollArea;
+  editPicScrollAlrea->setWidget(editPicturesWin);
+
+  //editPicturesWin->show();
+  editPicScrollAlrea->show();
 }

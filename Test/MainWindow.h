@@ -41,6 +41,9 @@
 #include <QRect>
 #include <QStringList>
 #include <QPrintPreviewDialog>
+#include <QFileDialog>
+#include <QScrollArea>
+#include <QSizePolicy>
 
 #include <QVector>
 
@@ -81,6 +84,11 @@ private:
     QLineEdit* nameEdit;
     QLineEdit* commentEdit;
     QLineEdit* tagEdit;
+    QList<QLineEdit*> pictureComments;
+    QList<QLineEdit*> pictureTags;
+
+    //Pictures paths
+    QStringList picturePaths;
 
     QPushButton *editButton;
     QPushButton *printButton;
@@ -122,6 +130,7 @@ private:
     void edit();
     void remove();
     void updateActions();
+    void addLectures();
 
     void on_treeView_customContextMenuRequested();
 
