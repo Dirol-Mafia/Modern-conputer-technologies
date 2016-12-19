@@ -4,11 +4,6 @@ EditingImageHandler::EditingImageHandler(const QString& _pathToImage, QWidget* p
     : QLabel(parent)
 {
     image = new QImage(_pathToImage);
-    //int width = image->width() * 0.8;
-    //int height = image->height() * 0.8;
-    //QImage tmp = image->scaled(width, height, Qt::KeepAspectRatio);
-    //delete image;
-    //image = new QImage(tmp);
     pathToImage = _pathToImage;
     selectionStarted = false;
     this->showImage();

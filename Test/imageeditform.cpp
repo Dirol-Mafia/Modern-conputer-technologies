@@ -8,6 +8,7 @@ ImageEditForm::ImageEditForm(const QString &_pathToImage, QWidget *parent) :
     ui->setupUi(this);
     imageHandler = new EditingImageHandler(_pathToImage);
     ui->imageLayout->addWidget(imageHandler);
+    ui->imageLayout->setAlignment(imageHandler, Qt::AlignTop);
     imageHandler->showImage();
 }
 
