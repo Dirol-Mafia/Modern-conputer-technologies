@@ -505,20 +505,27 @@ void MainWindow::updateActions()
 void MainWindow::addLectures()
 {
   picturePaths = QFileDialog::getOpenFileNames(0, "Выбор сканов лекций", "", "*.jpg *.png *.bmp", 0, 0);
-  QGridLayout* pictureGrid = new QGridLayout;
+  pictureGrid = new QGridLayout;
 
-  pictureComments.reserve(picturePaths.size());
-  pictureTags.reserve(picturePaths.size());
+  size_t num_pics = picturePaths.size();
+  pictureComments.reserve(num_pics);
+  pictureTags.reserve(num_pics);
+  delButtons.reserve(num_pics);
+  picLayouts.reserve(num_pics);
+  comLayouts.reserve(num_pics);
+  tagLayouts.reserve(num_pics);
+  butLayouts.reserve(num_pics);
+  picLabels.reserve(num_pics);
 
   size_t rowCount = 0;
 
   for (auto it = picturePaths.begin(); it != picturePaths.end(); ++it)
     {
+      size_t colCount = 0;
       QFormLayout* picLayout = new QFormLayout;
       QFormLayout* comLayout = new QFormLayout;
       QFormLayout* tagLayout = new QFormLayout;
-      QFormLayout* comLabelLayout = new QFormLayout;
-      QFormLayout* tagLabelLayout = new QFormLayout;
+      QFormLayout* buttonLayout = new QFormLayout;
 
       QPixmap pic(*it);
       //QPixmap scaled = pic.scaledToHeight(100, Qt::FastTransformation).scaledToWidth(200, Qt::KeepAspectRatio);
@@ -526,44 +533,97 @@ void MainWindow::addLectures()
       QLabel *picLabel = new QLabel();
       picLabel->setPixmap(scaled);
       picLayout->addRow(picLabel);
-      pictureGrid->addLayout(picLayout, rowCount, 0);
+      picLabels.push_back(picLabel);
+      picLayouts.push_back(picLayout);
+      pictureGrid->addLayout(picLayout, rowCount, colCount++);
 
       QTextEdit* comLine = new QTextEdit;
       comLine->setFixedHeight(100);
       comLine->setFixedWidth(300);
+      comLine->setPlaceholderText("Комментарий");
       comLayout->addRow(comLine);
-      QLabel* comLabel = new QLabel;
-      comLabelLayout->addRow(tr("&Комментарий:"), comLabel);
-      pictureGrid->addLayout(comLabelLayout, rowCount, 1);
-      pictureGrid->addLayout(comLayout, rowCount, 2);
+      comLayouts.push_back(comLayout);
+      pictureGrid->addLayout(comLayout, rowCount, colCount++);
       pictureComments.push_back(comLine);
 
       QTextEdit* tagLine = new QTextEdit;
       tagLine->setFixedHeight(100);
       tagLine->setFixedWidth(300);
+      tagLine->setPlaceholderText("Тэги (через запятую)");
       tagLayout->addRow(tagLine);
-      QLabel* tagLabel = new QLabel;
-      tagLabelLayout->addRow(tr("&Тэги (через запятую):"), tagLabel);
-      pictureGrid->addLayout(tagLabelLayout, rowCount, 3);
-      pictureGrid->addLayout(tagLayout, rowCount, 4);
+      tagLayouts.push_back(tagLayout);
+      pictureGrid->addLayout(tagLayout, rowCount, colCount++);
       pictureTags.push_back(tagLine);
+
+      QPushButton* deleteButton = new QPushButton("Удалить");
+      buttonLayout->addRow(deleteButton);
+      connect(deleteButton, &QPushButton::clicked, this, &MainWindow::removePicFromSelection);
+      delButtons.push_back(deleteButton);
+      butLayouts.push_back(buttonLayout);
+      pictureGrid->addLayout(buttonLayout, rowCount, colCount++);
 
       ++rowCount;
     }
 
-  //pictureGrid->addLayout(picLayout, 0, 0);
-  //pictureGrid->addLayout(comLayout, 0, 1);
-  //pictureGrid->addLayout(tagLayout, 0, 2);
-
-  QWidget* editPicturesWin = new QWidget;
+  editPicturesWin = new QWidget;
   editPicturesWin->setLayout(pictureGrid);
   editPicturesWin->setWindowTitle("Добавление сканов");
-  //editPicturesWin->resize(QSize(800, 500));
   editPicturesWin->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-  QScrollArea* editPicScrollAlrea = new QScrollArea;
+  editPicScrollAlrea = new QScrollArea;
   editPicScrollAlrea->setWidget(editPicturesWin);
 
-  //editPicturesWin->show();
   editPicScrollAlrea->show();
+}
+
+void MainWindow::removePicFromSelection()
+{
+  for (size_t i = 0; i < delButtons.size(); ++i)
+    if (sender() == delButtons[i]){
+        qDebug() << "Sender: " << i;
+
+        pictureGrid->removeItem(picLayouts[i]);
+        pictureGrid->removeItem(comLayouts[i]);
+        pictureGrid->removeItem(tagLayouts[i]);
+        pictureGrid->removeItem(butLayouts[i]);
+
+        delete picLabels.at(i);
+        picLabels.removeAt(i);
+
+        delete pictureComments.at(i);
+        pictureComments.removeAt(i);
+
+        picturePaths.removeAt(i);
+
+        delete pictureTags.at(i);
+        pictureTags.removeAt(i);
+
+        delete delButtons.at(i);
+        delButtons.removeAt(i);
+
+        picLayouts.at(i)->destroyed();
+        delete picLayouts.at(i);
+        picLayouts.removeAt(i);
+
+        delete comLayouts.at(i);
+        comLayouts.removeAt(i);
+
+        delete tagLayouts.at(i);
+        tagLayouts.removeAt(i);
+
+        delete butLayouts.at(i);
+        butLayouts.removeAt(i);
+
+       /* for (size_t j = i; j < picturePaths.size(); ++j){
+            pictureGrid->add
+          }*/
+
+        pictureGrid->update();
+        editPicturesWin->repaint();
+        editPicturesWin->update();
+        editPicScrollAlrea->repaint();
+        editPicScrollAlrea->update();
+
+        break;
+      }
 }

@@ -72,11 +72,19 @@ private:
     //Tree Editing layouts
     QFormLayout* editLayout;
     QFormLayout* addLayout;
+    QGridLayout* pictureGrid;
+    QVector<QFormLayout*> picLayouts;
+    QVector<QFormLayout*> comLayouts;
+    QVector<QFormLayout*> tagLayouts;
+    QVector<QFormLayout*> butLayouts;
+    QVector<QLabel*> picLabels;
 
     //Tree Editing widgets
     QWidget* addWindow;
     QWidget* editWindow;
     QWidget* deleteWindow;
+    QWidget* editPicturesWin;
+    QScrollArea* editPicScrollAlrea;
 
     //Line Editing Forms
     QLineEdit* nameAdd;
@@ -93,6 +101,8 @@ private:
 
     QPushButton *editButton;
     QPushButton *printButton;
+    //Vector of delete buttons
+    QVector<QPushButton*> delButtons;
 
     QAction *addCategory;
     QAction *addLecture;
@@ -142,4 +152,5 @@ private slots:
     void drawImagesOnSheet(QPrinter* printer);
     void callEditForm();
     void onImageClick();
+    void removePicFromSelection();
 };
