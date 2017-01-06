@@ -562,16 +562,19 @@ void MainWindow::addLectures()
       butLayouts.push_back(buttonLayout);
       pictureGrid->addLayout(buttonLayout, rowCount, colCount++);
 
+      pictureGrid->setRowMinimumHeight(rowCount, 0);
+
       ++rowCount;
     }
 
   editPicturesWin = new QWidget;
   editPicturesWin->setLayout(pictureGrid);
-  editPicturesWin->setWindowTitle("Добавление сканов");
-  editPicturesWin->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  editPicturesWin->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
   editPicScrollAlrea = new QScrollArea;
   editPicScrollAlrea->setWidget(editPicturesWin);
+  editPicScrollAlrea->setWindowTitle("Добавление сканов");
+  editPicScrollAlrea->resize(editPicturesWin->width(), editPicScrollAlrea->height());
 
   editPicScrollAlrea->show();
 }
@@ -580,20 +583,12 @@ void MainWindow::removePicFromSelection()
 {
   for (size_t i = 0; i < delButtons.size(); ++i)
     if (sender() == delButtons[i]){
-        qDebug() << "Sender: " << i;
+        size_t pic_height = picLabels.at(i)->height();
 
-        pictureGrid->removeItem(picLayouts[i]);
-        pictureGrid->removeItem(comLayouts[i]);
-        pictureGrid->removeItem(tagLayouts[i]);
-        pictureGrid->removeItem(butLayouts[i]);
-
-        delete picLabels.at(i);
-        picLabels.removeAt(i);
+        picturePaths.removeAt(i);
 
         delete pictureComments.at(i);
         pictureComments.removeAt(i);
-
-        picturePaths.removeAt(i);
 
         delete pictureTags.at(i);
         pictureTags.removeAt(i);
@@ -601,28 +596,22 @@ void MainWindow::removePicFromSelection()
         delete delButtons.at(i);
         delButtons.removeAt(i);
 
-        picLayouts.at(i)->destroyed();
-        delete picLayouts.at(i);
+        delete picLabels.at(i);
+        picLabels.removeAt(i);
+
         picLayouts.removeAt(i);
-
-        delete comLayouts.at(i);
         comLayouts.removeAt(i);
-
-        delete tagLayouts.at(i);
         tagLayouts.removeAt(i);
-
-        delete butLayouts.at(i);
         butLayouts.removeAt(i);
 
-       /* for (size_t j = i; j < picturePaths.size(); ++j){
-            pictureGrid->add
-          }*/
+        if (picturePaths.size() == 0){
+          editPicScrollAlrea->close();
+          break;
+         }
 
         pictureGrid->update();
-        editPicturesWin->repaint();
-        editPicturesWin->update();
-        editPicScrollAlrea->repaint();
-        editPicScrollAlrea->update();
+
+        editPicturesWin->resize(editPicturesWin->width(), editPicturesWin->height() - pic_height);
 
         break;
       }
