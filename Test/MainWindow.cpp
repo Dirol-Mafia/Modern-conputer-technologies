@@ -456,6 +456,37 @@ void MainWindow::add()
   //treeView->update();
 }
 
+
+void MainWindow::addPictures()
+{
+  const DataWrapper* parent = this->itemData();
+
+  QModelIndex parent_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+  parent = model->dataForIndex(parent_ind);
+  int row_count = parent->count;
+  int how_much = picturePaths.size();
+
+  if (!model->insertRows(row_count, how_much, parent_ind))
+    return;
+
+  model->fetchAll(parent_ind);
+  for (size_t i = 0; i < how_much; ++i)
+    {
+      QModelIndex child = model->index(i + row_count, 0, parent_ind);
+      IData add_data = {picturePaths.at(i), pictureComments.at(i)->toPlainText(), pictureTags.at(i)->toPlainText().split(',')};
+      QVariant add_data_qvariant = QVariant::fromValue(add_data);
+      if(!model->setData(child, add_data_qvariant, Qt::EditRole))
+        return;
+    }
+
+  qDebug() << "Data was Set!!!!!";
+  QMessageBox::information(treeView, "OK", "Успешно!");
+  editPicScrollAlrea->close();
+  treeView->update(parent_ind);
+
+  updateActions();
+}
+
 void MainWindow::edit()
 {
   QModelIndex child = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
@@ -508,6 +539,8 @@ void MainWindow::addLectures()
   pictureGrid = new QGridLayout;
 
   size_t num_pics = picturePaths.size();
+  if (num_pics == 0)
+    return;
   pictureComments.reserve(num_pics);
   pictureTags.reserve(num_pics);
   delButtons.reserve(num_pics);
@@ -568,10 +601,25 @@ void MainWindow::addLectures()
     }
 
   editPicturesWin = new QWidget;
+  editPicScrollAlrea = new QScrollArea;
+
+  QPushButton* addButton = new QPushButton("Добавить");
+  connect(addButton, &QPushButton::clicked, this, &MainWindow::addPictures);
+  addButton->setMaximumWidth(150);
+  QFormLayout* addButLayout = new QFormLayout;
+  addButLayout->addRow(addButton);
+  pictureGrid->addLayout(addButLayout, rowCount, 0);
+
+  QPushButton* cancelButton = new QPushButton("Отмена");
+  connect(cancelButton, &QPushButton::clicked, editPicScrollAlrea, &QScrollArea::close);
+  cancelButton->setMaximumWidth(150);
+  QFormLayout* cancButLayout = new QFormLayout;
+  cancButLayout->addRow(cancelButton);
+  pictureGrid->addLayout(cancButLayout, rowCount, 1);
+
   editPicturesWin->setLayout(pictureGrid);
   editPicturesWin->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-  editPicScrollAlrea = new QScrollArea;
   editPicScrollAlrea->setWidget(editPicturesWin);
   editPicScrollAlrea->setWindowTitle("Добавление сканов");
   editPicScrollAlrea->resize(editPicturesWin->width(), editPicScrollAlrea->height());

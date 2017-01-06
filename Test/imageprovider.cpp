@@ -364,6 +364,8 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       DataWrapper* child = new DataWrapper();
       QSqlQuery query;
       QSqlQuery update;
+      int child_num = position + row;
+
       if (type != PARAGRAPH){
         query.prepare("INSERT INTO categories (p_id, Type, Name, Comment, Number) VALUES (:id, :t, \"defname\", \"defcomm\", :n)");
         query.bindValue(":t", (int)(type) + 1);
@@ -380,19 +382,19 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       update.bindValue(":pid", id);
 
       if (position == 0){
-          query.bindValue(":n", position);
-          child->number = position;
-          update.bindValue(":pos", position - 1);
+          query.bindValue(":n", child_num);
+          child->number = child_num;
+          update.bindValue(":pos", child_num - 1);
         }
       else if (position == count){
-          query.bindValue(":n", position);
-          child->number = position;
-          update.bindValue(":pos", position);
+          query.bindValue(":n", child_num);
+          child->number = child_num;
+          update.bindValue(":pos", child_num);
         }
       else {
-          query.bindValue(":n", position);
-          child->number = position;
-          update.bindValue(":pos", position);
+          query.bindValue(":n", child_num);
+          child->number = child_num;
+          update.bindValue(":pos", child_num);
         }
 
       query.exec();
@@ -493,11 +495,14 @@ bool DataWrapper::setData(int col, const QVariant& value)
       static_cast<IData*>(data)->comment = new_data.comment;
       static_cast<IData*>(data)->tags = new_data.tags;
       //data = data_ptr;
-      update_name.prepare("UPDATE lectures SET File_name = :name, Comment = :comment WHERE id = :cur_id Tags = :tags WHERE id = :cur_id");
+      update_name.prepare("UPDATE lectures SET File_name = :name, Comment = :comment, Tags = :tags WHERE id = :cur_id");
+      update_name.bindValue(":comment", new_data.comment);
       update_name.bindValue(":tags", new_data.tags.join(','));
       update_name.bindValue(":name", new_data.path);
     }
 
   update_name.bindValue(":cur_id", id);
-  return update_name.exec();
+  bool set_res = update_name.exec();
+  qDebug() << update_name.lastError();
+  return set_res;
 }

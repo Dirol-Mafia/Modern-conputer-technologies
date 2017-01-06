@@ -138,6 +138,7 @@ private:
 
 // Actions for context menu (editing model)
     void add();
+    void addPictures();
     void edit();
     void remove();
     void updateActions();
