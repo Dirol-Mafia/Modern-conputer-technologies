@@ -48,11 +48,16 @@ void EditingImageHandler::increaseSaturation()
         }
 }
 
-void EditingImageHandler::showImage()
+void EditingImageHandler::scaleImage(int multipier)
 {
-    double scaleParameter = 0.7;
-    this->setFixedHeight(image->height() * scaleParameter);
-    this->setFixedWidth(image->width() *scaleParameter);
+    scaleParameter += multipier * 0.2;
+    showImage(scaleParameter);
+}
+
+void EditingImageHandler::showImage(double scaleParam)
+{
+    this->setFixedHeight(image->height() * scaleParam);
+    this->setFixedWidth(image->width() * scaleParam);
     this->setScaledContents(true);
     this->setPixmap(QPixmap::fromImage(*image));
 }
@@ -123,5 +128,4 @@ void EditingImageHandler::rotateImage()
     delete image;
     QImage tmpImg = pixmap.toImage();
     image = new QImage(tmpImg);
-    showImage();
 }
