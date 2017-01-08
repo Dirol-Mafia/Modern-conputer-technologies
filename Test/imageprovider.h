@@ -83,7 +83,7 @@ public:
     const DataWrapper* dataForIndex(const QModelIndex& index) const;
 
 private:
-    DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1};
+    DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1, false};
     int getChildrenCount(h_type type, int pid) const;
     QSqlDatabase db;
 };

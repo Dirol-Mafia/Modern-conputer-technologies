@@ -94,7 +94,7 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
                   elem_data = static_cast<HData*>(elem->data);
                 return elem_data->name;
             case IMAGE:
-                return static_cast<IData*>(elem->data)->comment;
+                return QString::number(elem->number) + (static_cast<IData*>(elem->data)->comment);
             default:
                 return QVariant();
         }
@@ -448,7 +448,7 @@ bool DataWrapper::removeChildren(int position, int num)
   if (type != PARAGRAPH)
       delete_rows.prepare("DELETE FROM categories WHERE Number >= :pos AND Number < :pos + :count AND p_id = :pid");
   else
-      delete_rows.prepare("DELETE FROM lectures WHERE No >= :pos AND :No < :pos + :count AND p_id = :pid");
+      delete_rows.prepare("DELETE FROM lectures WHERE No >= :pos AND No < :pos + :count AND p_id = :pid");
 
   delete_rows.bindValue(":pos", position);
   delete_rows.bindValue(":count", num);

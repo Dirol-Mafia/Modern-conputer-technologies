@@ -69,7 +69,7 @@ private:
     QVBoxLayout *imagesLayout;
     QHBoxLayout *mainLayout;
 
-    //Tree Editing layouts
+    ///Tree Editing layouts
     QFormLayout* editLayout;
     QFormLayout* addLayout;
     QGridLayout* pictureGrid;
@@ -79,14 +79,14 @@ private:
     QVector<QFormLayout*> butLayouts;
     QVector<QLabel*> picLabels;
 
-    //Tree Editing widgets
+    ///Tree Editing widgets
     QWidget* addWindow;
     QWidget* editWindow;
     QWidget* deleteWindow;
     QWidget* editPicturesWin;
     QScrollArea* editPicScrollAlrea;
 
-    //Line Editing Forms
+    ///Line Editing Forms
     QLineEdit* nameAdd;
     QLineEdit* commentAdd;
     QLineEdit* tagAdd;
@@ -96,18 +96,20 @@ private:
     QList<QTextEdit*> pictureComments;
     QList<QTextEdit*> pictureTags;
 
-    //Pictures paths
+    ///Pictures paths
     QStringList picturePaths;
 
+    ///Picture editing buttons
     QPushButton *editButton;
     QPushButton *printButton;
-    //Vector of delete buttons
+    QPushButton *deleteButton;
+    ///Vector of delete buttons (in the Picture adding window)
     QVector<QPushButton*> delButtons;
 
     QAction *addCategory;
     QAction *addLecture;
 
-    //Editing actions
+    ///Editing actions
     QAction* actionAdd;
     QAction* actionEdit;
     QAction* actionDelete;
@@ -128,7 +130,7 @@ private:
     const DataWrapper* itemData();
     void setEnableButtons();
 
-// Actions for context menu (dialog windows)void addCategoryToDb();
+/// Actions for context menu (dialog windows)void addCategoryToDb();
     void addLectureToDb();
     void editCategory();
     void emptyAction();
@@ -136,11 +138,12 @@ private:
     void areYouSure();
     void addingAction();
 
-// Actions for context menu (editing model)
+/// Actions for context menu (editing model)
     void add();
     void addPictures();
     void edit();
     void remove();
+    void removePictures();
     void updateActions();
     void addLectures();
 
@@ -152,6 +155,7 @@ private slots:
     void callPrinter();
     void drawImagesOnSheet(QPrinter* printer);
     void callEditForm();
+    void areYouSureDelPics();
     void onImageClick();
     void removePicFromSelection();
 };

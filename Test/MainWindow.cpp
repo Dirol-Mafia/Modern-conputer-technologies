@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QObject::connect(imagesView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onImageClick()));
     QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
     QObject::connect(editButton, SIGNAL(clicked()), this, SLOT(callEditForm()));
+    QObject::connect(deleteButton, SIGNAL(clicked()), this, SLOT(areYouSureDelPics()));
     this->setCentralWidget(new QWidget(this));
     centralWidget()->setLayout(mainLayout);
 
@@ -42,17 +43,24 @@ void MainWindow::renderImagesLayout()
     imagesLayout = new QVBoxLayout;
     editButton = new QPushButton("Подготовить к печати");
     printButton = new QPushButton("Печатать");
+    deleteButton = new QPushButton("Удалить");
     editButton->setEnabled(false);
     printButton->setEnabled(false);
+    deleteButton->setEnabled(false);
     imagesLayout->addWidget(imagesView);
     imagesLayout->addWidget(editButton);
     imagesLayout->addWidget(printButton);
+    imagesLayout->addWidget(deleteButton);
 }
 
 void MainWindow::onImageClick()
 {
     DataWrapper* paragraphData = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     int imagesCount = paragraphData->children.count();
+    if (selectedImages.size() < paragraphData->count){
+        selectedImages.clear();
+        selectedImages.resize(paragraphData->count);
+    }
     selectedImagesCount = 0;
     for (int i = 0; i < imagesCount; ++i)
     {
@@ -73,6 +81,7 @@ void MainWindow::setEnableButtons()
 {
     editButton->setEnabled(selectedImagesCount == 1 ? true: false);
     printButton->setEnabled(selectedImagesCount > 0 ? true: false);
+    deleteButton->setEnabled(selectedImagesCount > 0 ? true: false);
 }
 
 void MainWindow::showImages(const QModelIndex &proxyIndex)
@@ -128,6 +137,23 @@ void MainWindow::callEditForm()
     QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
     ImageEditForm *editForm = new ImageEditForm(imagePath);
     editForm->show();
+}
+
+void MainWindow::areYouSureDelPics()
+{
+    QMessageBox* yes_no = new QMessageBox;
+    const QString yes = "Да";
+    const QString no = "Ненененене";
+    const QString title = "Предупреждение";
+    const QString mess = "Вы уверены, что хотите удалить выбранные изображения без возможности восстановления?";
+    yes_no->setWindowTitle(title);
+    yes_no->setText(mess);
+    yes_no->setIcon(QMessageBox::Warning);
+    yes_no->addButton(yes, QMessageBox::AcceptRole);
+    yes_no->addButton(no, QMessageBox::RejectRole);
+
+    if (yes_no->exec() == 0)
+      removePictures();
 }
 
 void MainWindow::createActions()
@@ -338,13 +364,6 @@ void MainWindow::deleteAction()
 
   deleteWindow = new QWidget;
   QFormLayout *formLayout = new QFormLayout;
-  QMessageBox* warn_mess = new QMessageBox;
-
-  QPushButton* buttonYes = new QPushButton("Да");
-  QPushButton* buttonNo = new QPushButton("Нет");
- // warn_mess->warning(window, "Предупреждение",
- //      "Вы действительно хотите удалить " + child_data + " со всем его содержимым без возможности восстановления?",
- //      buttonYes, buttonNo);
 
   QLabel* name = new QLabel;
   name->setText(child_data);
@@ -431,7 +450,6 @@ void MainWindow::add()
 
   QModelIndex parent_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
   parent = model->dataForIndex(parent_ind);
-  int p_id = parent->id;
   int row_count = parent->count;
   //int ins_row = parent_ind.row() + count;
 
@@ -440,7 +458,6 @@ void MainWindow::add()
 
   model->fetchAll(parent_ind);
   QModelIndex child = model->index(row_count, 0, parent_ind);
-  DataWrapper* child_data = model->dataForIndex(child);
   HData add_data = {(h_type)(1 + (int)parent->type), nameAdd->text(), commentAdd->text()};
   QVariant add_data_qvariant = QVariant::fromValue(add_data);
 
@@ -470,7 +487,7 @@ void MainWindow::addPictures()
     return;
 
   model->fetchAll(parent_ind);
-  for (size_t i = 0; i < how_much; ++i)
+  for (int i = 0; i < how_much; ++i)
     {
       QModelIndex child = model->index(i + row_count, 0, parent_ind);
       IData add_data = {picturePaths.at(i), pictureComments.at(i)->toPlainText(), pictureTags.at(i)->toPlainText().split(',')};
@@ -509,28 +526,46 @@ void MainWindow::edit()
 
 void MainWindow::remove()
 {
-  QModelIndex child = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
-  QModelIndex parent_ind = model->parent(child);
-  DataWrapper* child_data_wrapper = model->dataForIndex(child);
-  if(!model->removeRows(child_data_wrapper->number, 1, parent_ind))
-    return;
-  else{
+    QModelIndex child = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+    QModelIndex parent_ind = model->parent(child);
+    DataWrapper* child_data_wrapper = model->dataForIndex(child);
+    if(!model->removeRows(child_data_wrapper->number, 1, parent_ind))
+        return;
+    else {
+        QMessageBox::information(treeView, "OK", "Успешно!");
+        deleteWindow->close();
+     }
+}
+
+void MainWindow::removePictures()
+{
+    DataWrapper* parent = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
+    for (int i = 0; i < parent->count; ++i)
+      {
+        DataWrapper* child = parent->children.at(i);
+        if (!child->isChecked)
+            continue;
+        if (!model->removeRows(child->number, 1, currentParagraphIndex))
+            return;
+        selectedImages.removeAt(i);
+        --selectedImagesCount;
+        --(parent->count);
+        --i;
+      }
     QMessageBox::information(treeView, "OK", "Успешно!");
-    deleteWindow->close();
-    }
 }
 
 void MainWindow::updateActions()
 {
-  bool has_selection = !treeView->selectionModel()->selection().isEmpty();
-  actionDelete->setEnabled(has_selection);
+    bool has_selection = !treeView->selectionModel()->selection().isEmpty();
+    actionDelete->setEnabled(has_selection);
 
-  bool has_current = treeView->selectionModel()->currentIndex().isValid();
-  actionAdd->setEnabled(has_current);
-  actionEdit->setEnabled(has_current);
+    bool has_current = treeView->selectionModel()->currentIndex().isValid();
+    actionAdd->setEnabled(has_current);
+    actionEdit->setEnabled(has_current);
 
-  if (has_current)
-    treeView->closePersistentEditor(treeView->selectionModel()->currentIndex());
+    if (has_current)
+        treeView->closePersistentEditor(treeView->selectionModel()->currentIndex());
 }
 
 void MainWindow::addLectures()
@@ -629,7 +664,7 @@ void MainWindow::addLectures()
 
 void MainWindow::removePicFromSelection()
 {
-  for (size_t i = 0; i < delButtons.size(); ++i)
+  for (int i = 0; i < delButtons.size(); ++i)
     if (sender() == delButtons[i]){
         size_t pic_height = picLabels.at(i)->height();
 
