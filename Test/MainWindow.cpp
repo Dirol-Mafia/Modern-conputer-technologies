@@ -4,6 +4,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     createActions();
     selectedImagesCount = 0;
+    addSemester = false;
     model = new ImageProvider("../Test/DB_Lectures");
     filteredModel = new MySortFilterProxyModel(this);
     filteredModel->setSourceModel(model);
@@ -20,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
     QObject::connect(editButton, SIGNAL(clicked()), this, SLOT(callEditForm()));
     QObject::connect(deleteButton, SIGNAL(clicked()), this, SLOT(areYouSureDelPics()));
+    QObject::connect(addButton, &QPushButton::clicked, this, &MainWindow::addingAction);
+    QObject::connect(newSemester,&QPushButton::clicked, this, &MainWindow::addNewSemester);
     this->setCentralWidget(new QWidget(this));
     centralWidget()->setLayout(mainLayout);
 
@@ -33,6 +36,9 @@ void MainWindow::renderCategoriesLayout()
     treeView->setModel(filteredModel);
     dataLayout = new QVBoxLayout;
     dataLayout->addWidget(treeView);
+
+    newSemester = new QPushButton("Новый семестр");
+    dataLayout->addWidget(newSemester);
 }
 
 void MainWindow::renderImagesLayout()
@@ -41,13 +47,16 @@ void MainWindow::renderImagesLayout()
     imagesView->setModel(model);
 
     imagesLayout = new QVBoxLayout;
+    addButton = new QPushButton("Добавить");
     editButton = new QPushButton("Подготовить к печати");
     printButton = new QPushButton("Печатать");
     deleteButton = new QPushButton("Удалить");
+    addButton->setEnabled(false);
     editButton->setEnabled(false);
     printButton->setEnabled(false);
     deleteButton->setEnabled(false);
     imagesLayout->addWidget(imagesView);
+    imagesLayout->addWidget(addButton);
     imagesLayout->addWidget(editButton);
     imagesLayout->addWidget(printButton);
     imagesLayout->addWidget(deleteButton);
@@ -79,22 +88,31 @@ void MainWindow::onImageClick()
 
 void MainWindow::setEnableButtons()
 {
-    editButton->setEnabled(selectedImagesCount == 1 ? true: false);
-    printButton->setEnabled(selectedImagesCount > 0 ? true: false);
-    deleteButton->setEnabled(selectedImagesCount > 0 ? true: false);
+    editButton->setEnabled(selectedImagesCount == 1);
+    printButton->setEnabled(selectedImagesCount > 0);
+    deleteButton->setEnabled(selectedImagesCount > 0);
+}
+
+void MainWindow::addNewSemester()
+{
+    addSemester = true;
+    addingAction();
 }
 
 void MainWindow::showImages(const QModelIndex &proxyIndex)
 {
+    const DataWrapper* cur_data = itemData();
+    if (cur_data)
+      addButton->setEnabled(cur_data->type == PARAGRAPH);
     QModelIndex realIndex = filteredModel->mapToSource(proxyIndex);
     DataWrapper* data = static_cast<DataWrapper *>(realIndex.internalPointer());
-    if (data->type == PARAGRAPH)
+    if (data && data->type == PARAGRAPH)
     {
         currentParagraphIndex = realIndex;
         imagesView->setRootIndex(realIndex);
+        selectedImages.fill(false, data->children.count());
+        selectedImagesCount = 0;
     }
-    selectedImages.fill(false, data->children.count());
-    selectedImagesCount = 0;
 }
 
 void MainWindow::callPrinter()
@@ -110,8 +128,11 @@ void MainWindow::drawImagesOnSheet(QPrinter* printer)
     DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     painter.begin(printer);
     int lastPage = selectedImagesCount - 1;
-    for (int i = 0; i < selectedImagesCount; ++i)
+    int currentPage = 0;
+    for (int i = 0; i < data->count; ++i)
     {
+        if (!data->children.at(i)->isChecked)
+            continue;
         QString imagePath = static_cast<IData*>(data->children[i]->data)->path;
         QImage currentImage(imagePath);
         QImage scaledImage = currentImage.scaled(640, 640, Qt::KeepAspectRatio);
@@ -119,7 +140,8 @@ void MainWindow::drawImagesOnSheet(QPrinter* printer)
         QRect devRect(0, 0, painter.device()->width(), painter.device()->height());
         rect.moveCenter(devRect.center());
         painter.drawImage(rect.topLeft(), scaledImage);
-        if (i != lastPage) printer->newPage();
+        if (currentPage != lastPage) printer->newPage();
+        ++currentPage;
     }
     painter.end();
 }
@@ -154,6 +176,7 @@ void MainWindow::areYouSureDelPics()
 
     if (yes_no->exec() == 0)
       removePictures();
+
 }
 
 void MainWindow::createActions()
@@ -403,7 +426,10 @@ void MainWindow::areYouSure()
 
 void MainWindow::addingAction()
 {
-  const DataWrapper* child = this->itemData();
+  const DataWrapper* child = new DataWrapper;
+  if (!addSemester)
+    child = this->itemData();
+  //const DataWrapper* child = current;
   QString child_data;
   QString child_comment;
   QString child_tags;
@@ -446,10 +472,16 @@ void MainWindow::addingAction()
 // Actions for context menu (editing model)
 void MainWindow::add()
 {
-  const DataWrapper* parent = this->itemData();
+  const DataWrapper* parent = new DataWrapper;
+  if (!addSemester)
+    parent = this->itemData();
+  else
+    parent = model->getRoot();
 
-  QModelIndex parent_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
-  parent = model->dataForIndex(parent_ind);
+  QModelIndex parent_ind;
+  if (!addSemester)
+    parent_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+  //parent = model->dataForIndex(parent_ind);
   int row_count = parent->count;
   //int ins_row = parent_ind.row() + count;
 
@@ -553,6 +585,8 @@ void MainWindow::removePictures()
         --i;
       }
     QMessageBox::information(treeView, "OK", "Успешно!");
+    updateActions();
+    model->fetchAll(currentParagraphIndex);
 }
 
 void MainWindow::updateActions()
@@ -566,6 +600,8 @@ void MainWindow::updateActions()
 
     if (has_current)
         treeView->closePersistentEditor(treeView->selectionModel()->currentIndex());
+
+    addSemester = false;
 }
 
 void MainWindow::addLectures()

@@ -99,10 +99,13 @@ private:
     ///Pictures paths
     QStringList picturePaths;
 
+    ///Categories editing buttons
+    QPushButton* newSemester;
     ///Picture editing buttons
     QPushButton *editButton;
     QPushButton *printButton;
     QPushButton *deleteButton;
+    QPushButton *addButton;
     ///Vector of delete buttons (in the Picture adding window)
     QVector<QPushButton*> delButtons;
 
@@ -119,6 +122,7 @@ private:
 
     QPainter painter;    
 
+    bool addSemester;
     int selectedImagesCount;
     QVector<bool> selectedImages;
 
@@ -129,6 +133,7 @@ private:
     void renderCategoriesLayout();
     const DataWrapper* itemData();
     void setEnableButtons();
+    void addNewSemester();
 
 /// Actions for context menu (dialog windows)void addCategoryToDb();
     void addLectureToDb();

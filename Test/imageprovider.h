@@ -81,6 +81,7 @@ public:
     bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
     DataWrapper* dataForIndex(const QModelIndex& index);
     const DataWrapper* dataForIndex(const QModelIndex& index) const;
+    const DataWrapper* getRoot() const;
 
 private:
     DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1, false};

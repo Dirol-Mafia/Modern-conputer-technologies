@@ -47,7 +47,10 @@ QModelIndex ImageProvider::index(int row, int column, const QModelIndex &parent)
     //fetchMore(parent);
 
     if (!parent.isValid()){
-        return createIndex(row, column, d.children[row]);
+        if (row < d.count)
+            return createIndex(row, column, d.children[row]);
+        else
+            return QModelIndex();
     }
 
     if (parent_pointer->type == IMAGE){
@@ -73,6 +76,11 @@ DataWrapper* ImageProvider::dataForIndex(const QModelIndex &index)
         return &d;
     }
     return static_cast<DataWrapper *>(index.internalPointer());
+}
+
+const DataWrapper* ImageProvider::getRoot() const
+{
+    return &d;
 }
 
 QVariant ImageProvider::data(const QModelIndex &index, int role) const
