@@ -15,11 +15,13 @@ Q_OBJECT
 public:
     explicit EditingImageHandler( const QString& pathToImage, QWidget* parent=0 );
     ~EditingImageHandler();
-    void showImage();
+    void showImage(double param = 0.7);
     void makeGreyscale();
     void increaseSaturation();
     bool saveImage();
     void rotateImage();
+    void scaleImage(int multiplier);
+    double scaleParameter = 0.7;
 signals:
     void clicked();
 private slots:

@@ -23,7 +23,10 @@ private slots:
     void on_greyscaleButton_clicked();
     void on_saveButton_clicked();
     void on_increaseSaturation_clicked();
-    void on_pushButton_clicked();
+    void on_pushButton_clicked();   
+    void on_increaseButton_clicked();
+
+    void on_reduceButton_clicked();
 
 private:
     Ui::ImageEditForm *ui;

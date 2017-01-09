@@ -9,7 +9,7 @@ ImageEditForm::ImageEditForm(const QString &_pathToImage, QWidget *parent) :
     imageHandler = new EditingImageHandler(_pathToImage);
     ui->imageLayout->addWidget(imageHandler);
     ui->imageLayout->setAlignment(imageHandler, Qt::AlignTop);
-    imageHandler->showImage();
+    imageHandler->showImage(imageHandler->scaleParameter);
 }
 
 ImageEditForm::~ImageEditForm()
@@ -20,7 +20,7 @@ ImageEditForm::~ImageEditForm()
 void ImageEditForm::on_greyscaleButton_clicked()
 {
     imageHandler->makeGreyscale();
-    imageHandler->showImage();
+    imageHandler->showImage(imageHandler->scaleParameter);
 }
 
 void ImageEditForm::on_saveButton_clicked()
@@ -36,10 +36,21 @@ void ImageEditForm::on_saveButton_clicked()
 void ImageEditForm::on_increaseSaturation_clicked()
 {
     imageHandler->increaseSaturation();
-    imageHandler->showImage();
+    imageHandler->showImage(imageHandler->scaleParameter);
 }
 
 void ImageEditForm::on_pushButton_clicked()
 {
     imageHandler->rotateImage();
+    imageHandler->showImage(imageHandler->scaleParameter);
+}
+
+void ImageEditForm::on_increaseButton_clicked()
+{
+    imageHandler->scaleImage(1);
+}
+
+void ImageEditForm::on_reduceButton_clicked()
+{
+    imageHandler->scaleImage(-1);
 }
