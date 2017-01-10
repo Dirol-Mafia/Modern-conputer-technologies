@@ -22,6 +22,7 @@ ImagesWithTags::ImagesWithTags(QStringList _paths, QWidget *parent) :
         imagesModel->setItem(i, 0, imageItem);
         delete pixmap;
     }
+    imagesModel->setHeaderData(0, Qt::Horizontal, tr("Image"));
     ui->tableView->setModel(imagesModel);
     ui->tableView->resizeColumnsToContents();
     ui->tableView->resizeRowsToContents();

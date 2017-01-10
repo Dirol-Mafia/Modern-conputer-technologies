@@ -38,13 +38,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 void MainWindow::renderToolbar()
 {
-    searchInput = new QTextEdit;
-    searchInput->setFixedWidth(200);
+    searchInput = new QLineEdit;
+    searchInput->setFixedWidth(180);
     searchInput->setFixedHeight(25);
     searchButton = new QPushButton("Найти");
-
+    QWidget* empty = new QWidget();
+    empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    toolbar->addWidget(empty);
     toolbar->addWidget(searchInput);
     toolbar->addWidget(searchButton);
+
 }
 
 void MainWindow::renderCategoriesLayout()
@@ -113,7 +116,7 @@ void MainWindow::searchByTags()
 {
     QStringList paths;
     QSqlQuery query;
-    QStringList tags = searchInput->toPlainText().split(",");
+    QStringList tags = searchInput->text().split(",");
     for (int i = 0; i < tags.size(); ++i)
     {
         tags[i] = tags[i].trimmed();
@@ -121,13 +124,15 @@ void MainWindow::searchByTags()
         query.addBindValue("%" + tags[i] + "%");
         query.exec();
         query.next();
-
-        paths.push_back(query.value(0).toString());
-        while (query.next())
+        do
         {
-            paths.push_back(query.value(0).toString());
+            QString result = query.value(0).toString();
+            if (result.length() > 0)
+                paths.push_back(result);
         }
+        while (query.next());
     }
+    qDebug() << paths.size();
     ImagesWithTags *imagesWithTagsForm = new ImagesWithTags(paths);
     imagesWithTagsForm->show();
 }

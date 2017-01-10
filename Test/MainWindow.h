@@ -48,7 +48,7 @@
 #include <QSizePolicy>
 #include <QTextEdit>
 #include <QToolBar>
-#include <QTextEdit>
+#include <QLineEdit>
 #include <QSqlQueryModel>
 #include "QSql"
 #include "QSqlDatabase"
@@ -75,7 +75,7 @@ private:
     QLabel *lb;
     QModelIndex currentParagraphIndex;
     QToolBar *toolbar;
-    QTextEdit *searchInput;
+    QLineEdit *searchInput;
     QPushButton *searchButton;
 
     QVBoxLayout *dataLayout;
