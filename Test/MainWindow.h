@@ -5,9 +5,11 @@
 
 #include "imageprovider.h"
 #include "imageeditform.h"
+#include "imageswithtags.h"
 
 #include <QSqlDatabase>
 #include <iostream>
+#include <stdexcept>
 #include <QTreeView>
 #include <QSqlQuery>
 #include <QDebug>
@@ -45,6 +47,13 @@
 #include <QScrollArea>
 #include <QSizePolicy>
 #include <QTextEdit>
+#include <QToolBar>
+#include <QTextEdit>
+#include <QSqlQueryModel>
+#include "QSql"
+#include "QSqlDatabase"
+#include <QSqlQuery>
+#include <QSqlError>
 
 #include <QVector>
 
@@ -60,10 +69,14 @@ private:
     QMenu *menuAdd;
     ImageProvider *model;
     MySortFilterProxyModel *filteredModel;
+    QSqlQueryModel *imagesModel;
     QTreeView *treeView;
     QListView *imagesView;
     QLabel *lb;
     QModelIndex currentParagraphIndex;
+    QToolBar *toolbar;
+    QTextEdit *searchInput;
+    QPushButton *searchButton;
 
     QVBoxLayout *dataLayout;
     QVBoxLayout *imagesLayout;
@@ -131,6 +144,7 @@ private:
     void addCategoryToDb();
     void renderImagesLayout();
     void renderCategoriesLayout();
+    void renderToolbar();
     const DataWrapper* itemData();
     void setEnableButtons();
     void addNewSemester();
@@ -163,4 +177,5 @@ private slots:
     void areYouSureDelPics();
     void onImageClick();
     void removePicFromSelection();
+    void searchByTags();
 };

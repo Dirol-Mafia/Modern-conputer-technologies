@@ -9,8 +9,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     filteredModel = new MySortFilterProxyModel(this);
     filteredModel->setSourceModel(model);
 
+    toolbar = new QToolBar;
+
     renderCategoriesLayout();
     renderImagesLayout();
+    renderToolbar();
 
     mainLayout = new QHBoxLayout;
     mainLayout->addLayout(dataLayout);
@@ -21,13 +24,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
     QObject::connect(editButton, SIGNAL(clicked()), this, SLOT(callEditForm()));
     QObject::connect(deleteButton, SIGNAL(clicked()), this, SLOT(areYouSureDelPics()));
+    QObject::connect(searchButton, SIGNAL(clicked()), this, SLOT(searchByTags()));
     QObject::connect(addButton, &QPushButton::clicked, this, &MainWindow::addingAction);
     QObject::connect(newSemester,&QPushButton::clicked, this, &MainWindow::addNewSemester);
     this->setCentralWidget(new QWidget(this));
+
+    this->addToolBar(toolbar);
     centralWidget()->setLayout(mainLayout);
 
     on_treeView_customContextMenuRequested();
     createMenus();
+}
+
+void MainWindow::renderToolbar()
+{
+    searchInput = new QTextEdit;
+    searchInput->setFixedWidth(200);
+    searchInput->setFixedHeight(25);
+    searchButton = new QPushButton("Найти");
+
+    toolbar->addWidget(searchInput);
+    toolbar->addWidget(searchButton);
 }
 
 void MainWindow::renderCategoriesLayout()
@@ -45,7 +62,6 @@ void MainWindow::renderImagesLayout()
 {
     imagesView = new QListView;
     imagesView->setModel(model);
-
     imagesLayout = new QVBoxLayout;
     addButton = new QPushButton("Добавить");
     editButton = new QPushButton("Подготовить к печати");
@@ -91,6 +107,29 @@ void MainWindow::setEnableButtons()
     editButton->setEnabled(selectedImagesCount == 1);
     printButton->setEnabled(selectedImagesCount > 0);
     deleteButton->setEnabled(selectedImagesCount > 0);
+}
+
+void MainWindow::searchByTags()
+{
+    QStringList paths;
+    QSqlQuery query;
+    QStringList tags = searchInput->toPlainText().split(",");
+    for (int i = 0; i < tags.size(); ++i)
+    {
+        tags[i] = tags[i].trimmed();
+        query.prepare("SELECT File_name from lectures WHERE Tags LIKE ?");
+        query.addBindValue("%" + tags[i] + "%");
+        query.exec();
+        query.next();
+
+        paths.push_back(query.value(0).toString());
+        while (query.next())
+        {
+            paths.push_back(query.value(0).toString());
+        }
+    }
+    ImagesWithTags *imagesWithTagsForm = new ImagesWithTags(paths);
+    imagesWithTagsForm->show();
 }
 
 void MainWindow::addNewSemester()
