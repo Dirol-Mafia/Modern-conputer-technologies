@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
     QObject::connect(editButton, SIGNAL(clicked()), this, SLOT(callEditForm()));
     QObject::connect(deleteButton, SIGNAL(clicked()), this, SLOT(areYouSureDelPics()));
-    QObject::connect(searchButton, SIGNAL(clicked()), this, SLOT(searchByTags()));
+    QObject::connect(searchButton, SIGNAL(clicked()), this, SLOT(onSearchButtonClick()));
     QObject::connect(addButton, &QPushButton::clicked, this, &MainWindow::addingAction);
     QObject::connect(newSemester,&QPushButton::clicked, this, &MainWindow::addNewSemester);
     this->setCentralWidget(new QWidget(this));
@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 void MainWindow::renderToolbar()
 {
     searchInput = new QLineEdit;
+    searchInput->setText("");
     searchInput->setFixedWidth(180);
     searchInput->setFixedHeight(25);
     searchButton = new QPushButton("Найти");
@@ -115,6 +116,11 @@ void MainWindow::setEnableButtons()
     deleteButton->setEnabled(selectedImagesCount > 0);
 }
 
+void MainWindow::onSearchButtonClick()
+{
+    if (searchInput->text().length() > 0) searchByTags();
+}
+
 void MainWindow::searchByTags()
 {
     QStringList paths;
@@ -135,9 +141,30 @@ void MainWindow::searchByTags()
         }
         while (query.next());
     }
-    qDebug() << paths.size();
-    ImagesWithTags *imagesWithTagsForm = new ImagesWithTags(paths);
-    imagesWithTagsForm->show();
+    if (paths.size() > 0)
+    {
+        ImagesWithTags *imagesWithTagsForm = new ImagesWithTags(paths);
+        imagesWithTagsForm->show();
+    }
+    else
+        noSuchTags();
+}
+
+void MainWindow::lineEditKeyPressed()
+{
+    qDebug() << "Key pressed!";
+}
+
+void MainWindow::noSuchTags()
+{
+    QMessageBox* noTags = new QMessageBox;
+    const QString mess = "Упс! Изображений с такими тегами нет. Попробуй еще раз!";
+    noTags->setWindowTitle("Нет таких тегов");
+    noTags->setText(mess);
+    noTags->setIcon(QMessageBox::Warning);
+    noTags->addButton("OK", QMessageBox::AcceptRole);
+
+    noTags->exec();
 }
 
 void MainWindow::addNewSemester()
