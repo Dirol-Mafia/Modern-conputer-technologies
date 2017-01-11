@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     MainWindow.cpp \
     imageeditform.cpp \
     EditingImageHandler.cpp \
-    imageswithtags.cpp
+    imageswithtags.cpp \
+    imageviewer.cpp
 
 # Installation path
 # target.path =
@@ -28,7 +29,8 @@ HEADERS += \
     dbactions.h \
     imageeditform.h \
     EditingImageHandler.h \
-    imageswithtags.h
+    imageswithtags.h \
+    imageviewer.h
 
 FORMS += \
     imageeditform.ui \

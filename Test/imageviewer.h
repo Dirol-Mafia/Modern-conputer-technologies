@@ -11,6 +11,9 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <QAction>
+#include <QKeyEvent>
+
+class MyScrollArea;
 
 class ImageViewer : public QMainWindow
 {
@@ -19,13 +22,16 @@ public:
   ImageViewer();
   ImageViewer(int cur_pic, DataWrapper *pic_par);
 
+  void setPicture(int number);
+  void delegateEvent(QKeyEvent* event);
+
 signals:
 
 private:
     int current_picture = -1;
     DataWrapper* picture_parent;
     QLabel* imageLabel;
-    QScrollArea* scrollArea;
+    MyScrollArea* scrollArea;
     double scaleFactor;
 
     QAction *zoomInAct;
@@ -48,6 +54,21 @@ private slots:
     void normalSize();
     void fitToWindow();
 
+protected:
+    virtual void keyPressEvent(QKeyEvent * event) Q_DECL_OVERRIDE;
+
+};
+
+class MyScrollArea : public QScrollArea
+{
+public:
+    MyScrollArea(ImageViewer* viewer): parent(viewer) {}
+
+protected:
+    virtual void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
+
+private:
+    ImageViewer* parent;
 };
 
 #endif // IMAGEVIEWER_H

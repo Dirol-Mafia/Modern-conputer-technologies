@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     QObject::connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showImages(const QModelIndex &)));
     QObject::connect(imagesView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onImageClick()));
+    QObject::connect(imagesView, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onImageDoubleClick()));
     QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
     QObject::connect(editButton, SIGNAL(clicked()), this, SLOT(callEditForm()));
     QObject::connect(deleteButton, SIGNAL(clicked()), this, SLOT(areYouSureDelPics()));
@@ -33,6 +34,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     centralWidget()->setLayout(mainLayout);
 
     on_treeView_customContextMenuRequested();
+
+    setWindowTitle("Приложение для просмотра и сортировки лекций");
+
     createMenus();
 }
 
@@ -105,8 +109,14 @@ void MainWindow::onImageClick()
         }
     }
     setEnableButtons();
-    //ImageViewer* img_vwr = new ImageViewer(0, paragraphData);
-    //img_vwr->show();
+}
+
+void MainWindow::onImageDoubleClick()
+{
+    DataWrapper* paragraphData = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
+    DataWrapper* pictureData = static_cast<DataWrapper *>(imagesView->selectionModel()->currentIndex().internalPointer());
+    ImageViewer* img_vwr = new ImageViewer(pictureData->number, paragraphData);
+    img_vwr->show();
 }
 
 void MainWindow::setEnableButtons()
@@ -118,7 +128,8 @@ void MainWindow::setEnableButtons()
 
 void MainWindow::onSearchButtonClick()
 {
-    if (searchInput->text().length() > 0) searchByTags();
+    if (searchInput->text().length() > 0)
+        searchByTags();
 }
 
 void MainWindow::searchByTags()

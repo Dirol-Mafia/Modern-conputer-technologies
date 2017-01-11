@@ -10,7 +10,7 @@ ImageViewer::ImageViewer()
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     imageLabel->setScaledContents(true);
 
-    scrollArea = new QScrollArea;
+    scrollArea = new MyScrollArea(this);
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
@@ -20,6 +20,8 @@ ImageViewer::ImageViewer()
 
     setWindowTitle("Просмотр");
     resize(500, 400);
+
+    //setFocusPolicy(Qt::NoFocus);
 }
 
 ImageViewer::ImageViewer(int cur_pic, DataWrapper* pic_par)
@@ -32,7 +34,9 @@ ImageViewer::ImageViewer(int cur_pic, DataWrapper* pic_par)
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     imageLabel->setScaledContents(true);
 
-    QString filename = static_cast<IData*>(picture_parent->children.at(current_picture)->data)->path;
+    IData* picture_data = static_cast<IData*>(picture_parent->children.at(current_picture)->data);
+
+    QString filename = picture_data->path;
     QImage image(filename);
     if (image.isNull())
     {
@@ -40,7 +44,7 @@ ImageViewer::ImageViewer(int cur_pic, DataWrapper* pic_par)
         return;
     }
 
-    scrollArea = new QScrollArea;
+    scrollArea = new MyScrollArea(this);
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
@@ -58,8 +62,41 @@ ImageViewer::ImageViewer(int cur_pic, DataWrapper* pic_par)
     if (!fitToWindowAct->isChecked())
         imageLabel->adjustSize();
 
-    setWindowTitle("Просмотр");
-    resize(500, 400);
+    setWindowTitle(picture_data->comment);
+    resize(600, 500);
+    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+void ImageViewer::setPicture(int number)
+{
+    if (number > picture_parent->count)
+        return;
+    current_picture = number;
+
+    IData* picture_data = static_cast<IData*>(picture_parent->children.at(current_picture)->data);
+
+    QString filename = picture_data->path;
+    QImage image(filename);
+    if (image.isNull())
+    {
+        QMessageBox::information(this, tr("Ошибка"), tr("Невозможно отобразить изображение %1.").arg(filename));
+        return;
+    }
+    delete imageLabel;
+    imageLabel = new QLabel;
+    imageLabel->setBackgroundRole(QPalette::Base);
+    imageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    imageLabel->setScaledContents(true);
+    imageLabel->setPixmap(QPixmap::fromImage(image));
+
+    if (!fitToWindowAct->isChecked())
+        imageLabel->adjustSize();
+
+    scrollArea->setWidget(imageLabel);
+    //scrollArea->resize();
+
+    setWindowTitle(picture_data->comment);
+    resize(600, 500);
 }
 
 void ImageViewer::zoomIn()
@@ -92,29 +129,30 @@ void ImageViewer::createActions()
 {
     zoomInAct = new QAction(tr("Увеличить (25%)"), this);
     zoomInAct->setShortcut(tr("Ctrl++"));
-    //zoomInAct->setEnabled(false);
     connect(zoomInAct, SIGNAL(triggered()), this, SLOT(zoomIn()));
 
     zoomOutAct = new QAction(tr("Уменьшить (25%)"), this);
     zoomOutAct->setShortcut(tr("Ctrl+-"));
-    //zoomOutAct->setEnabled(false);
     connect(zoomOutAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
     normalSizeAct = new QAction(tr("&Обычный размер"), this);
-    //normalSizeAct->setShortcut(tr("Ctrl+S"));
-    //normalSizeAct->setEnabled(false);
+    normalSizeAct->setShortcut(tr("Ctrl+S"));
     connect(normalSizeAct, SIGNAL(triggered()), this, SLOT(normalSize()));
 
     fitToWindowAct = new QAction(tr("&По размеру окна"), this);
-    fitToWindowAct->setEnabled(false);
     fitToWindowAct->setCheckable(true);
     fitToWindowAct->setShortcut(tr("Ctrl+F"));
     connect(fitToWindowAct, SIGNAL(triggered()), this, SLOT(fitToWindow()));
+
+    addAction(zoomInAct);
+    addAction(zoomOutAct);
+    addAction(normalSizeAct);
+    addAction(fitToWindowAct);
 }
 
 void ImageViewer::createMenus()
 {
-    customMenuBar = new QMenuBar;
+    //customMenuBar = new QMenuBar;
 
     viewMenu = new QMenu(tr("&Параметры просмотра"), this);
     viewMenu->addAction(zoomInAct);
@@ -123,8 +161,7 @@ void ImageViewer::createMenus()
     viewMenu->addSeparator();
     viewMenu->addAction(fitToWindowAct);
 
-    customMenuBar->addMenu(viewMenu);
-    this->setMenuBar(customMenuBar);
+    menuBar()->addMenu(viewMenu);
 }
 
 void ImageViewer::updateActions()
@@ -150,4 +187,33 @@ void ImageViewer::scaleImage(double factor)
 void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
 {
     scrollBar->setValue(int(factor * scrollBar->value() + ((factor - 1) * scrollBar->pageStep()/2)));
+}
+
+void ImageViewer::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Right)
+    {
+        if (current_picture == picture_parent->count - 1)
+          return;
+        ++current_picture;
+        setPicture(current_picture);
+    }
+
+    if (event->key() == Qt::Key_Left)
+    {
+        if (current_picture == 0)
+          return;
+        --current_picture;
+        setPicture(current_picture);
+    }
+}
+
+void ImageViewer::delegateEvent(QKeyEvent* event)
+{
+    keyPressEvent(event);
+}
+
+void MyScrollArea::keyPressEvent(QKeyEvent *event)
+{
+    parent->delegateEvent(event);
 }

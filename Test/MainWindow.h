@@ -180,6 +180,7 @@ private slots:
     void callEditForm();
     void areYouSureDelPics();
     void onImageClick();
+    void onImageDoubleClick();
     void removePicFromSelection();
     void onSearchButtonClick();
     void lineEditKeyPressed();
