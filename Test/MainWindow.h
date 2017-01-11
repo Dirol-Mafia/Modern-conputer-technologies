@@ -6,6 +6,7 @@
 #include "imageprovider.h"
 #include "imageeditform.h"
 #include "imageswithtags.h"
+#include "mylineedit.h"
 
 #include <QSqlDatabase>
 #include <iostream>
@@ -148,6 +149,8 @@ private:
     const DataWrapper* itemData();
     void setEnableButtons();
     void addNewSemester();
+    void searchByTags();
+    void noSuchTags();
 
 /// Actions for context menu (dialog windows)void addCategoryToDb();
     void addLectureToDb();
@@ -177,5 +180,6 @@ private slots:
     void areYouSureDelPics();
     void onImageClick();
     void removePicFromSelection();
-    void searchByTags();
+    void onSearchButtonClick();
+    void lineEditKeyPressed();
 };
