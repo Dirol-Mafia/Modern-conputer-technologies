@@ -34,6 +34,7 @@ void MainWindow::renderCategoriesLayout()
 {
     treeView = new QTreeView;
     treeView->setModel(filteredModel);
+    //treeView->setStyle();
     dataLayout = new QVBoxLayout;
     dataLayout->addWidget(treeView);
 
@@ -645,6 +646,7 @@ void MainWindow::addLectures()
       comLine->setFixedHeight(100);
       comLine->setFixedWidth(300);
       comLine->setPlaceholderText("Комментарий");
+      comLine->setTabChangesFocus(true);
       comLayout->addRow(comLine);
       comLayouts.push_back(comLayout);
       pictureGrid->addLayout(comLayout, rowCount, colCount++);
@@ -654,6 +656,7 @@ void MainWindow::addLectures()
       tagLine->setFixedHeight(100);
       tagLine->setFixedWidth(300);
       tagLine->setPlaceholderText("Тэги (через запятую)");
+      tagLine->setTabChangesFocus(true);
       tagLayout->addRow(tagLine);
       tagLayouts.push_back(tagLayout);
       pictureGrid->addLayout(tagLayout, rowCount, colCount++);
