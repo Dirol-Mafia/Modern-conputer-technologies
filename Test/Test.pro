@@ -12,7 +12,8 @@ SOURCES += main.cpp \
     dbactions.cpp \
     MainWindow.cpp \
     imageeditform.cpp \
-    EditingImageHandler.cpp
+    EditingImageHandler.cpp \
+    imageswithtags.cpp
 
 # Installation path
 # target.path =
@@ -26,10 +27,12 @@ HEADERS += \
     MainWindow.h \
     dbactions.h \
     imageeditform.h \
-    EditingImageHandler.h
+    EditingImageHandler.h \
+    imageswithtags.h
 
 FORMS += \
-    imageeditform.ui
+    imageeditform.ui \
+    imageswithtags.ui
 
 RESOURCES += \
     resources.qrc
