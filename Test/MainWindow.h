@@ -7,7 +7,6 @@
 #include "imageeditform.h"
 #include "imageswithtags.h"
 #include "imageviewer.h"
-#include "mylineedit.h"
 
 #include <QSqlDatabase>
 #include <iostream>
