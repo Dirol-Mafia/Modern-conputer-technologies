@@ -6,6 +6,7 @@
 #include "imageprovider.h"
 #include "imageeditform.h"
 #include "imageswithtags.h"
+#include "imageviewer.h"
 
 #include <QSqlDatabase>
 #include <iostream>
@@ -54,6 +55,7 @@
 #include "QSqlDatabase"
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QApplication>
 
 #include <QVector>
 

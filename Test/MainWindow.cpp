@@ -104,6 +104,8 @@ void MainWindow::onImageClick()
         }
     }
     setEnableButtons();
+    //ImageViewer* img_vwr = new ImageViewer(0, paragraphData);
+    //img_vwr->show();
 }
 
 void MainWindow::setEnableButtons()
@@ -306,14 +308,17 @@ void MainWindow::on_treeView_customContextMenuRequested()
     treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     actionEdit = new QAction(tr("Редактировать..."), this);
+    actionEdit->setShortcut(tr("Ctrl+E"));
     connect(actionEdit, &QAction::triggered, this, &MainWindow::editCategory);
     treeView->addAction(actionEdit);
 
     actionAdd = new QAction(tr("Добавить..."), treeView);
+    actionAdd->setShortcut(tr("Ctrl+A"));
     connect(actionAdd, &QAction::triggered, this, &MainWindow::addingAction);
     treeView->addAction(actionAdd);
 
     actionDelete = new QAction(tr("Удалить..."), treeView);
+    actionDelete->setShortcut(tr("Delete"));
     connect(actionDelete, &QAction::triggered, this, &MainWindow::deleteAction);
     treeView->addAction(actionDelete);
 }
@@ -553,6 +558,7 @@ void MainWindow::add()
 
 void MainWindow::addPictures()
 {
+  QApplication::setOverrideCursor(Qt::WaitCursor);
   const DataWrapper* parent = this->itemData();
 
   QModelIndex parent_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
@@ -574,6 +580,7 @@ void MainWindow::addPictures()
     }
 
   qDebug() << "Data was Set!!!!!";
+  QApplication::restoreOverrideCursor();
   QMessageBox::information(treeView, "OK", "Успешно!");
   editPicScrollAlrea->close();
   treeView->update(parent_ind);

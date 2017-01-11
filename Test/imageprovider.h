@@ -1,7 +1,6 @@
 #ifndef IMAGEPROVIDER_H
 #define IMAGEPROVIDER_H
 
-#endif // IMAGEPROVIDER_H
 #include <QAbstractItemModel>
 #include <QTreeView>
 #include <QSqlDatabase>
@@ -102,3 +101,5 @@ protected:
 QString getCatName(h_type type);
 QString getSubcatName(h_type type);
 QString getCatChildName(h_type type);
+
+#endif // IMAGEPROVIDER_H
