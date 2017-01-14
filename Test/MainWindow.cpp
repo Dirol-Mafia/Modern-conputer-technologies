@@ -586,6 +586,7 @@ void MainWindow::add()
   else{
     qDebug() << "Data was Set!!!!!";
     QMessageBox::information(treeView, "OK", "Успешно!");
+    addWindow->close();
     treeView->update(parent_ind);
     }
 
@@ -662,17 +663,18 @@ void MainWindow::remove()
 void MainWindow::removePictures()
 {
     DataWrapper* parent = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
-    for (int i = 0; i < parent->count; ++i)
+    for (int i = 0; i < parent->count; )
       {
         DataWrapper* child = parent->children.at(i);
         if (!child->isChecked)
+        {
+            ++i;
             continue;
+        }
         if (!model->removeRows(child->number, 1, currentParagraphIndex))
             return;
         selectedImages.removeAt(i);
         --selectedImagesCount;
-        --(parent->count);
-        --i;
       }
     QMessageBox::information(treeView, "OK", "Успешно!");
     updateActions();
@@ -696,6 +698,7 @@ void MainWindow::updateActions()
 
 void MainWindow::addLectures()
 {
+  addWindow->close();
   picturePaths = QFileDialog::getOpenFileNames(0, "Выбор сканов лекций", "", "*.jpg *.png *.bmp", 0, 0);
   pictureGrid = new QGridLayout;
 

@@ -145,8 +145,6 @@ void ImageViewer::createActions()
 
 void ImageViewer::createMenus()
 {
-    //customMenuBar = new QMenuBar;
-
     viewMenu = new QMenu(tr("&Параметры просмотра"), this);
     viewMenu->addAction(zoomInAct);
     viewMenu->addAction(zoomOutAct);
