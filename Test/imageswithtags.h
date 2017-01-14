@@ -13,6 +13,7 @@
 #include <QDebug>
 #include <QVector>
 #include <imageeditform.h>
+#include "config.h"
 
 namespace Ui {
 class ImagesWithTags;
@@ -32,8 +33,6 @@ private slots:
     void on_editButton_clicked();
 
     void on_tableView_clicked(const QModelIndex &index);
-
-    void on_checkAll_clicked();
 
 private:
     void callPrinter();
