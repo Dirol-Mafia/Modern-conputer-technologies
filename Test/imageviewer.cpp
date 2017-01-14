@@ -42,7 +42,10 @@ ImageViewer::ImageViewer(int cur_pic, const DataWrapper *pic_par, QString path)
     {
         IData* picture_data = static_cast<IData*>(picture_parent->children.at(current_picture)->data);
         filename = picture_data->path;
-        setWindowTitle(picture_data->comment);
+        QString comm = picture_data->comment;
+        if (comm == "")
+            comm = "-";
+        setWindowTitle(comm);
     }
     else
     {
@@ -99,7 +102,10 @@ void ImageViewer::setPicture(int number)
     if (!fitToWindowAct->isChecked())
         imageLabel->resize(imageLabel->pixmap()->size());
 
-    setWindowTitle(picture_data->comment);
+    QString comm = picture_data->comment;
+    if (comm == "")
+        comm = "-";
+    setWindowTitle(comm);
 }
 
 void ImageViewer::zoomIn()

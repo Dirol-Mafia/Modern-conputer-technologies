@@ -86,6 +86,10 @@ private:
     QVBoxLayout *imagesLayout;
     QHBoxLayout *mainLayout;
 
+    QLabel* catComLabel;
+    QLabel* imgComLabel;
+    QLabel* imgTagLabel;
+
     ///Tree Editing layouts
     QFormLayout* editLayout;
     QFormLayout* addLayout;
@@ -181,6 +185,7 @@ private slots:
     void drawImagesOnSheet(QPrinter* printer);
     void callEditForm();
     void areYouSureDelPics();
+    void showComments(const QModelIndex& index);
     void onImageClick();
     void onImageDoubleClick();
     void removePicFromSelection();

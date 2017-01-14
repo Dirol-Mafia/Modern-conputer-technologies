@@ -5,6 +5,7 @@
 #include <QTreeView>
 #include <QSqlDatabase>
 #include <QSortFilterProxyModel>
+#include <QLabel>
 
 
 enum h_type {ROOT = 0, TERM = 1, SUBJECT = 2, THEME = 3, PARAGRAPH = 4, IMAGE = 5};

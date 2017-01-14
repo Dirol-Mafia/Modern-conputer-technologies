@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     mainLayout->addLayout(imagesLayout);
 
     QObject::connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showImages(const QModelIndex &)));
+    QObject::connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showComments(const QModelIndex &)));
     QObject::connect(imagesView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onImageClick()));
     QObject::connect(imagesView, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onImageDoubleClick()));
     QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
@@ -59,9 +60,14 @@ void MainWindow::renderCategoriesLayout()
 {
     treeView = new QTreeView;
     treeView->setModel(filteredModel);
-    //treeView->setStyle();
+
     dataLayout = new QVBoxLayout;
     dataLayout->addWidget(treeView);
+
+    catComLabel = new QLabel;
+    QString comm = "<b>Комментарий: </b><i>сначала выберите категорию</i>";
+    catComLabel->setText(comm);
+    dataLayout->addWidget(catComLabel);
 
     newSemester = new QPushButton("Новый семестр");
     dataLayout->addWidget(newSemester);
@@ -72,19 +78,42 @@ void MainWindow::renderImagesLayout()
     imagesView = new QListView;
     imagesView->setModel(model);
     imagesLayout = new QVBoxLayout;
+
     addButton = new QPushButton("Добавить");
     editButton = new QPushButton("Подготовить к печати");
     printButton = new QPushButton("Печатать");
     deleteButton = new QPushButton("Удалить");
+
     addButton->setEnabled(false);
     editButton->setEnabled(false);
     printButton->setEnabled(false);
     deleteButton->setEnabled(false);
+
+    imgComLabel = new QLabel;
+    imgComLabel->setText("<b>Комментарий: </b><i>сначала выберите изображение</i>");
+
+    imgTagLabel = new QLabel;
+    imgTagLabel->setText("<b>Тэги: </b><i>сначала выберите изображение</i>");
+
     imagesLayout->addWidget(imagesView);
+    imagesLayout->addWidget(imgComLabel);
+    imagesLayout->addWidget(imgTagLabel);
+
     imagesLayout->addWidget(addButton);
     imagesLayout->addWidget(editButton);
     imagesLayout->addWidget(printButton);
     imagesLayout->addWidget(deleteButton);
+}
+
+void MainWindow::showComments(const QModelIndex &index)
+{
+  QModelIndex realIndex = filteredModel->mapToSource(index);
+  DataWrapper* datawrapper = static_cast<DataWrapper*>(realIndex.internalPointer());
+  HData* data = static_cast<HData*>(datawrapper->data);
+  QString comment = data->comment;
+  if (comment == "")
+      comment = "<i>без комментариев.</i>";
+  catComLabel->setText("<b>Комментарий: </b>" + comment);
 }
 
 void MainWindow::onImageClick()
@@ -108,6 +137,19 @@ void MainWindow::onImageClick()
             selectedImages[i] = false;
         }
     }
+
+    DataWrapper* pictureData = static_cast<DataWrapper *>(imagesView->selectionModel()->currentIndex().internalPointer());
+    IData* child_data = static_cast<IData*>(pictureData->data);
+    QString comm = child_data->comment;
+    QString tags = child_data->tags.join(",");
+
+    if (comm == "")
+        comm = "<i>без комментариев.</i>";
+    if (tags == "")
+        tags = "<i>не назначены.</i>";
+
+    imgComLabel->setText("<b>Комментарий: </b>" + comm);
+    imgTagLabel->setText("<b>Тэги: </b>" + tags);
     setEnableButtons();
 }
 
@@ -186,13 +228,11 @@ void MainWindow::addNewSemester()
 
 void MainWindow::showImages(const QModelIndex &proxyIndex)
 {
-    const DataWrapper* cur_data = itemData();
-    if (cur_data)
-      addButton->setEnabled(cur_data->type == PARAGRAPH);
     QModelIndex realIndex = filteredModel->mapToSource(proxyIndex);
     DataWrapper* data = static_cast<DataWrapper *>(realIndex.internalPointer());
     if (data && data->type == PARAGRAPH)
     {
+        addButton->setEnabled(true);
         currentParagraphIndex = realIndex;
         imagesView->setRootIndex(realIndex);
         selectedImages.fill(false, data->children.count());
@@ -818,7 +858,7 @@ void MainWindow::removePicFromSelection()
         tagLayouts.removeAt(i);
         butLayouts.removeAt(i);
 
-        if (picturePaths.size() == 0){
+        if (pictureComments.size() == 0){
           editPicScrollAlrea->close();
           break;
          }

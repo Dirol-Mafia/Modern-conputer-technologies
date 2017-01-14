@@ -89,10 +89,8 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
         return {};
       }
     const DataWrapper *elem = dataForIndex(index);
-    int cnt;
     if (role == Qt::DisplayRole) {        
         HData* elem_data;
-        QString comment;
         QString text;
         switch (elem->type) {
             case ROOT:
@@ -100,17 +98,11 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
             case SUBJECT:
             case THEME:
             case PARAGRAPH:
-                  cnt = elem->parent->children.size();
                   elem_data = static_cast<HData*>(elem->data);
                   text = elem_data->name;
-                  if (elem_data->comment != "")
-                  {
-                    comment = "(" + elem_data->comment + ")";
-                    text = text + "\n" + comment;
-                  }
                 return text;
             case IMAGE:
-                return QString::number(elem->number) + (static_cast<IData*>(elem->data)->comment);
+                return "№" + QString::number(elem->number + 1);
             default:
                 return QVariant();
         }
@@ -132,13 +124,6 @@ QVariant ImageProvider::data(const QModelIndex &index, int role) const
     {
         return elem->isChecked;
     }
-    if (role == Qt::BackgroundColorRole && elem->type != IMAGE)
-      {
-          if (elem->number % 2 == 0)
-              return qVariantFromValue(QColor(Qt::lightGray));
-          else
-              return qVariantFromValue(QColor(Qt::white));
-      }
     return QVariant();
 }
 
