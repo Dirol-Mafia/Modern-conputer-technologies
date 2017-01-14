@@ -138,6 +138,12 @@ private:
     QAction* actionEdit;
     QAction* actionDelete;
 
+    QAction* actionAddLect;
+    QAction* actionEditLect;
+    QAction* actionDeleteLect;
+    QAction* print;
+    QAction* editPic;
+
     QPrinter printer;
     QPrintPreviewDialog *dialog;
 
