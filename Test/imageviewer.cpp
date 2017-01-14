@@ -82,21 +82,14 @@ void ImageViewer::setPicture(int number)
         QMessageBox::information(this, tr("Ошибка"), tr("Невозможно отобразить изображение %1.").arg(filename));
         return;
     }
-    delete imageLabel;
-    imageLabel = new QLabel;
-    imageLabel->setBackgroundRole(QPalette::Base);
-    imageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    imageLabel->setScaledContents(true);
+
     imageLabel->setPixmap(QPixmap::fromImage(image));
+    scaleFactor = 1.0;
 
     if (!fitToWindowAct->isChecked())
-        imageLabel->adjustSize();
-
-    scrollArea->setWidget(imageLabel);
-    //scrollArea->resize();
+        imageLabel->resize(imageLabel->pixmap()->size());
 
     setWindowTitle(picture_data->comment);
-    resize(600, 500);
 }
 
 void ImageViewer::zoomIn()
