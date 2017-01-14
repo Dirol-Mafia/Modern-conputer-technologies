@@ -7,5 +7,7 @@
         <file>icons/greyscale.ico</file>
         <file>icons/zoom-in.ico</file>
         <file>icons/zoom-out.ico</file>
+        <file>icons/edit.ico</file>
+        <file>icons/printer.ico</file>
     </qresource>
 </RCC>
