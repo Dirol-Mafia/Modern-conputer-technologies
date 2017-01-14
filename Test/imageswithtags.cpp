@@ -11,6 +11,10 @@ ImagesWithTags::ImagesWithTags(QStringList _paths, QWidget *parent) :
     ui->editButton->setEnabled(false);
     ui->printButton->setEnabled(false);
 
+    int row = -1;
+    int col = 0;
+    int colsCount = 3;
+
     for (int i = 0; i < paths.size(); ++i)
     {
         QPixmap *pixmap = new QPixmap(paths[i]);
@@ -19,10 +23,15 @@ ImagesWithTags::ImagesWithTags(QStringList _paths, QWidget *parent) :
         imageItem->setCheckable(true);
         imageItem->setCheckState(Qt::Unchecked);
         imageItem->setData(QVariant(*pixmap), Qt::DecorationRole);
-        imagesModel->setItem(i, 0, imageItem);
+        col = i % colsCount;
+        if (i % colsCount == 0) row++;
+        imagesModel->setItem(row, col, imageItem);
         delete pixmap;
+
     }
-    imagesModel->setHeaderData(0, Qt::Horizontal, tr("Image"));
+
+    ui->tableView->verticalHeader()->hide();
+    ui->tableView->horizontalHeader()->hide();
     ui->tableView->setModel(imagesModel);
     ui->tableView->resizeColumnsToContents();
     ui->tableView->resizeRowsToContents();
@@ -45,12 +54,15 @@ void ImagesWithTags::callPrinter()
 void ImagesWithTags::getSelectedItems()
 {
     selectedItems.clear();
-    for (int i = 0; i < paths.size(); ++i)
-    {
-        QModelIndex index = ui->tableView->model()->index(i,0);
-        if (index.data(Qt::CheckStateRole) == Qt::Checked)
-            selectedItems.push_back(i);
-    }
+    int columnCount = ui->tableView->model()->columnCount();
+    int rowCount = ui->tableView->model()->rowCount();
+    for (int i = 0; i < rowCount; ++i)
+        for (int j = 0; j < columnCount; ++j)
+        {
+            QModelIndex index = ui->tableView->model()->index(i,j);
+            if (index.data(Qt::CheckStateRole) == Qt::Checked)
+                selectedItems.push_back(i*columnCount + j);
+        }
 }
 
 void ImagesWithTags::drawImagesOnSheet(QPrinter* printer)
@@ -96,3 +108,4 @@ void ImagesWithTags::on_tableView_clicked(const QModelIndex &index)
     ui->editButton->setEnabled(selectedItems.size() == 1);
     ui->printButton->setEnabled(selectedItems.size() > 0);
 }
+

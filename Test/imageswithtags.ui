@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>718</width>
-    <height>418</height>
+    <width>858</width>
+    <height>498</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="printButton">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>10</y>
+     <x>20</x>
+     <y>460</y>
      <width>121</width>
      <height>27</height>
     </rect>
@@ -25,31 +25,53 @@
    <property name="text">
     <string>Печатать</string>
    </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/printer.ico</normaloff>:/icons/printer.ico</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>18</width>
+     <height>18</height>
+    </size>
+   </property>
   </widget>
   <widget class="QPushButton" name="editButton">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>50</y>
-     <width>121</width>
+     <x>140</x>
+     <y>460</y>
+     <width>151</width>
      <height>27</height>
     </rect>
    </property>
    <property name="text">
     <string>Редактировать</string>
    </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/edit.ico</normaloff>:/icons/edit.ico</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>18</width>
+     <height>18</height>
+    </size>
+   </property>
   </widget>
   <widget class="QTableView" name="tableView">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>20</x>
      <y>10</y>
-     <width>301</width>
-     <height>401</height>
+     <width>821</width>
+     <height>441</height>
     </rect>
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
