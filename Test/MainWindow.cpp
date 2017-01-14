@@ -139,17 +139,20 @@ void MainWindow::onImageClick()
     }
 
     DataWrapper* pictureData = static_cast<DataWrapper *>(imagesView->selectionModel()->currentIndex().internalPointer());
-    IData* child_data = static_cast<IData*>(pictureData->data);
-    QString comm = child_data->comment;
-    QString tags = child_data->tags.join(",");
+    if (pictureData)
+    {
+        IData* child_data = static_cast<IData*>(pictureData->data);
+        QString comm = child_data->comment;
+        QString tags = child_data->tags.join(",");
 
-    if (comm == "")
-        comm = "<i>без комментариев.</i>";
-    if (tags == "")
-        tags = "<i>не назначены.</i>";
+        if (comm == "")
+            comm = "<i>без комментариев.</i>";
+        if (tags == "")
+            tags = "<i>не назначены.</i>";
 
-    imgComLabel->setText("<b>Комментарий: </b>" + comm);
-    imgTagLabel->setText("<b>Тэги: </b>" + tags);
+        imgComLabel->setText("<b>Комментарий: </b>" + comm);
+        imgTagLabel->setText("<b>Тэги: </b>" + tags);
+    }
     setEnableButtons();
 }
 
@@ -164,8 +167,14 @@ void MainWindow::onImageDoubleClick()
 void MainWindow::setEnableButtons()
 {
     editButton->setEnabled(selectedImagesCount == 1);
+    editPic->setEnabled(selectedImagesCount == 1);
+    actionEditLect->setEnabled(selectedImagesCount == 1);
+
     printButton->setEnabled(selectedImagesCount > 0);
+    print->setEnabled(selectedImagesCount > 0);
+
     deleteButton->setEnabled(selectedImagesCount > 0);
+    actionDeleteLect->setEnabled(selectedImagesCount > 0);
 }
 
 void MainWindow::onSearchButtonClick()
@@ -232,11 +241,17 @@ void MainWindow::showImages(const QModelIndex &proxyIndex)
     DataWrapper* data = static_cast<DataWrapper *>(realIndex.internalPointer());
     if (data && data->type == PARAGRAPH)
     {
-        addButton->setEnabled(true);
         currentParagraphIndex = realIndex;
         imagesView->setRootIndex(realIndex);
         selectedImages.fill(false, data->children.count());
         selectedImagesCount = 0;
+    }
+
+    const DataWrapper* data_selected = itemData();
+    if (data_selected && data_selected->type == PARAGRAPH)
+    {
+        addButton->setEnabled(true);
+        actionAddLect->setEnabled(true);
     }
 }
 
@@ -306,6 +321,39 @@ void MainWindow::areYouSureDelPics()
 
 void MainWindow::createActions()
 {
+
+    actionEdit = new QAction(tr("Редактировать..."), this);
+    actionEdit->setShortcut(tr("Ctrl+E"));
+    connect(actionEdit, &QAction::triggered, this, &MainWindow::editCategory);
+
+    actionAdd = new QAction(tr("Добавить..."), treeView);
+    actionAdd->setShortcut(tr("Ctrl+A"));
+    connect(actionAdd, &QAction::triggered, this, &MainWindow::addingAction);
+
+    actionDelete = new QAction(tr("Удалить..."), treeView);
+    actionDelete->setShortcut(tr("Delete"));
+    connect(actionDelete, &QAction::triggered, this, &MainWindow::deleteAction);
+
+    actionEditLect = new QAction(tr("Редактировать..."), imagesView);
+    actionEditLect->setEnabled(false);
+    connect(actionEditLect, &QAction::triggered, this, &MainWindow::editCategory);
+
+    actionAddLect = new QAction(tr("Добавить..."), imagesView);
+    actionAddLect->setEnabled(false);
+    connect(actionAddLect,&QAction::triggered, this, &MainWindow::addingAction);
+
+    actionDeleteLect = new QAction(tr("Удалить..."), imagesView);
+    actionDeleteLect->setEnabled(false);
+    connect(actionDeleteLect, &QAction::triggered, this, &MainWindow::areYouSureDelPics);
+
+    print = new QAction(tr("Печатать..."), imagesView);
+    print->setEnabled(false);
+    connect(print, &QAction::triggered, this, &MainWindow::callPrinter);
+
+    editPic = new QAction(tr("Подготовить к печати..."), imagesView);
+    editPic->setEnabled(false);
+    connect(editPic, &QAction::triggered, this, &MainWindow::callEditForm);
+
     addCategory = new QAction(tr("&Категорию"), this);
     addCategory->setStatusTip("Добавить новую категорию");
     connect(addCategory, &QAction::triggered, this, &MainWindow::addCategoryToDb);
@@ -328,7 +376,11 @@ void MainWindow::createMenus()
     menuEdit->addAction(actionDelete);
 
     //menuAdd->addAction(addCategory);
-    menuAdd->addAction("Фотографии лекций");
+    menuAdd->addAction(actionAddLect);
+    menuAdd->addAction(actionEditLect);
+    menuAdd->addAction(editPic);
+    menuAdd->addAction(print);
+    menuAdd->addAction(actionDeleteLect);
 
     menuBar->addMenu(menuEdit);
     menuBar->addMenu(menuAdd);
@@ -384,20 +436,8 @@ void MainWindow::addCategoryToDb()
 void MainWindow::on_treeView_customContextMenuRequested()
 {
     treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
-
-    actionEdit = new QAction(tr("Редактировать..."), this);
-    actionEdit->setShortcut(tr("Ctrl+E"));
-    connect(actionEdit, &QAction::triggered, this, &MainWindow::editCategory);
     treeView->addAction(actionEdit);
-
-    actionAdd = new QAction(tr("Добавить..."), treeView);
-    actionAdd->setShortcut(tr("Ctrl+A"));
-    connect(actionAdd, &QAction::triggered, this, &MainWindow::addingAction);
     treeView->addAction(actionAdd);
-
-    actionDelete = new QAction(tr("Удалить..."), treeView);
-    actionDelete->setShortcut(tr("Delete"));
-    connect(actionDelete, &QAction::triggered, this, &MainWindow::deleteAction);
     treeView->addAction(actionDelete);
 }
 
@@ -433,6 +473,8 @@ void MainWindow::editCategory()
   QString child_tags;
   QString editWhat = getCatName(child->type);
 
+  QPushButton* buttonBrowse = new QPushButton("Обзор...");
+
   switch (child->type) {
     case ROOT:
     case TERM:
@@ -443,19 +485,24 @@ void MainWindow::editCategory()
       child_comment = static_cast<HData*>(child->data)->comment;
       break;
     case IMAGE:
-      child_data = static_cast<IData*>(child->data)->path;
+      /*child_data = static_cast<IData*>(child->data)->path;
       child_comment = static_cast<IData*>(child->data)->comment;
       child_tags = (QString)static_cast<IData*>(child->data)->tags.join(',');
+      nameEdit->setText(child_data);
+      editLayout->addRow(tr("&Путь"), nameEdit);
+      editLayout->addRow(buttonBrowse);*/
       break;
     default:
       break;
     }
 
   editWindow = new QWidget;
+  nameEdit = new QLineEdit;
   editLayout = new QFormLayout;
 
-  nameEdit = new QLineEdit;
   nameEdit->setText(child_data);
+  editLayout->addRow(tr("&Наименование"), nameEdit);
+
   commentEdit = new QLineEdit;
   commentEdit->setText(child_comment);
   commentEdit->setFixedHeight(50);
@@ -464,7 +511,6 @@ void MainWindow::editCategory()
   connect(buttonEdit, &QPushButton::clicked, this, &MainWindow::edit);
   connect(buttonCancel, &QPushButton::clicked, editWindow, &QWidget::close);
 
-  editLayout->addRow(tr("&Наименование"), nameEdit);
   editLayout->addRow(tr("&Комментарий"), commentEdit);
   editLayout->setAlignment(buttonCancel, Qt::AlignCenter);
 
