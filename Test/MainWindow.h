@@ -59,6 +59,8 @@
 
 #include <QVector>
 
+class MyLabel;
+
 class MainWindow : public QMainWindow
 {
 public:
@@ -92,7 +94,7 @@ private:
     QVector<QFormLayout*> comLayouts;
     QVector<QFormLayout*> tagLayouts;
     QVector<QFormLayout*> butLayouts;
-    QVector<QLabel*> picLabels;
+    QVector<MyLabel*> picLabels;
 
     ///Tree Editing widgets
     QWidget* addWindow;
@@ -184,4 +186,14 @@ private slots:
     void removePicFromSelection();
     void onSearchButtonClick();
     void lineEditKeyPressed();
+};
+
+class MyLabel : public QLabel
+{
+public:
+    MyLabel(const QString p);
+private:
+    QString path;
+protected:
+    virtual void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
 };

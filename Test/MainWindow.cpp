@@ -115,7 +115,7 @@ void MainWindow::onImageDoubleClick()
 {
     DataWrapper* paragraphData = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     DataWrapper* pictureData = static_cast<DataWrapper *>(imagesView->selectionModel()->currentIndex().internalPointer());
-    ImageViewer* img_vwr = new ImageViewer(pictureData->number, paragraphData);
+    ImageViewer* img_vwr = new ImageViewer(pictureData->number, paragraphData, "");
     img_vwr->show();
 }
 
@@ -725,10 +725,10 @@ void MainWindow::addLectures()
       QFormLayout* buttonLayout = new QFormLayout;
 
       QPixmap pic(*it);
-      //QPixmap scaled = pic.scaledToHeight(100, Qt::FastTransformation).scaledToWidth(200, Qt::KeepAspectRatio);
       QPixmap scaled = pic.scaled(QSize(200, 400), Qt::KeepAspectRatio);
-      QLabel *picLabel = new QLabel();
+      MyLabel *picLabel = new MyLabel(*it);
       picLabel->setPixmap(scaled);
+      picLabel->setCursor(Qt::PointingHandCursor);
       picLayout->addRow(picLabel);
       picLabels.push_back(picLabel);
       picLayouts.push_back(picLayout);
@@ -829,4 +829,18 @@ void MainWindow::removePicFromSelection()
 
         break;
       }
+}
+
+MyLabel::MyLabel(const QString p)
+{
+    path = p;
+}
+
+void MyLabel::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::MouseButton::LeftButton)
+    {
+        ImageViewer* whats_the_picture = new ImageViewer(-1, nullptr, path);
+        whats_the_picture->show();
+    }
 }

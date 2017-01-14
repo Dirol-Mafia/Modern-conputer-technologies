@@ -4,6 +4,7 @@ ImageViewer::ImageViewer()
 {  
     current_picture = -1;
     picture_parent = nullptr;
+    picture_path = "";
 
     imageLabel = new QLabel;
     imageLabel->setBackgroundRole(QPalette::Base);
@@ -24,25 +25,39 @@ ImageViewer::ImageViewer()
     //setFocusPolicy(Qt::NoFocus);
 }
 
-ImageViewer::ImageViewer(int cur_pic, DataWrapper* pic_par)
+ImageViewer::ImageViewer(int cur_pic, const DataWrapper *pic_par, QString path)
 {
     current_picture = cur_pic;
     picture_parent = pic_par;
+    picture_path = path;
+
+    QString filename;
 
     imageLabel = new QLabel;
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     imageLabel->setScaledContents(true);
 
-    IData* picture_data = static_cast<IData*>(picture_parent->children.at(current_picture)->data);
-
-    QString filename = picture_data->path;
+    if (picture_path == "")
+    {
+        IData* picture_data = static_cast<IData*>(picture_parent->children.at(current_picture)->data);
+        filename = picture_data->path;
+        setWindowTitle(picture_data->comment);
+    }
+    else
+    {
+        filename = picture_path;
+        setWindowTitle(filename);
+    }
     QImage image(filename);
+
     if (image.isNull())
     {
         QMessageBox::information(this, tr("Ошибка"), tr("Невозможно отобразить изображение %1.").arg(filename));
         return;
     }
+    imageLabel->setPixmap(QPixmap::fromImage(image));
+    scaleFactor = 1.0;
 
     scrollArea = new MyScrollArea(this);
     scrollArea->setBackgroundRole(QPalette::Dark);
@@ -52,17 +67,12 @@ ImageViewer::ImageViewer(int cur_pic, DataWrapper* pic_par)
     createActions();
     createMenus();
 
-    imageLabel->setPixmap(QPixmap::fromImage(image));
-    scaleFactor = 1.0;
-
-
     fitToWindowAct->setEnabled(true);
     updateActions();
 
     if (!fitToWindowAct->isChecked())
         imageLabel->adjustSize();
 
-    setWindowTitle(picture_data->comment);
     resize(600, 500);
     scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
@@ -184,7 +194,7 @@ void ImageViewer::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Right)
     {
-        if (current_picture == picture_parent->count - 1)
+        if (picture_parent == nullptr || current_picture == picture_parent->count - 1)
           return;
         ++current_picture;
         setPicture(current_picture);
@@ -192,7 +202,7 @@ void ImageViewer::keyPressEvent(QKeyEvent *event)
 
     if (event->key() == Qt::Key_Left)
     {
-        if (current_picture == 0)
+        if (picture_parent == nullptr || current_picture == 0)
           return;
         --current_picture;
         setPicture(current_picture);

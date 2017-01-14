@@ -20,7 +20,7 @@ class ImageViewer : public QMainWindow
   Q_OBJECT
 public:
   ImageViewer();
-  ImageViewer(int cur_pic, DataWrapper *pic_par);
+  ImageViewer(int cur_pic, const DataWrapper *pic_par, QString path);
 
   void setPicture(int number);
   void delegateEvent(QKeyEvent* event);
@@ -29,7 +29,8 @@ signals:
 
 private:
     int current_picture = -1;
-    DataWrapper* picture_parent;
+    const DataWrapper* picture_parent;
+    QString picture_path;
     QLabel* imageLabel;
     MyScrollArea* scrollArea;
     double scaleFactor;
