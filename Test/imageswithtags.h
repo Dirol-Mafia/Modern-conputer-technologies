@@ -40,6 +40,7 @@ private:
     Ui::ImagesWithTags *ui;
     QStringList paths;
     QVector <int> selectedItems;
+    Config config;
 };
 
 #endif // IMAGESWITHTAGS_H

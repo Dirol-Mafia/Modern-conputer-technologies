@@ -13,7 +13,7 @@ ImagesWithTags::ImagesWithTags(QStringList _paths, QWidget *parent) :
 
     int row = -1;
     int col = 0;
-    int colsCount = 3;
+    int colsCount = config.getColumnsCount();
 
     for (int i = 0; i < paths.size(); ++i)
     {

@@ -6,6 +6,11 @@ class Config
 public:
     Config();
 
+    int getColumnsCount();
+    double getScaleParameter();
+    int getBrightnessLevel();
+    int getBrightnessMax();
+    int getBrightnessMin();
 };
 
 #endif // CONFIG_H

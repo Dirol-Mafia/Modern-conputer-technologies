@@ -9,6 +9,8 @@
 #include <QMenu>
 #include <QAction>
 
+#include "config.h"
+
 class EditingImageHandler : public QLabel
 {
 Q_OBJECT
@@ -38,4 +40,5 @@ private:
     QString pathToImage;
     QImage *image;
     QPainter *painter;
+    Config config;
 };

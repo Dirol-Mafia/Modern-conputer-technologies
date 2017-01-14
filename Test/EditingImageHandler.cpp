@@ -32,14 +32,16 @@ void EditingImageHandler::increaseSaturation()
 {
     int width = image->width();
     int heigth = image->height();
-    double brightnessLevel = 200;
+    double brightnessLevel = config.getBrightnessLevel();
+    double brightnessLevelMax = config.getBrightnessMax();
+    double brightnessLevelMin = config.getBrightnessMin();
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < heigth; ++j)
         {
             QColor color = image->pixel(i, j);
             int brightness = color.value();
-            if (brightness > brightnessLevel) brightness = 255;
-            if (brightness < 50)
+            if (brightness > brightnessLevel) brightness = brightnessLevelMax;
+            if (brightness < brightnessLevelMin)
             {
                 brightness = 0;
             }
@@ -50,7 +52,7 @@ void EditingImageHandler::increaseSaturation()
 
 void EditingImageHandler::scaleImage(int multipier)
 {
-    scaleParameter += multipier * 0.2;
+    scaleParameter += multipier * config.getScaleParameter();
     showImage(scaleParameter);
 }
 

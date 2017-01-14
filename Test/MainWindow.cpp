@@ -45,7 +45,7 @@ void MainWindow::renderToolbar()
 {
     searchInput = new QLineEdit;
     searchInput->setText("");
-    searchInput->setFixedWidth(180);
+    searchInput->setFixedWidth(250);
     searchInput->setFixedHeight(25);
     searchButton = new QPushButton("Найти");
     QWidget* empty = new QWidget();
