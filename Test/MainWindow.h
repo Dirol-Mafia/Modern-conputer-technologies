@@ -104,6 +104,7 @@ private:
     ///Tree Editing widgets
     QWidget* addWindow;
     QWidget* editWindow;
+    QWidget* editPicInfo;
     QWidget* deleteWindow;
     QWidget* editPicturesWin;
     QScrollArea* editPicScrollAlrea;
@@ -168,9 +169,11 @@ private:
     void searchByTags();
     void noSuchTags();
 
-/// Actions for context menu (dialog windows)void addCategoryToDb();
+/// Actions for context menu (dialog windows)
+    //void addCategoryToDb();
     void addLectureToDb();
     void editCategory();
+    void editPictureInfo();
     void emptyAction();
     void deleteAction();
     void areYouSure();
@@ -180,6 +183,8 @@ private:
     void add();
     void addPictures();
     void edit();
+    void editInfo();
+    void browsePic();
     void remove();
     void removePictures();
     void updateActions();
