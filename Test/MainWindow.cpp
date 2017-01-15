@@ -507,8 +507,8 @@ void MainWindow::editCategory()
   nameEdit->setText(child_data);
   editLayout->addRow(tr("&Наименование"), nameEdit);
 
-  commentEdit = new QLineEdit;
-  commentEdit->setText(child_comment);
+  commentEdit = new QPlainTextEdit;
+  commentEdit->appendPlainText(child_comment);
   commentEdit->setFixedHeight(50);
   QPushButton *buttonEdit = new QPushButton("Редактировать");
   QPushButton *buttonCancel = new QPushButton("Отмена");
@@ -521,8 +521,8 @@ void MainWindow::editCategory()
   if (child->type != IMAGE)
       editWindow->setFixedSize(460, 180);
   else {
-      tagEdit = new QLineEdit;
-      tagEdit->setText(child_tags);
+      tagEdit = new QPlainTextEdit;
+      tagEdit->appendPlainText(child_tags);
       tagEdit->setFixedHeight(50);
       editLayout->addRow(tr("&Тэги (через запятую)"), tagEdit);
       editWindow->setFixedSize(460, 230);
@@ -553,14 +553,14 @@ void MainWindow::editPictureInfo()
 
     if (commentEdit)
         delete commentEdit;
-    commentEdit = new QLineEdit;
-    commentEdit->setText(comm);
+    commentEdit = new QPlainTextEdit;
+    commentEdit->appendPlainText(comm);
     commentEdit->setFixedHeight(100);
 
     if (tagEdit)
         delete tagEdit;
-    tagEdit = new QLineEdit;
-    tagEdit->setText(tags);
+    tagEdit = new QPlainTextEdit;
+    tagEdit->appendPlainText(tags);
     tagEdit->setFixedHeight(100);
 
     editPicInfo = new QWidget;
@@ -670,8 +670,8 @@ void MainWindow::addingAction()
   if (child->type != PARAGRAPH){
     nameAdd= new QLineEdit;
     nameAdd->setText(child_data);
-    commentAdd = new QLineEdit;
-    commentAdd->setText(child_comment);
+    commentAdd = new QPlainTextEdit;
+    commentAdd->appendPlainText(child_comment);
     commentAdd->setFixedHeight(50);
     QPushButton *buttonAdd = new QPushButton("Добавить");
     QPushButton *buttonCancel = new QPushButton("Отмена");
@@ -719,7 +719,7 @@ void MainWindow::add()
 
   model->fetchAll(parent_ind);
   QModelIndex child = model->index(row_count, 0, parent_ind);
-  HData add_data = {(h_type)(1 + (int)parent->type), nameAdd->text(), commentAdd->text()};
+  HData add_data = {(h_type)(1 + (int)parent->type), nameAdd->text(), commentAdd->toPlainText()};
   QVariant add_data_qvariant = QVariant::fromValue(add_data);
 
   if(!model->setData(child, add_data_qvariant, Qt::EditRole))
@@ -773,9 +773,9 @@ void MainWindow::edit()
   QModelIndex child = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
   DataWrapper* child_data_wrapper = model->dataForIndex(child);
   HData* child_data = static_cast<HData*>(child_data_wrapper->data);
-  if (child_data->name == nameEdit->text() && child_data->comment == commentEdit->text())
+  if (child_data->name == nameEdit->text() && child_data->comment == commentEdit->toPlainText())
     return;
-  HData add_data = {(h_type)(1 + (int)child_data_wrapper->type), nameEdit->text(), commentEdit->text()};
+  HData add_data = {(h_type)(1 + (int)child_data_wrapper->type), nameEdit->text(), commentEdit->toPlainText()};
   QVariant add_data_qvariant = QVariant::fromValue(add_data);
 
   if(!model->setData(child, add_data_qvariant, Qt::EditRole))
@@ -796,10 +796,10 @@ void MainWindow::editInfo()
   QString path =  child_data->path;
   QString comm = child_data->comment;
   QString tags = child_data->tags.join(",");
-  if (path == nameEdit->text() && comm == commentEdit->text() && tags == tagEdit->text())
+  if (path == nameEdit->text() && comm == commentEdit->toPlainText() && tags == tagEdit->toPlainText())
       return;
 
-  IData add_data = {nameEdit->text(), commentEdit->text(), tagEdit->text().split(",")};
+  IData add_data = {nameEdit->text(), commentEdit->toPlainText(), tagEdit->toPlainText().split(",")};
   QVariant add_data_qvariant = QVariant::fromValue(add_data);
 
   if(!model->setData(child_index, add_data_qvariant, Qt::EditRole))

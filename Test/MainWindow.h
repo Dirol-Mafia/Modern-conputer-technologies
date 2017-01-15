@@ -56,6 +56,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QApplication>
+#include <QPlainTextEdit>
 
 #include <QVector>
 
@@ -108,13 +109,13 @@ private:
     QWidget* editPicturesWin;
     QScrollArea* editPicScrollAlrea;
 
-    ///Line Editing Forms
+    ///Text Editing Forms
     QLineEdit* nameAdd;
-    QLineEdit* commentAdd;
-    QLineEdit* tagAdd;
+    QPlainTextEdit* commentAdd;
+    QPlainTextEdit* tagAdd;
     QLineEdit* nameEdit;
-    QLineEdit* commentEdit;
-    QLineEdit* tagEdit;
+    QPlainTextEdit* commentEdit;
+    QPlainTextEdit* tagEdit;
     QList<QTextEdit*> pictureComments;
     QList<QTextEdit*> pictureTags;
 
