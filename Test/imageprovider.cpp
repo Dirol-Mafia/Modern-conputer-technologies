@@ -13,6 +13,8 @@ using namespace std;
 ImageProvider::ImageProvider(QString dbname, QObject *parent)
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
+    if (dbname == "")
+        throw invalid_argument("Имя базы пусто");
     db.setDatabaseName(dbname);
     if (!db.open()){
         throw invalid_argument("Cannot open db");
@@ -28,6 +30,8 @@ ImageProvider::~ImageProvider()
 int ImageProvider::rowCount(const QModelIndex &parent) const
 {
     const DataWrapper *parent_pointer = dataForIndex(parent);
+    if (parent_pointer->count == -1)
+        return 0;
     return parent_pointer->count;
 }
 
@@ -438,6 +442,8 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       child->type = (h_type)((int)type + 1);
       if (children.size() > 0)
         children.insert(position, child);
+      else
+        children.push_back(child);
 
       update.exec();
       for (auto it = children.begin(); it < children.end(); ++it)

@@ -86,7 +86,7 @@ public:
     const DataWrapper* getRoot() const;
     QSqlDatabase db;
 private:
-    DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, -1, false};
+    DataWrapper d {0, ROOT, nullptr, 0, nullptr, {}, 0, false};
     int getChildrenCount(h_type type, int pid) const;
 };
 

@@ -893,7 +893,7 @@ void MainWindow::removePictures()
 
 void MainWindow::updateActions()
 {
-    bool has_selection = !treeView->selectionModel()->selection().isEmpty();
+    /*bool has_selection = !treeView->selectionModel()->selection().isEmpty();
     actionDelete->setEnabled(has_selection);
 
     bool has_current = treeView->selectionModel()->currentIndex().isValid();
@@ -901,7 +901,7 @@ void MainWindow::updateActions()
     actionEdit->setEnabled(has_current);
 
     if (has_current)
-        treeView->closePersistentEditor(treeView->selectionModel()->currentIndex());
+        treeView->closePersistentEditor(treeView->selectionModel()->currentIndex());*/
 
     addSemester = false;
 }
