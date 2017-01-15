@@ -7,7 +7,6 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    createActions();
     selectedImagesCount = 0;
     addSemester = false;
     model = new ImageProvider("../Test/DB_Lectures");
@@ -19,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     renderCategoriesLayout();
     renderImagesLayout();
     renderToolbar();
+    createActions();
 
     mainLayout = new QHBoxLayout;
     mainLayout->addLayout(dataLayout);
