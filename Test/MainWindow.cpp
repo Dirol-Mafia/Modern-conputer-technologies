@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QObject::connect(searchButton, SIGNAL(clicked()), this, SLOT(onSearchButtonClick()));
     QObject::connect(addButton, &QPushButton::clicked, this, &MainWindow::addingAction);
     QObject::connect(newSemester,&QPushButton::clicked, this, &MainWindow::addNewSemester);
+    QObject::connect(selectAllCheckBox,SIGNAL(toggled(bool)), this, SLOT(selectAllImages()));
     this->setCentralWidget(new QWidget(this));
 
     this->addToolBar(toolbar);
@@ -90,11 +91,13 @@ void MainWindow::renderImagesLayout()
     editButton = new QPushButton("Подготовить к печати");
     printButton = new QPushButton("Печатать");
     deleteButton = new QPushButton("Удалить");
+    selectAllCheckBox = new QCheckBox("Выбрать всё");
 
     addButton->setEnabled(false);
     editButton->setEnabled(false);
     printButton->setEnabled(false);
     deleteButton->setEnabled(false);
+    selectAllCheckBox->setEnabled(false);
 
     imgComLabel = new QLabel;
     imgComLabel->setText(COMMENT_BOLD + DEFAULT_COMM_TAGS_IMG_ITALIC);
@@ -110,6 +113,7 @@ void MainWindow::renderImagesLayout()
     imagesLayout->addWidget(imgComLabel);
     imagesLayout->addWidget(imgTagLabel);
 
+    imagesLayout->addWidget(selectAllCheckBox);
     imagesLayout->addWidget(addButton);
     imagesLayout->addWidget(editButton);
     imagesLayout->addWidget(printButton);
@@ -129,6 +133,27 @@ void MainWindow::showComments(const QModelIndex &index)
 
 void MainWindow::onImageClick()
 {
+    getSelectedItems();
+    DataWrapper* pictureData = static_cast<DataWrapper *>(imagesView->selectionModel()->currentIndex().internalPointer());
+    if (pictureData)
+    {
+        IData* child_data = static_cast<IData*>(pictureData->data);
+        QString comm = child_data->comment;
+        QString tags = child_data->tags.join(",");
+
+        if (comm == "")
+            comm = "<i>без комментариев.</i>";
+        if (tags == "")
+            tags = "<i>не назначены.</i>";
+
+        imgComLabel->setText("<b>Комментарий: </b>" + comm);
+        imgTagLabel->setText("<b>Тэги: </b>" + tags);
+    }
+    setEnableButtons();
+}
+
+void MainWindow::getSelectedItems()
+{    
     DataWrapper* paragraphData = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
     int imagesCount = paragraphData->children.count();
     if (selectedImages.size() < paragraphData->count){
@@ -148,24 +173,8 @@ void MainWindow::onImageClick()
             selectedImages[i] = false;
         }
     }
-
-    DataWrapper* pictureData = static_cast<DataWrapper *>(imagesView->selectionModel()->currentIndex().internalPointer());
-    if (pictureData)
-    {
-        IData* child_data = static_cast<IData*>(pictureData->data);
-        QString comm = child_data->comment;
-        QString tags = child_data->tags.join(", ");
-
-        if (comm == "")
-            comm = "<i>без комментариев.</i>";
-        if (tags == "")
-            tags = "<i>не назначены.</i>";
-
-        imgComLabel->setText(COMMENT_BOLD + comm);
-        imgTagLabel->setText(TAGS_BOLD + tags);
-    }
-    setEnableButtons();
 }
+
 
 void MainWindow::onImageDoubleClick()
 {
@@ -188,10 +197,28 @@ void MainWindow::setEnableButtons()
     actionDeleteLect->setEnabled(selectedImagesCount > 0);
 }
 
+void MainWindow::selectAllImages()
+{
+    DataWrapper* data = static_cast<DataWrapper *>(currentParagraphIndex.internalPointer());
+    int childrenCount = data->children.count();
+    for (int i = 0; i < childrenCount; ++i)
+    {
+        QModelIndex child = model->index(i, 0, currentParagraphIndex);
+        DataWrapper* child_data_wrapper = model->dataForIndex(child);
+        IData* child_data = static_cast<IData*>(child_data_wrapper->data);
+        QVariant add_data_qvariant = QVariant::fromValue(*child_data);
+        model->setChecked(child, add_data_qvariant, Qt::CheckStateRole, selectAllCheckBox->isChecked());
+        //model->setData(child, add_data_qvariant, Qt::CheckStateRole);
+        imagesView->update(child);
+    }
+    getSelectedItems();
+    setEnableButtons();
+}
+
 void MainWindow::onSearchButtonClick()
 {
     if (searchInput->text().length() > 0)
-        searchByTags();
+            searchByTags();
 }
 
 void MainWindow::searchByTags()
@@ -263,6 +290,7 @@ void MainWindow::showImages(const QModelIndex &proxyIndex)
     {
         addButton->setEnabled(true);
         actionAddLect->setEnabled(true);
+        selectAllCheckBox->setEnabled(true);
     }
 }
 

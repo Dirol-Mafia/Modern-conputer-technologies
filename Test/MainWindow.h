@@ -57,6 +57,7 @@
 #include <QSqlError>
 #include <QApplication>
 #include <QPlainTextEdit>
+#include <QCheckBox>
 
 #include <QVector>
 
@@ -131,6 +132,7 @@ private:
     QPushButton *addButton;
     ///Vector of delete buttons (in the Picture adding window)
     QVector<QPushButton*> delButtons;
+    QCheckBox *selectAllCheckBox;
 
     QAction *addCategory;
     QAction *addLecture;
@@ -154,6 +156,7 @@ private:
     bool addSemester;
     int selectedImagesCount;
     QVector<bool> selectedImages;
+    void getSelectedItems();
 
     void createActions();
     void createMenus();
@@ -203,6 +206,7 @@ private slots:
     void removePicFromSelection();
     void onSearchButtonClick();
     void lineEditKeyPressed();
+    void selectAllImages();
 };
 
 class MyLabel : public QLabel

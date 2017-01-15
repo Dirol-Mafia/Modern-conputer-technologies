@@ -1,5 +1,6 @@
 #include "imageeditform.h"
 #include "ui_imageeditform.h"
+#include <QScrollArea>
 
 ImageEditForm::ImageEditForm(const QString &_pathToImage, QWidget *parent) :
     QDialog(parent),
@@ -7,8 +8,13 @@ ImageEditForm::ImageEditForm(const QString &_pathToImage, QWidget *parent) :
 {
     ui->setupUi(this);
     imageHandler = new EditingImageHandler(_pathToImage);
-    ui->imageLayout->addWidget(imageHandler);
-    ui->imageLayout->setAlignment(imageHandler, Qt::AlignTop);
+
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setBackgroundRole(QPalette::Dark);
+    imageHandler->setAlignment(Qt::AlignCenter);
+    scrollArea->setWidget(imageHandler);
+    ui->imageLayout->addWidget(scrollArea);
+    ui->imageLayout->setAlignment(scrollArea, Qt::AlignTop);
     imageHandler->showImage(imageHandler->scaleParameter);
 }
 

@@ -7,6 +7,11 @@ ImagesWithTags::ImagesWithTags(QStringList _paths, QWidget *parent) :
 {
     ui->setupUi(this);
     paths = _paths;
+    showImages(paths, false);
+}
+
+void ImagesWithTags::showImages(QStringList paths, bool checked)
+{
     QStandardItemModel *imagesModel = new QStandardItemModel;
     ui->editButton->setEnabled(false);
     ui->printButton->setEnabled(false);
@@ -21,13 +26,15 @@ ImagesWithTags::ImagesWithTags(QStringList _paths, QWidget *parent) :
         *pixmap = pixmap->scaled(250, 250, Qt::KeepAspectRatio, Qt::FastTransformation);
         QStandardItem *imageItem = new QStandardItem();
         imageItem->setCheckable(true);
-        imageItem->setCheckState(Qt::Unchecked);
+        if (checked)
+            imageItem->setCheckState(Qt::Checked);
+        else
+            imageItem->setCheckState(Qt::Unchecked);
         imageItem->setData(QVariant(*pixmap), Qt::DecorationRole);
         col = i % colsCount;
         if (i % colsCount == 0) row++;
         imagesModel->setItem(row, col, imageItem);
         delete pixmap;
-
     }
 
     ui->tableView->verticalHeader()->hide();
@@ -60,6 +67,7 @@ void ImagesWithTags::getSelectedItems()
         for (int j = 0; j < columnCount; ++j)
         {
             QModelIndex index = ui->tableView->model()->index(i,j);
+            //ui->tableView->model()->dataChanged(index, index, Qt::CheckStateRole);
             if (index.data(Qt::CheckStateRole) == Qt::Checked)
                 selectedItems.push_back(i*columnCount + j);
         }
@@ -109,3 +117,15 @@ void ImagesWithTags::on_tableView_clicked(const QModelIndex &index)
     ui->printButton->setEnabled(selectedItems.size() > 0);
 }
 
+void ImagesWithTags::setButtonsEnabled()
+{
+    getSelectedItems();
+    ui->editButton->setEnabled(selectedItems.size() == 1);
+    ui->printButton->setEnabled(selectedItems.size() > 0);
+}
+
+void ImagesWithTags::on_selectAllCheckBox_toggled(bool checked)
+{
+    showImages(paths, checked);
+    setButtonsEnabled();
+}

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Изображения, найденные по тегам</string>
   </property>
   <widget class="QPushButton" name="printButton">
    <property name="geometry">
@@ -67,6 +67,19 @@
      <width>821</width>
      <height>441</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="selectAllCheckBox">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>460</y>
+     <width>121</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Выбрать всё</string>
    </property>
   </widget>
  </widget>

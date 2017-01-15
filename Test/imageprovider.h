@@ -77,6 +77,7 @@ public:
     void fetchMore(const QModelIndex& parent);
     bool canFetchMore(const QModelIndex& parent) const;
     Qt::ItemFlags flags(const QModelIndex& index) const;
+    void setChecked(const QModelIndex& index, const QVariant& value, int role, bool checked);
     bool setData(const QModelIndex& index, const QVariant& value, int role);
     bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
     bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;

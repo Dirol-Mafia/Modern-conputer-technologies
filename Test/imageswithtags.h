@@ -34,9 +34,13 @@ private slots:
 
     void on_tableView_clicked(const QModelIndex &index);
 
+    void on_selectAllCheckBox_toggled(bool checked);
+
 private:
     void callPrinter();
     void getSelectedItems();
+    void showImages(QStringList paths, bool checked);
+    void setButtonsEnabled();
     Ui::ImagesWithTags *ui;
     QStringList paths;
     QVector <int> selectedItems;
