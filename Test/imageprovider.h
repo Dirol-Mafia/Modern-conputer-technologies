@@ -73,6 +73,7 @@ public:
     virtual QVariant data(const QModelIndex& index, int role) const;
     virtual QModelIndex parent(const QModelIndex& child) const;
     void fetchAll(const QModelIndex& parent);
+    void fetchReallyAll(const QModelIndex& parent);
     void fetchMore(const QModelIndex& parent);
     bool canFetchMore(const QModelIndex& parent) const;
     Qt::ItemFlags flags(const QModelIndex& index) const;

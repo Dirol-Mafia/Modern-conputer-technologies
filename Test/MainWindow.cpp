@@ -1,5 +1,10 @@
 #include <MainWindow.h>
 
+#define COMMENT_BOLD tr("<b>Комментарий: </b>")
+#define TAGS_BOLD tr("<b>Тэги: </b>")
+#define DEFAULT_COMM_CAT_ITALIC tr("<i>сначала выберите категорию.</i>")
+#define DEFAULT_COMM_TAGS_IMG_ITALIC tr("<i>сначала выберите изображение.</i>")
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     createActions();
@@ -65,7 +70,7 @@ void MainWindow::renderCategoriesLayout()
     dataLayout->addWidget(treeView);
 
     catComLabel = new QLabel;
-    QString comm = "<b>Комментарий: </b><i>сначала выберите категорию</i>";
+    QString comm = COMMENT_BOLD + DEFAULT_COMM_CAT_ITALIC;
     catComLabel->setText(comm);
     catComLabel->setMaximumWidth(500);
     catComLabel->setWordWrap(true);
@@ -92,12 +97,12 @@ void MainWindow::renderImagesLayout()
     deleteButton->setEnabled(false);
 
     imgComLabel = new QLabel;
-    imgComLabel->setText("<b>Комментарий: </b><i>сначала выберите изображение</i>");
+    imgComLabel->setText(COMMENT_BOLD + DEFAULT_COMM_TAGS_IMG_ITALIC);
     imgComLabel->setMaximumWidth(500);
     imgComLabel->setWordWrap(true);
 
     imgTagLabel = new QLabel;
-    imgTagLabel->setText("<b>Тэги: </b><i>сначала выберите изображение</i>");
+    imgTagLabel->setText(TAGS_BOLD + DEFAULT_COMM_TAGS_IMG_ITALIC);
     imgTagLabel->setMaximumWidth(500);
     imgTagLabel->setWordWrap(true);
 
@@ -119,7 +124,7 @@ void MainWindow::showComments(const QModelIndex &index)
   QString comment = data->comment;
   if (comment == "")
       comment = "<i>без комментариев.</i>";
-  catComLabel->setText("<b>Комментарий: </b>" + comment);
+  catComLabel->setText(COMMENT_BOLD + comment);
 }
 
 void MainWindow::onImageClick()
@@ -156,8 +161,8 @@ void MainWindow::onImageClick()
         if (tags == "")
             tags = "<i>не назначены.</i>";
 
-        imgComLabel->setText("<b>Комментарий: </b>" + comm);
-        imgTagLabel->setText("<b>Тэги: </b>" + tags);
+        imgComLabel->setText(COMMENT_BOLD + comm);
+        imgTagLabel->setText(TAGS_BOLD + tags);
     }
     setEnableButtons();
 }
@@ -174,7 +179,7 @@ void MainWindow::setEnableButtons()
 {
     editButton->setEnabled(selectedImagesCount == 1);
     editPic->setEnabled(selectedImagesCount == 1);
-    actionEditLect->setEnabled(selectedImagesCount == 1);
+    actionEditLect->setEnabled(imagesView->selectionModel()->currentIndex().internalPointer() != nullptr);
 
     printButton->setEnabled(selectedImagesCount > 0);
     print->setEnabled(selectedImagesCount > 0);
@@ -785,6 +790,7 @@ void MainWindow::edit()
     treeView->update(child);
     QMessageBox::information(treeView, "OK", "Успешно!");
     editWindow->close();
+    catComLabel->setText("<b><Комментарий:/b> " + commentEdit->toPlainText());
     }
 }
 
@@ -809,6 +815,8 @@ void MainWindow::editInfo()
     treeView->update(child_index);
     QMessageBox::information(treeView, "OK", "Успешно!");
     editPicInfo->close();
+    imgComLabel->setText(COMMENT_BOLD + commentEdit->toPlainText());
+    imgTagLabel->setText(TAGS_BOLD + tagEdit->toPlainText());
     }
 }
 
@@ -820,6 +828,7 @@ void MainWindow::browsePic()
 void MainWindow::remove()
 {
     QModelIndex child = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
+    model->fetchReallyAll(child);
     QModelIndex parent_ind = model->parent(child);
     DataWrapper* child_data_wrapper = model->dataForIndex(child);
     if(!model->removeRows(child_data_wrapper->number, 1, parent_ind))
@@ -827,6 +836,7 @@ void MainWindow::remove()
     else {
         QMessageBox::information(treeView, "OK", "Успешно!");
         deleteWindow->close();
+        catComLabel->setText(COMMENT_BOLD + DEFAULT_COMM_CAT_ITALIC);
      }
 }
 
@@ -847,6 +857,8 @@ void MainWindow::removePictures()
         --selectedImagesCount;
       }
     QMessageBox::information(treeView, "OK", "Успешно!");
+    imgComLabel->setText(COMMENT_BOLD + DEFAULT_COMM_CAT_ITALIC);
+    imgTagLabel->setText(TAGS_BOLD + DEFAULT_COMM_TAGS_IMG_ITALIC);
     updateActions();
     model->fetchAll(currentParagraphIndex);
 }

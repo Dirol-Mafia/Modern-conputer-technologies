@@ -86,7 +86,7 @@ const DataWrapper* ImageProvider::getRoot() const
 QVariant ImageProvider::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid()) {
-        return {};
+        return "Здесь пока ничего нет. Начните с того, чтобы добавить новый семестр.";
       }
     const DataWrapper *elem = dataForIndex(index);
     if (role == Qt::DisplayRole) {        
@@ -233,6 +233,18 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
     }
 }
 
+void ImageProvider::fetchReallyAll(const QModelIndex &parent)
+{
+    fetchAll(parent);
+    int rows = rowCount(parent);
+    if (rows == 0)
+        return;
+    for (int i = 0; i < rows; ++i)
+    {
+        QModelIndex child = index(i, 0, parent);
+        fetchReallyAll(child);
+    }
+}
 
 Qt::ItemFlags ImageProvider::flags(const QModelIndex &index) const
 {
@@ -392,7 +404,7 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       if (position == 0){
           query.bindValue(":n", child_num);
           child->number = child_num;
-          update.bindValue(":pos", child_num - 1);
+          update.bindValue(":pos", child_num + 1);
         }
       else if (position == count){
           query.bindValue(":n", child_num);
