@@ -48,7 +48,6 @@ QModelIndex ImageProvider::index(int row, int column, const QModelIndex &parent)
     }
 
     const DataWrapper *parent_pointer = dataForIndex(parent);
-    //fetchMore(parent);
 
     if (!parent.isValid()){
         if (row < d.count)
@@ -218,7 +217,7 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
                 data->children.append(
                             new DataWrapper{id, (h_type)type,
                                             new HData{type, name, comment},
-                            number, data, {}, getChildrenCount((h_type)type, id)});
+                            number, data, {}, getChildrenCount((h_type)type, id), false});
                 data->count = data->children.size();
                 break;
             }
@@ -226,7 +225,7 @@ void ImageProvider::fetchAll(const QModelIndex& parent)
                 auto path = query.value("File_name").toString();
                 data->children.append(
                             new DataWrapper{id, IMAGE, new IData{path, comment, tags},
-                                      number, data, {}, getChildrenCount(IMAGE, id)});
+                                      number, data, {}, getChildrenCount(IMAGE, id), false});
                 data->count = data->children.size();
                 break;
             }
@@ -380,17 +379,6 @@ QString getSubcatName(h_type type)
   }
 }
 
-QString getCatChildName(h_type type)
-{
-  switch (type) {
-    case ROOT:
-      return " семестр";
-    case TERM:
-    default:
-      break;
-    }
-}
-
 /* DataWrapper methods implementation */
 bool DataWrapper::insertChildren(int position, int num, int columns)
 {
@@ -451,21 +439,6 @@ bool DataWrapper::insertChildren(int position, int num, int columns)
       ++count;
     }
 
-  /*QSqlQuery update;
-  update.prepare("UPDATE :table SET :field = :field + :n_rows WHERE :field >= :pos");
-  update.bindValue(":pos", position);
-  update.bindValue(":n_rows", num);
-  if (type != PARAGRAPH){
-    update.bindValue(":table", "categories");
-    update.bindValue(":field", "Number");
-    }
-  else{
-      update.bindValue(":table", "lectures");
-      update.bindValue(":field", "No");
-    }*/
-
-  //update.exec();
-
   return true;
 }
 
@@ -519,21 +492,17 @@ bool DataWrapper::setData(int col, const QVariant& value)
 
   if (type != IMAGE){
     HData new_data = value.value<HData>();
-    //void* data_ptr = &new_data;
     static_cast<HData*>(data)->name = new_data.name;
     static_cast<HData*>(data)->comment = new_data.comment;
-    //data = data_ptr;
     update_name.prepare("UPDATE categories SET Name = :name, Comment = :comment WHERE id = :cur_id");
     update_name.bindValue(":comment", new_data.comment);
     update_name.bindValue(":name", new_data.name);
     }
   else{
       IData new_data = value.value<IData>();
-      //void* data_ptr = &new_data;
       static_cast<IData*>(data)->path = new_data.path;
       static_cast<IData*>(data)->comment = new_data.comment;
       static_cast<IData*>(data)->tags = new_data.tags;
-      //data = data_ptr;
       update_name.prepare("UPDATE lectures SET File_name = :name, Comment = :comment, Tags = :tags WHERE id = :cur_id");
       update_name.bindValue(":comment", new_data.comment);
       update_name.bindValue(":tags", new_data.tags.join(','));
@@ -542,6 +511,5 @@ bool DataWrapper::setData(int col, const QVariant& value)
 
   update_name.bindValue(":cur_id", id);
   bool set_res = update_name.exec();
-  qDebug() << update_name.lastError();
   return set_res;
 }

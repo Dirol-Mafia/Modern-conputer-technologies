@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     on_treeView_customContextMenuRequested();
 
     setWindowTitle("Приложение для просмотра и сортировки лекций");
+    updateActions();
 
     createMenus();
 }
@@ -364,14 +365,17 @@ void MainWindow::createActions()
     actionEdit = new QAction(tr("Редактировать..."), this);
     actionEdit->setShortcut(tr("Ctrl+E"));
     connect(actionEdit, &QAction::triggered, this, &MainWindow::editCategory);
+    actionEdit->setEnabled(false);
 
     actionAdd = new QAction(tr("Добавить..."), treeView);
     actionAdd->setShortcut(tr("Ctrl+A"));
     connect(actionAdd, &QAction::triggered, this, &MainWindow::addingAction);
+    actionAdd->setEnabled(false);
 
     actionDelete = new QAction(tr("Удалить..."), treeView);
     actionDelete->setShortcut(tr("Delete"));
     connect(actionDelete, &QAction::triggered, this, &MainWindow::deleteAction);
+    actionDelete->setEnabled(false);
 
     actionEditLect = new QAction(tr("Редактировать..."), imagesView);
     actionEditLect->setEnabled(false);
@@ -414,7 +418,6 @@ void MainWindow::createMenus()
     menuEdit->addSeparator();
     menuEdit->addAction(actionDelete);
 
-    //menuAdd->addAction(addCategory);
     menuAdd->addAction(actionAddLect);
     menuAdd->addAction(actionEditLect);
     menuAdd->addAction(editPic);
@@ -512,26 +515,8 @@ void MainWindow::editCategory()
   QString child_tags;
   QString editWhat = getCatName(child->type);
 
-  switch (child->type) {
-    case ROOT:
-    case TERM:
-    case SUBJECT:
-    case THEME:
-    case PARAGRAPH:
-      child_data = static_cast<HData*>(child->data)->name;
-      child_comment = static_cast<HData*>(child->data)->comment;
-      break;
-    case IMAGE:
-      /*child_data = static_cast<IData*>(child->data)->path;
-      child_comment = static_cast<IData*>(child->data)->comment;
-      child_tags = (QString)static_cast<IData*>(child->data)->tags.join(',');
-      nameEdit->setText(child_data);
-      editLayout->addRow(tr("&Путь"), nameEdit);
-      editLayout->addRow(buttonBrowse);*/
-      break;
-    default:
-      break;
-    }
+  child_data = static_cast<HData*>(child->data)->name;
+  child_comment = static_cast<HData*>(child->data)->comment;
 
   editWindow = new QWidget;
   nameEdit = new QLineEdit;
@@ -550,16 +535,7 @@ void MainWindow::editCategory()
 
   editLayout->addRow(tr("&Комментарий"), commentEdit);
   editLayout->setAlignment(buttonCancel, Qt::AlignCenter);
-
-  if (child->type != IMAGE)
-      editWindow->setFixedSize(460, 180);
-  else {
-      tagEdit = new QPlainTextEdit;
-      tagEdit->appendPlainText(child_tags);
-      tagEdit->setFixedHeight(50);
-      editLayout->addRow(tr("&Тэги (через запятую)"), tagEdit);
-      editWindow->setFixedSize(460, 230);
-    }
+  editWindow->setFixedSize(460, 180);
 
   editLayout->addRow(buttonEdit);
   editLayout->addRow(buttonCancel);
@@ -681,7 +657,6 @@ void MainWindow::areYouSure()
   yes_no->addButton(yes, QMessageBox::AcceptRole);
   yes_no->addButton(no, QMessageBox::RejectRole);
 
-  //yes_no->exec();
   if (yes_no->exec() == 0)
     remove();
 }
@@ -691,10 +666,8 @@ void MainWindow::addingAction()
   const DataWrapper* child = new DataWrapper;
   if (!addSemester)
     child = this->itemData();
-  //const DataWrapper* child = current;
   QString child_data;
   QString child_comment;
-  QString child_tags;
   QString addWhat = getSubcatName(child->type);
 
   addWindow = new QWidget;
@@ -743,9 +716,7 @@ void MainWindow::add()
   QModelIndex parent_ind;
   if (!addSemester)
     parent_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
-  //parent = model->dataForIndex(parent_ind);
   int row_count = parent->count;
-  //int ins_row = parent_ind.row() + count;
 
   if (!model->insertRows(row_count, 1,parent_ind))
     return;
@@ -758,14 +729,12 @@ void MainWindow::add()
   if(!model->setData(child, add_data_qvariant, Qt::EditRole))
     return;
   else{
-    qDebug() << "Data was Set!!!!!";
     QMessageBox::information(treeView, "OK", "Успешно!");
     addWindow->close();
     treeView->update(parent_ind);
     }
 
   updateActions();
-  //treeView->update();
 }
 
 
@@ -792,7 +761,6 @@ void MainWindow::addPictures()
         return;
     }
 
-  qDebug() << "Data was Set!!!!!";
   QApplication::restoreOverrideCursor();
   QMessageBox::information(treeView, "OK", "Успешно!");
   editPicScrollAlrea->close();
@@ -814,7 +782,6 @@ void MainWindow::edit()
   if(!model->setData(child, add_data_qvariant, Qt::EditRole))
     return;
   else{
-    qDebug() << "Data was Set!!!!!";
     treeView->update(child);
     QMessageBox::information(treeView, "OK", "Успешно!");
     editWindow->close();
@@ -839,7 +806,6 @@ void MainWindow::editInfo()
   if(!model->setData(child_index, add_data_qvariant, Qt::EditRole))
     return;
   else{
-    qDebug() << "Data was Set!!!!!";
     treeView->update(child_index);
     QMessageBox::information(treeView, "OK", "Успешно!");
     editPicInfo->close();
@@ -865,6 +831,7 @@ void MainWindow::remove()
         QMessageBox::information(treeView, "OK", "Успешно!");
         deleteWindow->close();
         catComLabel->setText(COMMENT_BOLD + DEFAULT_COMM_CAT_ITALIC);
+        updateActions();
      }
 }
 
@@ -893,15 +860,10 @@ void MainWindow::removePictures()
 
 void MainWindow::updateActions()
 {
-    /*bool has_selection = !treeView->selectionModel()->selection().isEmpty();
-    actionDelete->setEnabled(has_selection);
-
-    bool has_current = treeView->selectionModel()->currentIndex().isValid();
-    actionAdd->setEnabled(has_current);
-    actionEdit->setEnabled(has_current);
-
-    if (has_current)
-        treeView->closePersistentEditor(treeView->selectionModel()->currentIndex());*/
+    bool enable = model->getRoot()->count > 0;
+    actionDelete->setEnabled(enable);
+    actionAdd->setEnabled(enable);
+    actionEdit->setEnabled(enable);
 
     addSemester = false;
 }
