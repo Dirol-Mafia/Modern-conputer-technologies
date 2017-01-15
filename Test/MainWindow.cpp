@@ -67,6 +67,8 @@ void MainWindow::renderCategoriesLayout()
     catComLabel = new QLabel;
     QString comm = "<b>Комментарий: </b><i>сначала выберите категорию</i>";
     catComLabel->setText(comm);
+    catComLabel->setMaximumWidth(500);
+    catComLabel->setWordWrap(true);
     dataLayout->addWidget(catComLabel);
 
     newSemester = new QPushButton("Новый семестр");
@@ -91,9 +93,13 @@ void MainWindow::renderImagesLayout()
 
     imgComLabel = new QLabel;
     imgComLabel->setText("<b>Комментарий: </b><i>сначала выберите изображение</i>");
+    imgComLabel->setMaximumWidth(500);
+    imgComLabel->setWordWrap(true);
 
     imgTagLabel = new QLabel;
     imgTagLabel->setText("<b>Тэги: </b><i>сначала выберите изображение</i>");
+    imgTagLabel->setMaximumWidth(500);
+    imgTagLabel->setWordWrap(true);
 
     imagesLayout->addWidget(imagesView);
     imagesLayout->addWidget(imgComLabel);
@@ -143,7 +149,7 @@ void MainWindow::onImageClick()
     {
         IData* child_data = static_cast<IData*>(pictureData->data);
         QString comm = child_data->comment;
-        QString tags = child_data->tags.join(",");
+        QString tags = child_data->tags.join(", ");
 
         if (comm == "")
             comm = "<i>без комментариев.</i>";
@@ -336,7 +342,7 @@ void MainWindow::createActions()
 
     actionEditLect = new QAction(tr("Редактировать..."), imagesView);
     actionEditLect->setEnabled(false);
-    connect(actionEditLect, &QAction::triggered, this, &MainWindow::editCategory);
+    connect(actionEditLect, &QAction::triggered, this, &MainWindow::editPictureInfo);
 
     actionAddLect = new QAction(tr("Добавить..."), imagesView);
     actionAddLect->setEnabled(false);
@@ -473,8 +479,6 @@ void MainWindow::editCategory()
   QString child_tags;
   QString editWhat = getCatName(child->type);
 
-  QPushButton* buttonBrowse = new QPushButton("Обзор...");
-
   switch (child->type) {
     case ROOT:
     case TERM:
@@ -531,6 +535,57 @@ void MainWindow::editCategory()
   editWindow->setWindowTitle("Редактировать" + editWhat);
   editWindow->show();
 
+}
+
+void MainWindow::editPictureInfo()
+{
+    DataWrapper* child = static_cast<DataWrapper*>(imagesView->selectionModel()->currentIndex().internalPointer());
+    IData* child_data = static_cast<IData*>(child->data);
+    QString path =  child_data->path;
+    QString comm = child_data->comment;
+    QString tags = child_data->tags.join(",");
+
+    if (nameEdit)
+        delete nameEdit;
+    nameEdit = new QLineEdit;
+    nameEdit->setText(path);
+    nameEdit->setFixedHeight(50);
+
+    if (commentEdit)
+        delete commentEdit;
+    commentEdit = new QLineEdit;
+    commentEdit->setText(comm);
+    commentEdit->setFixedHeight(100);
+
+    if (tagEdit)
+        delete tagEdit;
+    tagEdit = new QLineEdit;
+    tagEdit->setText(tags);
+    tagEdit->setFixedHeight(100);
+
+    editPicInfo = new QWidget;
+    editLayout = new QFormLayout;
+
+    QPushButton* browseButton = new QPushButton("Обзор...");
+    connect(browseButton, &QPushButton::clicked, this, &MainWindow::browsePic);
+
+    QPushButton* editButton = new QPushButton("Редактировать");
+    connect(editButton, &QPushButton::clicked, this, &MainWindow::editInfo);
+
+    QPushButton* cancelButton = new QPushButton("Отмена");
+    connect(cancelButton, &QPushButton::clicked, editPicInfo, &QWidget::close);
+
+    editLayout->addRow(tr("Путь"), nameEdit);
+    editLayout->addRow(browseButton);
+    editLayout->addRow(tr("Комментарий"), commentEdit);
+    editLayout->addRow(tr("Тэги (через запятую)"), tagEdit);
+    editLayout->addRow(editButton);
+    editLayout->addRow(cancelButton);
+
+    editPicInfo->setLayout(editLayout);
+    editPicInfo->setWindowTitle("Редактировать изображение");
+    editPicInfo->setFixedSize(400, 380);
+    editPicInfo->show();
 }
 
 void MainWindow::deleteAction()
@@ -731,6 +786,35 @@ void MainWindow::edit()
     QMessageBox::information(treeView, "OK", "Успешно!");
     editWindow->close();
     }
+}
+
+void MainWindow::editInfo()
+{
+  QModelIndex child_index = imagesView->selectionModel()->currentIndex();
+  DataWrapper* child = static_cast<DataWrapper*>(child_index.internalPointer());
+  IData* child_data = static_cast<IData*>(child->data);
+  QString path =  child_data->path;
+  QString comm = child_data->comment;
+  QString tags = child_data->tags.join(",");
+  if (path == nameEdit->text() && comm == commentEdit->text() && tags == tagEdit->text())
+      return;
+
+  IData add_data = {nameEdit->text(), commentEdit->text(), tagEdit->text().split(",")};
+  QVariant add_data_qvariant = QVariant::fromValue(add_data);
+
+  if(!model->setData(child_index, add_data_qvariant, Qt::EditRole))
+    return;
+  else{
+    qDebug() << "Data was Set!!!!!";
+    treeView->update(child_index);
+    QMessageBox::information(treeView, "OK", "Успешно!");
+    editPicInfo->close();
+    }
+}
+
+void MainWindow::browsePic()
+{
+    nameEdit->setText(QFileDialog::getOpenFileName(0, "Выбор скана лекций", "", "*.jpg *.png *.bmp", 0, 0));
 }
 
 void MainWindow::remove()
