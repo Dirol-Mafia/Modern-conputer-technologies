@@ -322,14 +322,14 @@ bool ImageProvider::removeRows(int position, int rows, const QModelIndex &parent
 }
 
 bool MySortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
-{
+{ 
     QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
     if (index.isValid())
     {
-        DataWrapper* dw = static_cast<DataWrapper *>(index.internalPointer());
-        return dw->type != IMAGE;
+        DataWrapper* data = static_cast<DataWrapper *>(index.internalPointer());
+        return data->type != IMAGE;
     }
-    return false;
+    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 }
 
 MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent): QSortFilterProxyModel(parent)
