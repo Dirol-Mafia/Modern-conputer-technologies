@@ -240,6 +240,19 @@ Qt::ItemFlags ImageProvider::flags(const QModelIndex &index) const
     return flags | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
+void ImageProvider::setChecked(const QModelIndex &index, const QVariant &value, int role, bool checked)
+{
+    if (!index.isValid())
+      return;
+
+    DataWrapper* data = dataForIndex(index);
+    if (role == Qt::CheckStateRole)
+    {
+        data->isChecked = !checked;
+    }
+    setData(index, value, role);
+}
+
 bool ImageProvider::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid())

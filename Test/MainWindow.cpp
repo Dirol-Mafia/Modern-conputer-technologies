@@ -202,7 +202,8 @@ void MainWindow::selectAllImages()
         DataWrapper* child_data_wrapper = model->dataForIndex(child);
         IData* child_data = static_cast<IData*>(child_data_wrapper->data);
         QVariant add_data_qvariant = QVariant::fromValue(*child_data);
-        model->setData(child, add_data_qvariant, Qt::CheckStateRole);
+        model->setChecked(child, add_data_qvariant, Qt::CheckStateRole, selectAllCheckBox->isChecked());
+        //model->setData(child, add_data_qvariant, Qt::CheckStateRole);
         imagesView->update(child);
     }
     getSelectedItems();
