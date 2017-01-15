@@ -130,6 +130,7 @@ private:
     QPushButton *printButton;
     QPushButton *deleteButton;
     QPushButton *addButton;
+    QPushButton* editImgInfo;
     ///Vector of delete buttons (in the Picture adding window)
     QVector<QPushButton*> delButtons;
     QCheckBox *selectAllCheckBox;
@@ -160,7 +161,6 @@ private:
 
     void createActions();
     void createMenus();
-    void addCategoryToDb();
     void renderImagesLayout();
     void renderCategoriesLayout();
     void renderToolbar();
@@ -171,8 +171,6 @@ private:
     void noSuchTags();
 
 /// Actions for context menu (dialog windows)
-    //void addCategoryToDb();
-    void addLectureToDb();
     void editCategory();
     void editPictureInfo();
     void emptyAction();

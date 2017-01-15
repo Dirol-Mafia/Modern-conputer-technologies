@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QObject::connect(imagesView, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onImageDoubleClick()));
     QObject::connect(printButton, SIGNAL(clicked()), this, SLOT(callPrinter()));
     QObject::connect(editButton, SIGNAL(clicked()), this, SLOT(callEditForm()));
+    QObject::connect(editImgInfo, &QPushButton::clicked, this, &MainWindow::editPictureInfo);
     QObject::connect(deleteButton, SIGNAL(clicked()), this, SLOT(areYouSureDelPics()));
     QObject::connect(searchButton, SIGNAL(clicked()), this, SLOT(onSearchButtonClick()));
     QObject::connect(addButton, &QPushButton::clicked, this, &MainWindow::addingAction);
@@ -90,12 +91,14 @@ void MainWindow::renderImagesLayout()
 
     addButton = new QPushButton("Добавить");
     editButton = new QPushButton("Подготовить к печати");
+    editImgInfo = new QPushButton("Редактировать информацию");
     printButton = new QPushButton("Печатать");
     deleteButton = new QPushButton("Удалить");
     selectAllCheckBox = new QCheckBox("Выбрать всё");
 
     addButton->setEnabled(false);
     editButton->setEnabled(false);
+    editImgInfo->setEnabled(false);
     printButton->setEnabled(false);
     deleteButton->setEnabled(false);
     selectAllCheckBox->setEnabled(false);
@@ -110,15 +113,22 @@ void MainWindow::renderImagesLayout()
     imgTagLabel->setMaximumWidth(500);
     imgTagLabel->setWordWrap(true);
 
-    imagesLayout->addWidget(imagesView);
+    QVector<QWidget*> widgets = {imagesView, imgComLabel, imgTagLabel, selectAllCheckBox, addButton,
+                                editButton, editImgInfo, printButton, deleteButton};
+
+    for (int i = 0; i < widgets.size(); ++i)
+        imagesLayout->addWidget(widgets[i]);
+
+    /*imagesLayout->addWidget(imagesView);
     imagesLayout->addWidget(imgComLabel);
     imagesLayout->addWidget(imgTagLabel);
 
     imagesLayout->addWidget(selectAllCheckBox);
     imagesLayout->addWidget(addButton);
     imagesLayout->addWidget(editButton);
+    imagesLayout->addWidget(editImgInfo);
     imagesLayout->addWidget(printButton);
-    imagesLayout->addWidget(deleteButton);
+    imagesLayout->addWidget(deleteButton);*/
 }
 
 void MainWindow::showComments(const QModelIndex &index)
@@ -130,6 +140,8 @@ void MainWindow::showComments(const QModelIndex &index)
   if (comment == "")
       comment = "<i>без комментариев.</i>";
   catComLabel->setText(COMMENT_BOLD + comment);
+  actionAddLect->setEnabled(datawrapper->type == PARAGRAPH);
+  addButton->setEnabled(datawrapper->type == PARAGRAPH);
 }
 
 void MainWindow::onImageClick()
@@ -190,6 +202,7 @@ void MainWindow::setEnableButtons()
     editButton->setEnabled(selectedImagesCount == 1);
     editPic->setEnabled(selectedImagesCount == 1);
     actionEditLect->setEnabled(imagesView->selectionModel()->currentIndex().internalPointer() != nullptr);
+    editImgInfo->setEnabled(actionEditLect->isEnabled());
 
     printButton->setEnabled(selectedImagesCount > 0);
     print->setEnabled(selectedImagesCount > 0);
@@ -345,7 +358,7 @@ void MainWindow::areYouSureDelPics()
 {
     QMessageBox* yes_no = new QMessageBox;
     const QString yes = "Да";
-    const QString no = "Ненененене";
+    const QString no = "Не уверен!";
     const QString title = "Предупреждение";
     const QString mess = "Вы уверены, что хотите удалить выбранные изображения без возможности восстановления?";
     yes_no->setWindowTitle(title);
@@ -396,14 +409,6 @@ void MainWindow::createActions()
     editPic = new QAction(tr("Подготовить к печати..."), imagesView);
     editPic->setEnabled(false);
     connect(editPic, &QAction::triggered, this, &MainWindow::callEditForm);
-
-    addCategory = new QAction(tr("&Категорию"), this);
-    addCategory->setStatusTip("Добавить новую категорию");
-    connect(addCategory, &QAction::triggered, this, &MainWindow::addCategoryToDb);
-
-    addLecture = new QAction(tr("&Фото лекций"), this);
-    addLecture->setStatusTip("Добавить фото лекций");
-    connect(addLecture, &QAction::triggered, this, &MainWindow::addLectureToDb);
 }
 
 void MainWindow::createMenus()
@@ -412,17 +417,19 @@ void MainWindow::createMenus()
     menuEdit = new QMenu("Редактирование категорий");
     menuAdd = new QMenu("Редактирование лекций");
 
-    menuEdit->addAction(actionEdit);
-    menuEdit->addSeparator();
-    menuEdit->addAction(actionAdd);
-    menuEdit->addSeparator();
-    menuEdit->addAction(actionDelete);
+    QVector<QAction*> cat_actions = {actionEdit, actionAdd, actionDelete};
+    for (int i = 0; i < cat_actions.size(); ++i)
+    {
+        menuEdit->addAction(cat_actions[i]);
+        menuEdit->addSeparator();
+    }
 
-    menuAdd->addAction(actionAddLect);
-    menuAdd->addAction(actionEditLect);
-    menuAdd->addAction(editPic);
-    menuAdd->addAction(print);
-    menuAdd->addAction(actionDeleteLect);
+    QVector<QAction*> lect_actions = {actionAddLect, actionEditLect, editPic, print, actionDeleteLect};
+    for (int i = 0; i < lect_actions.size(); ++i)
+    {
+        menuAdd->addAction(lect_actions[i]);
+        menuAdd->addSeparator();
+    }
 
     menuBar->addMenu(menuEdit);
     menuBar->addMenu(menuAdd);
@@ -436,43 +443,6 @@ const DataWrapper* MainWindow::itemData()
   QModelIndex cur_ind = filteredModel->mapToSource(treeView->selectionModel()->currentIndex());
   const DataWrapper* child = static_cast<const DataWrapper*>(cur_ind.internalPointer());
   return child;
-}
-
-void MainWindow::addLectureToDb()
-{
-
-}
-
-void MainWindow::addCategoryToDb()
-{
-    QWidget *window = new QWidget;
-    QFormLayout *formLayout = new QFormLayout;
-
-    QLineEdit *nameEdit = new QLineEdit;
-    QLineEdit *commentEdit = new QLineEdit;
-    commentEdit->setFixedHeight(50);
-    QPushButton *button = new QPushButton("Добавить");
-
-    QGroupBox *groupBox = new QGroupBox;
-    QRadioButton *isSemester = new QRadioButton("Семестр");
-    QRadioButton *isSubject = new QRadioButton("Предмет");
-    QRadioButton *isTheme = new QRadioButton("Тема");
-    QVBoxLayout *vbox = new QVBoxLayout;
-    isSemester->setChecked(true);
-    vbox->addWidget(isSemester);
-    vbox->addWidget(isSubject);
-    vbox->addWidget(isTheme);
-    groupBox->setLayout(vbox);
-
-    formLayout->addRow(tr("&Наименование"), nameEdit);
-    formLayout->addRow(tr("&Комментарий"), commentEdit);
-    formLayout->addRow(tr("&Тип"), groupBox);
-    formLayout->addRow(button);
-
-    window->setLayout(formLayout);
-    window->setWindowTitle("Добавить категорию");
-    window->setFixedSize(460, 320);
-    window->show();
 }
 
 void MainWindow::on_treeView_customContextMenuRequested()
@@ -527,6 +497,7 @@ void MainWindow::editCategory()
 
   commentEdit = new QPlainTextEdit;
   commentEdit->appendPlainText(child_comment);
+  commentEdit->setTabChangesFocus(true);
   commentEdit->setFixedHeight(50);
   QPushButton *buttonEdit = new QPushButton("Редактировать");
   QPushButton *buttonCancel = new QPushButton("Отмена");
@@ -564,12 +535,14 @@ void MainWindow::editPictureInfo()
         delete commentEdit;
     commentEdit = new QPlainTextEdit;
     commentEdit->appendPlainText(comm);
+    commentEdit->setTabChangesFocus(true);
     commentEdit->setFixedHeight(100);
 
     if (tagEdit)
         delete tagEdit;
     tagEdit = new QPlainTextEdit;
     tagEdit->appendPlainText(tags);
+    tagEdit->setTabChangesFocus(true);
     tagEdit->setFixedHeight(100);
 
     editPicInfo = new QWidget;
@@ -593,7 +566,7 @@ void MainWindow::editPictureInfo()
 
     editPicInfo->setLayout(editLayout);
     editPicInfo->setWindowTitle("Редактировать изображение");
-    editPicInfo->setFixedSize(400, 380);
+    editPicInfo->setFixedSize(450, 380);
     editPicInfo->show();
 }
 
@@ -602,26 +575,9 @@ void MainWindow::deleteAction()
   const DataWrapper* child = this->itemData();
   QString child_data;
   QString child_comment;
-  QString child_tags;
   QString deleteWhat = getCatName(child->type);
-
-  switch (child->type) {
-    case ROOT:
-    case TERM:
-    case SUBJECT:
-    case THEME:
-    case PARAGRAPH:
-      child_data = static_cast<HData*>(child->data)->name;
-      child_comment = static_cast<HData*>(child->data)->comment;
-      break;
-    case IMAGE:
-      child_data = static_cast<IData*>(child->data)->path;
-      child_comment = static_cast<IData*>(child->data)->comment;
-      child_tags = (QString)static_cast<IData*>(child->data)->tags.join(',');
-      break;
-    default:
-      break;
-    }
+  child_data = static_cast<HData*>(child->data)->name;
+  child_comment = static_cast<HData*>(child->data)->comment;
 
   deleteWindow = new QWidget;
   QFormLayout *formLayout = new QFormLayout;
@@ -639,7 +595,7 @@ void MainWindow::deleteAction()
   formLayout->addRow(buttonCancel);
 
   deleteWindow->setLayout(formLayout);
-  deleteWindow->setFixedSize(460, 180);
+  deleteWindow->setFixedSize(460, 120);
   deleteWindow->setWindowTitle("Удалить" + deleteWhat);
   deleteWindow->show();
 }
@@ -648,7 +604,7 @@ void MainWindow::areYouSure()
 {
   QMessageBox* yes_no = new QMessageBox;
   const QString yes = "Да";
-  const QString no = "Ненененене";
+  const QString no = "Не уверен!";
   const QString title = "Предупреждение";
   const QString mess = "Вы уверены, что хотите удалить выбранную категорию со всем её содержимым без возможности восстановления?";
   yes_no->setWindowTitle(title);
