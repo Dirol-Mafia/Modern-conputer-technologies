@@ -69,6 +69,19 @@
     </rect>
    </property>
   </widget>
+  <widget class="QCheckBox" name="selectAllCheckBox">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>460</y>
+     <width>121</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Выбрать всё</string>
+   </property>
+  </widget>
  </widget>
  <resources>
   <include location="resources.qrc"/>
