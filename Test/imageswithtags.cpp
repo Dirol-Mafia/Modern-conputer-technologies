@@ -27,7 +27,6 @@ ImagesWithTags::ImagesWithTags(QStringList _paths, QWidget *parent) :
         if (i % colsCount == 0) row++;
         imagesModel->setItem(row, col, imageItem);
         delete pixmap;
-
     }
 
     ui->tableView->verticalHeader()->hide();
@@ -60,6 +59,7 @@ void ImagesWithTags::getSelectedItems()
         for (int j = 0; j < columnCount; ++j)
         {
             QModelIndex index = ui->tableView->model()->index(i,j);
+            //ui->tableView->model()->dataChanged(index, index, Qt::CheckStateRole);
             if (index.data(Qt::CheckStateRole) == Qt::Checked)
                 selectedItems.push_back(i*columnCount + j);
         }
