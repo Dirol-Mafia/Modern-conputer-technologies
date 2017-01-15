@@ -114,6 +114,8 @@ void EditingImageHandler::mouseReleaseEvent(QMouseEvent *e)
 void EditingImageHandler::crop()
 {
     QPixmap tmp = this->pixmap()->copy(selectionRect);
+    selectionRect.setBottomRight(selectionRect.bottomRight()/scaleParameter);
+    selectionRect.setTopLeft(selectionRect.topLeft()/scaleParameter);
     selectionStarted=false;
     delete image;
     QImage tmpImg = this->pixmap()->copy(selectionRect).toImage();
