@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     selectedImagesCount = 0;
     addSemester = false;
-    model = new ImageProvider("../Test/DB_Lectures");
+    model = new ImageProvider("DB_Lectures");
     filteredModel = new MySortFilterProxyModel(this);
     filteredModel->setSourceModel(model);
 
@@ -622,6 +622,8 @@ void MainWindow::addingAction()
   const DataWrapper* child = new DataWrapper;
   if (!addSemester)
     child = this->itemData();
+  else
+    child = model->getRoot();
   QString child_data;
   QString child_comment;
   QString addWhat = getSubcatName(child->type);
